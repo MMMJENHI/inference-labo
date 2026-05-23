@@ -6,6 +6,8 @@ Station centrale de recherche regroupant 15 laboratoires dédiés à l'inférenc
 Vous pouvez consulter l'interface principale ici : 
 👉 [https://mmmjenhi.github.io/inference-labo/](https://mmmjenhi.github.io/inference-labo/)
 
+**[https://mmmjenhi.github.io/inference-labo/](https://github.com/MMMJENHI/inference-labo/tree/main/labo1)
+
 ## Résumé
 Ce projet centralise vos protocoles de recherche et outils de calcul interactifs. Chaque dossier (de `labo1` à `labo15`) contient des outils spécifiques pour l'inférence statistique (Tests Z, Student, Mann-Whitney, etc.) et la simulation de signaux.
 
