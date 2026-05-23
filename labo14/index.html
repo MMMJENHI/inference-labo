@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Atelier Pas à Pas - Traitement Audio Complet</title>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #ffffff;
+            font-family: sans-serif;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .boutons-zone {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            background-color: #1e293b;
+            color: #ffffff;
+            border: 1px solid #00d2ff;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button.actif {
+            background-color: #00d2ff;
+            color: #0b0f19;
+        }
+        button:hover { background-color: #00e676; color: #0b0f19; }
+        .console {
+            width: 80%;
+            max-width: 800px;
+            background-color: #05070c;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            color: #00e676;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Laboratoire Audio - Processus Complet</h1>
+    <p>Exécutez les étapes dans l'ordre (1, 2, 3 puis 4) pour simuler la chaîne complète de traitement.</p>
+    
+    <div class="boutons-zone">
+        <button class="actif" onclick="lancerEtape1()">1. Recevoir le Signal Brut</button>
+        <button class="actif" onclick="lancerEtape2()">2. Appliquer Filtre</button>
+        <button class="actif" onclick="lancerEtape3()">3. Calculer FFT & PSD</button>
+        
+        <!-- NOUVEAU : Bouton Étape 4 -->
+        <button onclick="lancerEtape4()">4. Extraire Empreinte IA (MFCC)</button>
+    </div>
+
+    <!-- Écran de contrôle -->
+    <div id="ecran-controle" class="console">En attente du signal...</div>
+
+    <script>
+        // Étape 1 : Réception du signal
+        function lancerEtape1() {
+            const ecran = document.getElementById('ecran-controle');
+            ecran.innerHTML = `[AUDIO DETECTED] Fichier : "chant_oiseau_parasite.wav"\n` +
+                              `➔ Fréquence d'échantillonnage : 44100 Hz (Qualité CD)\n` +
+                              `➔ État du signal : Fortement bruité (vrombissement basse fréquence détecté).`;
+        }
+
+        // Étape 2 : Filtrage de Butterworth
+        function lancerEtape2() {
+            const ecran = document.getElementById('ecran-controle');
+            ecran.innerHTML += `\n\n--------------------------------------------------\n` +
+                              `[FILTRAGE ACOUSTIQUE] Initialisation du filtre numérique...\n` +
+                              `➔ Type : Butterworth d'ordre 4 (Passe-Haut)\n` +
+                              `➔ Fréquence de coupure (Fc) : 300 Hz\n` +
+                              `➔ Action : Blocage de toutes les fréquences inférieures à 300 Hz.\n` +
+                              `[INFO] Le vrombissement à basse fréquence a été supprimé.\n` +
+                              `[STATUS] Signal nettoyé. Prêt pour l'analyse spectrale.`;
+        }
+
+        // Étape 3 : Analyse fréquentielle (FFT / PSD)
+        function lancerEtape3() {
+            const ecran = document.getElementById('ecran-controle');
+            ecran.innerHTML += `\n\n--------------------------------------------------\n` +
+                              `[ANALYSE SPECTRALE] Calcul mathématique des composantes...\n` +
+                              `➔ Algorithme : FFT (Transformée de Fourier Rapide)\n` +
+                              `➔ Méthode d'estimation : Welch Periodogram (Fenêtrage de Hanning, Nfft = 2048)\n` +
+                              `➔ [RÉSULTAT PSD] Densité Spectrale de Puissance extraite.\n` +
+                              `   • Pic majeur détecté à : 1250 Hz (Composante utile du signal)\n` +
+                              `   • Niveau résiduel du bruit de fond : -65 dB (Négligeable)\n` +
+                              `[STATUS] Spectre fréquentiel modélisé. Prêt pour l'extraction de l'empreinte IA.`;
+        }
+
+        // NOUVEAU : Étape 4 : Extraction des descripteurs MFCC
+        function lancerEtape4() {
+            const ecran = document.getElementById('ecran-controle');
+            ecran.innerHTML += `\n\n--------------------------------------------------\n` +
+                              `[FEATURE EXTRACTION] Génération des descripteurs acoustiques...\n` +
+                              `➔ Transformation : Passage sur l'échelle psychoacoustique de Mel\n` +
+                              `➔ Coefficients calculés : 13 coefficients cepstraux principaux (MFCC)\n` +
+                              `➔ Dimension de la matrice finale : Shape [13, 150]\n` +
+                              `   • Compression de l'information : Réduction des données de 94%\n` +
+                              `   • Conservation de la signature d'identité spectrale unique.\n` +
+                              `[STATUS FIN] Matrice de caractéristiques compilée. Données prêtes pour le Réseau de Neurones.`;
+        }
+    </script>
+
+</body>
+</html>

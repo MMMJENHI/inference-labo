@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Labo 51 : Inférence Pure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #030712; color: #f3f4f6; font-family: 'JetBrains Mono', monospace; }
+        .glass { background: #0f172a; border: 1px solid #1e293b; border-radius: 0.5rem; }
+        .active-test { border-color: #3b82f6 !important; background: #1e3a8a !important; color: white; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-xl font-black mb-6 uppercase tracking-widest text-white border-b border-gray-800 pb-2">LABO 51 : STATION INFÉRENTIELLE</h1>
+        
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-4 h-[700px] flex flex-col glass p-4 overflow-y-auto">
+                <input type="text" id="filter" placeholder="Chercher un test..." oninput="filtrer()" class="w-full bg-black border border-gray-700 p-2 text-xs mb-4 text-white">
+                <div id="test-list" class="space-y-4"></div>
+            </div>
+
+            <div class="col-span-8 space-y-6">
+                <!-- Saisie des vecteurs -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-4">
+                        <label class="text-[9px] text-gray-500 uppercase font-bold">Vecteur A</label>
+                        <textarea id="valA" oninput="updateAll()" class="w-full h-12 bg-black border border-gray-700 p-2 text-[10px] mt-1 text-white">12, 14, 11</textarea>
+                    </div>
+                    <div class="glass p-4">
+                        <label class="text-[9px] text-gray-500 uppercase font-bold">Vecteur B</label>
+                        <textarea id="valB" oninput="updateAll()" class="w-full h-12 bg-black border border-gray-700 p-2 text-[10px] mt-1 text-white">10, 11, 9</textarea>
+                    </div>
+                </div>
+
+                <!-- Sortie Code -->
+                <div class="glass p-4">
+                    <h3 class="text-[10px] font-bold text-green-400 uppercase mb-2">Python Pur</h3>
+                    <pre id="pyOutput" class="h-32 text-[10px] bg-black p-4 text-green-400 overflow-y-auto border border-gray-800"></pre>
+                </div>
+                <div class="glass p-4">
+                    <h3 class="text-[10px] font-bold text-blue-400 uppercase mb-2">R Pur</h3>
+                    <pre id="rOutput" class="h-32 text-[10px] bg-black p-4 text-blue-400 overflow-y-auto border border-gray-800"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registry = {
+            "Test t (Indépendant)": { py: "stats.ttest_ind(A, B)", r: "t.test(A, B, var.equal=TRUE)" },
+            "Test t (Apparié)": { py: "stats.ttest_rel(A, B)", r: "t.test(A, B, paired=TRUE)" },
+            "Test Z": { py: "statsmodels.stats.weightstats.ztest(A, B)", r: "BSDA::z.test(A, B)" },
+            "Test t (Welch)": { py: "stats.ttest_ind(A, B, equal_var=False)", r: "t.test(A, B, var.equal=FALSE)" },
+            "Mann-Whitney": { py: "stats.mannwhitneyu(A, B)", r: "wilcox.test(A, B)" },
+            "ANOVA": { py: "stats.f_oneway(A, B)", r: "summary(aov(c(A, B) ~ rep(1:2, each=length(A))))" }
+        };
+        
+        let selected = "Test t (Indépendant)";
+
+        function filtrer() {
+            const q = document.getElementById('filter').value.toLowerCase();
+            const container = document.getElementById('test-list');
+            container.innerHTML = '';
+            Object.keys(registry).filter(t => t.toLowerCase().includes(q)).forEach(t => {
+                container.innerHTML += `<div class="p-2 border border-gray-800 rounded cursor-pointer text-[10px] ${selected === t ? 'active-test' : 'bg-gray-900'}" onclick="select('${t}')">${t}</div>`;
+            });
+        }
+
+        function select(t) { selected = t; filtrer(); updateAll(); }
+
+        function updateAll() {
+            const valA = document.getElementById('valA').value;
+            const valB = document.getElementById('valB').value;
+            const config = registry[selected];
+
+            document.getElementById('pyOutput').innerText = `import scipy.stats as stats
+import statsmodels.stats.weightstats as statsmodels
+A = [${valA}]
+B = [${valB}]
+
+result = ${config.py}
+print(result)
+
+if result.pvalue < 0.05:
+    print("Rejet de H0")
+else:
+    print("Acceptation de H0")`;
+
+            document.getElementById('rOutput').innerText = `A <- c(${valA})
+B <- c(${valB})
+
+analyse <- ${config.r}
+print(analyse)
+
+if (analyse$p.value < 0.05) {
+  cat("Verdict : Rejet de H0")
+} else {
+  cat("Verdict : Acceptation de H0")
+}`;
+        }
+        window.onload = () => { filtrer(); updateAll(); };
+    </script>
+</body>
+</html>

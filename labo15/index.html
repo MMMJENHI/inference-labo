@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Labo : Générateur de code R & Python (Tests Z / t)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #030712; color: #f3f4f6; font-family: 'JetBrains Mono', monospace; }
+        .glass { background: #0f172a; border: 1px solid #1e293b; border-radius: 0.5rem; }
+        .active-test { border-color: #3b82f6 !important; background: #1e3a8a !important; color: white; }
+    </style>
+</head>
+<body class="p-6">
+
+<div class="max-w-7xl mx-auto">
+    <h1 class="text-xl font-black mb-6 uppercase tracking-widest text-white border-b border-gray-800 pb-2">
+        Labo : Générateur de code R & Python (Tests Z & t)
+    </h1>
+
+    <div class="grid grid-cols-12 gap-6">
+        <!-- Colonne sélection -->
+        <div class="col-span-4 h-[750px] flex flex-col glass p-4 overflow-y-auto">
+            <input type="text" id="filter"
+                   placeholder="Rechercher test..."
+                   oninput="filtrer()"
+                   class="w-full bg-black border border-gray-700 p-2 text-xs mb-4 text-white">
+            <div id="test-list" class="space-y-4"></div>
+        </div>
+
+        <!-- Colonne analyse -->
+        <div class="col-span-8 space-y-6">
+            <!-- Configuration -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-4">
+                    <label class="text-[9px] text-gray-500 uppercase font-bold">Seuil Alpha (α)</label>
+                    <input type="number" id="alphaInput" value="0.05" step="0.01"
+                           oninput="updateAll()"
+                           class="w-full bg-black border border-gray-700 p-1 text-[10px] mt-1 text-white">
+                </div>
+                <div class="glass p-2">
+                    <label class="text-[9px] text-gray-500">VECTEURS A & B</label>
+                    <textarea id="valA" class="w-full h-8 bg-black border border-gray-700 p-1 text-[10px]"
+                              oninput="updateAll()">12.5, 13.2, 11.8, 14.1, 13.6</textarea>
+                    <textarea id="valB" class="w-full h-8 bg-black border border-gray-700 p-1 text-[10px]"
+                              oninput="updateAll()">11.2, 12.5, 10.8, 13.1, 12.6</textarea>
+                </div>
+            </div>
+
+            <!-- Sorties -->
+            <div class="grid grid-cols-1 gap-4">
+                <div class="glass p-4">
+                    <h3 class="text-[10px] font-bold text-yellow-500 uppercase mb-2">Script Python généré</h3>
+                    <pre id="pyOutput" class="h-64 text-[9px] bg-black p-4 text-green-400 overflow-y-auto border border-gray-800"></pre>
+                </div>
+                <div class="glass p-4">
+                    <h3 class="text-[10px] font-bold text-blue-400 uppercase mb-2">Script R généré</h3>
+                    <pre id="rOutput" class="h-64 text-[9px] bg-black p-4 text-blue-400 overflow-y-auto border border-gray-800"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const structure = {
+    "Tests Z": [
+        "Test Z (1 échantillon)",
+        "Test Z (2 échantillons, σ connus)"
+    ],
+    "Tests t": [
+        "Test t indépendant (2 échantillons)",
+        "Test t apparié (2 échantillons dépendants)"
+    ]
+};
+
+let selected = "Test Z (1 échantillon)";
+
+function parseArray(str) {
+    return str
+        .trim()
+        .split(",")
+        .map(x => parseFloat(x.trim()))
+        .filter(x => !isNaN(x));
+}
+
+function filtrer() {
+    const q = document.getElementById('filter').value.toLowerCase();
+    const container = document.getElementById('test-list');
+    container.innerHTML = '';
+    Object.entries(structure).forEach(([cat, tests]) => {
+        container.innerHTML += `<div class="text-[9px] font-bold text-gray-500 uppercase mt-4">${cat}</div>`;
+        tests.filter(t => t.toLowerCase().includes(q)).forEach(t => {
+            const safeName = t.replace(/'/g, "\\'");
+            container.innerHTML += `<div class="p-2 border border-gray-800 rounded cursor-pointer text-[10px] ${selected === t ? 'active-test' : 'bg-gray-900'}" onclick="select('${safeName}')">${t}</div>`;
+        });
+    });
+}
+
+function select(t) {
+    selected = t;
+    filtrer();
+    updateAll();
+}
+
+function updateAll() {
+    const rawA = document.getElementById('valA').value.trim();
+    const rawB = document.getElementById('valB').value.trim();
+    const alpha = parseFloat(document.getElementById('alphaInput').value);
+
+    const A = parseArray(rawA);
+    const B = parseArray(rawB);
+
+    // ---------------- PYTHON ----------------
+    let py = `# --- PROTOCOLE D'INFERENCE (Z & t) ---\n`;
+    py += `import numpy as np\n`;
+    py += `import scipy.stats as stats\n`;
+    py += `import pandas as pd\n\n`;
+    py += `A = [${rawA}]\n`;
+    py += `B = [${rawB}]\n`;
+    py += `alpha = ${alpha}\n\n`;
+
+    if (selected === "Test Z (1 échantillon)") {
+        py += `# Test Z (1 échantillon) - écart-type connu\n`;
+        py += `mu0   = 10.0      # moyenne théorique sous H0\n`;
+        py += `sigma = 1.5      # écart-type connu (à adapter)\n\n`;
+        py += `n     = len(A)\n`;
+        py += `xbar  = np.mean(A)\n`;
+        py += `se    = sigma / np.sqrt(n)\n`;
+        py += `z     = (xbar - mu0) / se\n`;
+        py += `p     = 2 * (1 - stats.norm.cdf(abs(z)))\n\n`;
+        py += `print("=== Test Z (1 échantillon) ===")\n`;
+        py += `print("Moyenne échantillonnale:", xbar)\n`;
+        py += `print("Statistique Z:", z)\n`;
+        py += `print("p-value (bilatérale):", p)\n`;
+        py += `print("alpha:", alpha)\n`;
+        py += `decision = "Rejet H0 (moyenne ≠ mu0)" if p < alpha else "Acceptation H0 (moyenne ≈ mu0)"\n`;
+        py += `print("Décision :", decision)\n\n`;
+        py += `df = pd.DataFrame([{\n`;
+        py += `    "test": "z_test_1_echantillon",\n`;
+        py += `    "statistic": z,\n`;
+        py += `    "p_value": p,\n`;
+        py += `    "alpha": alpha,\n`;
+        py += `    "decision": decision\n`;
+        py += `}])\n`;
+        py += `df.to_csv("resultats_z_test_1_echantillon_py.csv", index=False)\n`;
+    }
+    else if (selected === "Test Z (2 échantillons, σ connus)") {
+        py += `# Test Z (2 échantillons, écart-types connus)\n`;
+        py += `sigma1  = 1.5      # écart-type groupe A\n`;
+        py += `sigma2  = 1.3      # écart-type groupe B\n\n`;
+        py += `n1      = len(A)\n`;
+        py += `n2      = len(B)\n`;
+        py += `xbar1   = np.mean(A)\n`;
+        py += `xbar2   = np.mean(B)\n`;
+        py += `se_diff = np.sqrt(sigma1**2 / n1 + sigma2**2 / n2)\n`;
+        py += `z       = (xbar1 - xbar2) / se_diff\n`;
+        py += `p       = 2 * (1 - stats.norm.cdf(abs(z)))\n\n`;
+        py += `print("=== Test Z (2 échantillons, σ connus) ===")\n`;
+        py += `print("Moyenne A:", xbar1)\n`;
+        py += `print("Moyenne B:", xbar2)\n`;
+        py += `print("Statistique Z:", z)\n`;
+        py += `print("p-value (bilatérale):", p)\n`;
+        py += `print("alpha:", alpha)\n`;
+        py += `decision = "Rejet H0 (différence des moyennes)" if p < alpha else "Acceptation H0 (pas de différence significative)"\n`;
+        py += `print("Décision :", decision)\n\n`;
+        py += `df = pd.DataFrame([{\n`;
+        py += `    "test": "z_test_2_echantillons_sigma_connus",\n`;
+        py += `    "statistic": z,\n`;
+        py += `    "p_value": p,\n`;
+        py += `    "alpha": alpha,\n`;
+        py += `    "decision": decision\n`;
+        py += `}])\n`;
+        py += `df.to_csv("resultats_z_test_2_echantillons_py.csv", index=False)\n`;
+    }
+    else if (selected === "Test t indépendant (2 échantillons)") {
+        py += `# Test t indépendant (2 échantillons)\n`;
+        py += `res = stats.ttest_ind(A, B, equal_var=True)\n`;
+        py += `stat, p = res.statistic, res.pvalue\n\n`;
+        py += `print("=== Test t indépendant (2 échantillons) ===")\n`;
+        py += `print("Statistique t:", stat)\n`;
+        py += `print("p-value:", p)\n`;
+        py += `print("alpha:", alpha)\n`;
+        py += `decision = "Rejet H0 (différence des moyennes)" if p < alpha else "Acceptation H0 (pas de différence significative)"\n`;
+        py += `print("Décision :", decision)\n\n`;
+        py += `df = pd.DataFrame([{\n`;
+        py += `    "test": "t_test_independant",\n`;
+        py += `    "statistic": stat,\n`;
+        py += `    "p_value": p,\n`;
+        py += `    "alpha": alpha,\n`;
+        py += `    "decision": decision\n`;
+        py += `}])\n`;
+        py += `df.to_csv("resultats_t_test_independant_py.csv", index=False)\n`;
+    }
+    else if (selected === "Test t apparié (2 échantillons dépendants)") {
+        if (A.length !== B.length) {
+            py += `print("ERREUR : longueurs différentes pour un test apparié")\n`;
+        } else {
+            py += `# Test t apparié (2 échantillons dépendants)\n`;
+            py += `res = stats.ttest_rel(A, B)\n`;
+            py += `stat, p = res.statistic, res.pvalue\n\n`;
+            py += `print("=== Test t apparié (2 échantillons dépendants) ===")\n`;
+            py += `print("Statistique t:", stat)\n`;
+            py += `print("p-value:", p)\n`;
+            py += `print("alpha:", alpha)\n`;
+            py += `decision = "Rejet H0 (différence moyenne par paire)" if p < alpha else "Acceptation H0 (pas de différence significative)"\n`;
+            py += `print("Décision :", decision)\n\n`;
+            py += `df = pd.DataFrame([{\n`;
+            py += `    "test": "t_test_apparie",\n`;
+            py += `    "statistic": stat,\n`;
+            py += `    "p_value": p,\n`;
+            py += `    "alpha": alpha,\n`;
+            py += `    "decision": decision\n`;
+            py += `}])\n`;
+            py += `df.to_csv("resultats_t_test_apparie_py.csv", index=False)\n`;
+        }
+    }
+
+    document.getElementById('pyOutput').innerText = py;
+
+    // ---------------- R ----------------
+    let r = `# --- PROTOCOLE D'INFERENCE (Z & t) ---\n`;
+    r += `A <- c(${rawA})\n`;
+    r += `B <- c(${rawB})\n`;
+    r += `alpha <- ${alpha}\n\n`;
+    r += `cat("=== Test sélectionné: ${selected} ===\\n\\n")\n`;
+
+    if (selected === "Test Z (1 échantillon)") {
+        r += `# Test Z (1 échantillon) - écart-type connu\n`;
+        r += `mu0   <- 10.0      # moyenne théorique sous H0\n`;
+        r += `sigma <- 1.5      # écart-type connu (à adapter)\n\n`;
+        r += `n     <- length(A)\n`;
+        r += `xbar  <- mean(A)\n`;
+        r += `se    <- sigma / sqrt(n)\n`;
+        r += `z     <- (xbar - mu0) / se\n`;
+        r += `p     <- 2 * (1 - pnorm(abs(z)))\n\n`;
+        r += `cat("Moyenne échantillonnale:", xbar, "\\n")\n`;
+        r += `cat("Statistique Z:", z, "\\n")\n`;
+        r += `cat("p-value (bilatérale):", p, "\\n")\n`;
+        r += `cat("alpha:", alpha, "\\n\\n")\n`;
+        r += `decision <- ifelse(p < alpha, "Rejet H0 (moyenne ≠ mu0)", "Acceptation H0 (moyenne ≈ mu0)")\n`;
+        r += `cat("Décision :", decision, "\\n\\n")\n\n`;
+        r += `res_df <- data.frame(\n`;
+        r += `  test      = "z_test_1_echantillon",\n`;
+        r += `  statistic = z,\n`;
+        r += `  p_value   = p,\n`;
+        r += `  alpha     = alpha,\n`;
+        r += `  decision  = decision\n`;
+        r += `)\n`;
+        r += `write.csv(res_df, "resultats_z_test_1_echantillon_r.csv", row.names = FALSE)\n`;
+    }
+    else if (selected === "Test Z (2 échantillons, σ connus)") {
+        r += `# Test Z (2 échantillons, écart-types connus)\n`;
+        r += `sigma1  <- 1.5      # écart-type groupe A\n`;
+        r += `sigma2  <- 1.3      # écart-type groupe B\n\n`;
+        r += `n1      <- length(A)\n`;
+        r += `n2      <- length(B)\n`;
+        r += `xbar1   <- mean(A)\n`;
+        r += `xbar2   <- mean(B)\n`;
+        r += `se_diff <- sqrt(sigma1^2 / n1 + sigma2^2 / n2)\n`;
+        r += `z       <- (xbar1 - xbar2) / se_diff\n`;
+        r += `p       <- 2 * (1 - pnorm(abs(z)))\n\n`;
+        r += `cat("Moyenne A:", xbar1, "\\n")\n`;
+        r += `cat("Moyenne B:", xbar2, "\\n")\n`;
+        r += `cat("Statistique Z:", z, "\\n")\n`;
+        r += `cat("p-value (bilatérale):", p, "\\n")\n`;
+        r += `cat("alpha:", alpha, "\\n\\n")\n`;
+        r += `decision <- ifelse(p < alpha, "Rejet H0 (différence des moyennes)", "Acceptation H0 (pas de différence significative)")\n`;
+        r += `cat("Décision :", decision, "\\n\\n")\n\n`;
+        r += `res_df <- data.frame(\n`;
+        r += `  test      = "z_test_2_echantillons_sigma_connus",\n`;
+        r += `  statistic = z,\n`;
+        r += `  p_value   = p,\n`;
+        r += `  alpha     = alpha,\n`;
+        r += `  decision  = decision\n`;
+        r += `)\n`;
+        r += `write.csv(res_df, "resultats_z_test_2_echantillons_r.csv", row.names = FALSE)\n`;
+    }
+    else if (selected === "Test t indépendant (2 échantillons)") {
+        r += `# Test t indépendant (2 échantillons)\n`;
+        r += `res <- t.test(A, B, var.equal = TRUE)\n`;
+        r += `stat <- res$statistic\n`;
+        r += `p   <- res$p.value\n\n`;
+        r += `cat("Statistique t:", stat, "\\n")\n`;
+        r += `cat("p-value:", p, "\\n")\n`;
+        r += `cat("alpha:", alpha, "\\n\\n")\n`;
+        r += `decision <- ifelse(p < alpha, "Rejet H0 (différence des moyennes)", "Acceptation H0 (pas de différence significative)")\n`;
+        r += `cat("Décision :", decision, "\\n\\n")\n\n`;
+        r += `res_df <- data.frame(\n`;
+        r += `  test      = "t_test_independant",\n`;
+        r += `  statistic = as.numeric(stat),\n`;
+        r += `  p_value   = p,\n`;
+        r += `  alpha     = alpha,\n`;
+        r += `  decision  = decision\n`;
+        r += `)\n`;
+        r += `write.csv(res_df, "resultats_t_test_independant_r.csv", row.names = FALSE)\n`;
+    }
+    else if (selected === "Test t apparié (2 échantillons dépendants)") {
+        r += `if (length(A) != length(B)) {\n`;
+        r += `  cat("ERREUR : longueurs différentes pour un test apparié\\n")\n`;
+        r += `} else {\n`;
+        r += `  res <- t.test(A, B, paired = TRUE)\n`;
+        r += `  stat <- res$statistic\n`;
+        r += `  p   <- res$p.value\n\n`;
+        r += `  cat("Statistique t:", stat, "\\n")\n`;
+        r += `  cat("p-value:", p, "\\n")\n`;
+        r += `  cat("alpha:", alpha, "\\n\\n")\n`;
+        r += `  decision <- ifelse(p < alpha, "Rejet H0 (différence moyenne par paire)", "Acceptation H0 (pas de différence significative)")\n`;
+        r += `  cat("Décision :", decision, "\\n\\n")\n\n`;
+        r += `  res_df <- data.frame(\n`;
+        r += `    test      = "t_test_apparie",\n`;
+        r += `    statistic = as.numeric(stat),\n`;
+        r += `    p_value   = p,\n`;
+        r += `    alpha     = alpha,\n`;
+        r += `    decision  = decision\n`;
+        r += `  )\n`;
+        r += `  write.csv(res_df, "resultats_t_test_apparie_r.csv", row.names = FALSE)\n`;
+        r += `}\n`;
+    }
+
+    document.getElementById('rOutput').innerText = r;
+}
+
+window.onload = () => {
+    filtrer();
+    updateAll();
+};
+</script>
+</body>
+</html>

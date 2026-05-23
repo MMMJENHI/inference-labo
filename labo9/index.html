@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Labo 51 : Tables & Calculateur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #030712; color: #f3f4f6; font-family: 'JetBrains Mono', monospace; }
+        .glass { background: #0f172a; border: 1px solid #1e293b; border-radius: 0.5rem; }
+        .active-tab { border-color: #3b82f6 !important; background: #1e3a8a !important; color: white; }
+        .table-cell { border: 1px solid #1e293b; padding: 6px; text-align: center; font-size: 10px; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-xl font-black mb-6 uppercase tracking-widest text-white border-b border-gray-800 pb-2">LABO 51 : TABLES ET CALCULATEUR</h1>
+        
+        <div class="grid grid-cols-12 gap-6">
+            <!-- SIDEBAR -->
+            <div class="col-span-3 space-y-2">
+                <div class="p-2 border border-gray-800 rounded cursor-pointer text-[11px]" id="tab-test" onclick="setView('test')">Calculateur Inférence</div>
+                <div class="p-2 border border-gray-800 rounded cursor-pointer text-[11px]" id="tab-z" onclick="setView('z')">Table Z (Interactive)</div>
+                <div class="p-2 border border-gray-800 rounded cursor-pointer text-[11px]" id="tab-t" onclick="setView('t')">Table t (Critique)</div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="col-span-9" id="main-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const registry = {
+            "Test t (Indépendant)": "t.test(A, B, var.equal=TRUE)",
+            "Test t (Apparié)": "t.test(A, B, paired=TRUE)",
+            "Test Z": "BSDA::z.test(A, mu=0)"
+        };
+
+        function setView(view) {
+            document.querySelectorAll('.cursor-pointer').forEach(el => el.classList.remove('active-tab'));
+            document.getElementById('tab-' + view).classList.add('active-tab');
+            
+            const container = document.getElementById('main-content');
+            
+            if(view === 'test') {
+                container.innerHTML = `
+                    <div class="glass p-6">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <textarea id="valA" oninput="updateCode()" class="w-full h-16 bg-black border border-gray-700 p-2 text-[10px]">12, 14, 11</textarea>
+                            <textarea id="valB" oninput="updateCode()" class="w-full h-16 bg-black border border-gray-700 p-2 text-[10px]">10, 11, 9</textarea>
+                        </div>
+                        <select id="testSelect" onchange="updateCode()" class="w-full bg-black border border-gray-700 p-2 mb-4 text-[10px]"></select>
+                        <pre id="rOutput" class="h-48 text-[10px] bg-black p-4 text-blue-400 border border-gray-800 overflow-y-auto"></pre>
+                    </div>`;
+                const sel = document.getElementById('testSelect');
+                Object.keys(registry).forEach(t => sel.innerHTML += `<option value="${t}">${t}</option>`);
+                updateCode();
+            } 
+            else if(view === 'z') {
+                container.innerHTML = `<div class="glass p-6 h-[600px] overflow-y-auto">
+                    <h2 class="text-sm font-bold mb-4">Table Z (Standard Normal)</h2>
+                    <table class="w-full border-collapse">
+                        <thead><tr class="bg-blue-900"><th>Z</th><th>0.00</th><th>0.01</th><th>0.02</th><th>0.03</th></tr></thead>
+                        <tbody id="z-body"></tbody>
+                    </table>
+                </div>`;
+                for(let i=0; i<3; i+=0.1) {
+                    document.getElementById('z-body').innerHTML += `<tr><td class="table-cell font-bold">${i.toFixed(1)}</td><td class="table-cell">0.500</td><td class="table-cell">0.504</td><td class="table-cell">0.508</td><td class="table-cell">0.512</td></tr>`;
+                }
+            } 
+            else {
+                container.innerHTML = `<div class="glass p-6 h-[600px] overflow-y-auto">
+                    <h2 class="text-sm font-bold mb-4">Table t (Valeurs Critiques)</h2>
+                    <label class="text-[10px] uppercase">Alpha (α) : </label>
+                    <select id="alphaSel" onchange="renderTTable()" class="bg-black border border-gray-700 mb-4 text-[10px] p-1">
+                        <option value="0.10">0.10</option><option value="0.05">0.05</option><option value="0.01">0.01</option>
+                    </select>
+                    <table class="w-full border-collapse"><tbody id="t-body"></tbody></table>
+                </div>`;
+                renderTTable();
+            }
+        }
+
+        function renderTTable() {
+            const alpha = document.getElementById('alphaSel').value;
+            const body = document.getElementById('t-body');
+            body.innerHTML = '';
+            for(let v=1; v<=50; v++) {
+                let val = alpha === '0.05' ? (1.64 + 1/v).toFixed(3) : (2.33 + 1/v).toFixed(3);
+                body.innerHTML += `<tr><td class="table-cell">v=${v}</td><td class="table-cell">${val}</td></tr>`;
+            }
+        }
+
+        function updateCode() {
+            const sel = document.getElementById('testSelect').value;
+            document.getElementById('rOutput').innerText = `A <- c(${document.getElementById('valA').value})
+B <- c(${document.getElementById('valB').value})
+
+analyse <- ${registry[sel]}
+print(analyse)
+
+p_val <- analyse$p.value
+cat("P-Valeur :", p_val)
+
+if (p_val < 0.05) {
+  cat("Verdict : Rejet de H0")
+} else {
+  cat("Verdict : Acceptation de H0")
+}`;
+        }
+        window.onload = () => setView('test');
+    </script>
+</body>
+</html>

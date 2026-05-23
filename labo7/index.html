@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Station Statistique : Inférence & Décision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #030712; color: #e2e8f0; font-family: 'JetBrains Mono', monospace; }
+        .glass { background: #0f172a; border: 1px solid #1e293b; border-radius: 0.5rem; }
+        .active-test { border-color: #3b82f6 !important; background: #1e3a8a !important; color: white; }
+    </style>
+</head>
+<body class="p-6">
+
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-xl font-black mb-6 uppercase tracking-widest text-white border-b border-gray-800 pb-2">Labo 50+ : Générateur de Scripts Décisionnels</h1>
+        
+        <div class="grid grid-cols-12 gap-6">
+            <!-- COLONNE SÉLECTION -->
+            <div class="col-span-3 h-[600px] flex flex-col glass p-4 overflow-y-auto">
+                <input type="text" id="filter" placeholder="Rechercher test..." oninput="filtrer()" class="w-full bg-black border border-gray-700 p-2 text-xs mb-4 text-white">
+                <div id="test-list" class="space-y-4"></div>
+            </div>
+
+            <!-- ANALYSE -->
+            <div class="col-span-9 space-y-6">
+                <!-- CONFIGURATION -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-4">
+                        <label class="text-[9px] text-gray-500 uppercase font-bold">Langage</label>
+                        <select id="langSelect" onchange="updateAll()" class="w-full bg-black border border-gray-700 p-1 text-[10px] mt-1 text-white">
+                            <option value="py">Python (SciPy)</option>
+                            <option value="r">R (Base Stats)</option>
+                        </select>
+                    </div>
+                    <div class="glass p-4">
+                        <label class="text-[9px] text-gray-500 uppercase font-bold">Seuil Alpha (α)</label>
+                        <input type="number" id="alphaInput" value="0.05" step="0.01" oninput="updateAll()" class="w-full bg-black border border-gray-700 p-1 text-[10px] mt-1 text-white">
+                    </div>
+                </div>
+
+                <!-- WORKSPACE -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="glass p-2"><label class="text-[9px] text-gray-500">VECTEUR A</label><textarea id="valA" class="w-full h-12 bg-black border border-gray-700 p-1 text-[10px]" oninput="updateAll()">12, 14, 11, 15, 13</textarea></div>
+                    <div class="glass p-2"><label class="text-[9px] text-gray-500">VECTEUR B</label><textarea id="valB" class="w-full h-12 bg-black border border-gray-700 p-1 text-[10px]" oninput="updateAll()">10, 11, 9, 12, 10</textarea></div>
+                </div>
+
+                <!-- CODE -->
+                <div class="glass p-4">
+                    <h3 class="text-[10px] font-bold text-green-400 uppercase mb-2">Script d'Inférence</h3>
+                    <pre id="codeOutput" class="h-64 text-[10px] bg-black p-4 text-cyan-400 overflow-y-auto"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registry = {
+            "Paramétriques": {
+                "Test t Student": {py: "res = stats.ttest_ind(A, B)\np = res.pvalue", r: "res <- t.test(A, B)\np <- res$p.value"},
+                "ANOVA One-Way": {py: "res = stats.f_oneway(A, B)\np = res.pvalue", r: "res <- anova(lm(c(A,B) ~ group))\np <- res$`Pr(>F)`[1]"}
+            },
+            "Non-Paramétriques": {
+                "Wilcoxon": {py: "res = stats.wilcoxon(A, B)\np = res.pvalue", r: "res <- wilcox.test(A, B)\np <- res$p.value"},
+                "Kruskal-Wallis": {py: "res = stats.kruskal(A, B)\np = res.pvalue", r: "res <- kruskal.test(list(A, B))\np <- res$p.value"}
+            }
+        };
+
+        let selected = "Test t Student";
+
+        function filtrer() {
+            const q = document.getElementById('filter').value.toLowerCase();
+            const container = document.getElementById('test-list');
+            container.innerHTML = '';
+            Object.entries(registry).forEach(([cat, tests]) => {
+                container.innerHTML += `<div class="text-[9px] font-bold text-gray-500 uppercase mt-4">${cat}</div>`;
+                Object.keys(tests).filter(t => t.toLowerCase().includes(q)).forEach(t => {
+                    container.innerHTML += `<div class="p-2 border border-gray-800 rounded cursor-pointer text-[10px] ${selected === t ? 'active-test' : 'bg-gray-900'}" onclick="select('${t}')">${t}</div>`;
+                });
+            });
+        }
+
+        function select(t) { selected = t; filtrer(); updateAll(); }
+
+        function updateAll() {
+            const A = document.getElementById('valA').value.trim();
+            const B = document.getElementById('valB').value.trim();
+            const alpha = document.getElementById('alphaInput').value;
+            const lang = document.getElementById('langSelect').value;
+            
+            let found = null;
+            Object.values(registry).forEach(cat => { if(cat[selected]) found = cat[selected]; });
+
+            if(found) {
+                if(lang === 'py') {
+                    document.getElementById('codeOutput').innerText = `import scipy.stats as stats\nA = [${A}]\nB = [${B}]\nalpha = ${alpha}\n\n${found.py}\n\nif p < alpha:\n    print(f"p={p:.4f} < {alpha} : REJET H0")\nelse:\n    print(f"p={p:.4f} >= {alpha} : ACCEPTATION H0")`;
+                } else {
+                    document.getElementById('codeOutput').innerText = `A <- c(${A})\nB <- c(${B})\nalpha <- ${alpha}\n\n${found.r}\n\nif (p < alpha) {\n  print(paste("p=", round(p,4), "<", alpha, ": REJET H0"))\n} else {\n  print(paste("p=", round(p,4), ">=", alpha, ": ACCEPTATION H0"))\n}`;
+                }
+            }
+        }
+        
+        window.onload = () => { filtrer(); updateAll(); };
+    </script>
+</body>
+</html>

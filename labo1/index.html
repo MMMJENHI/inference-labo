@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulateur de Fonctions et Test t de Student Académique</title>
+    <!-- Chargement de Tailwind CSS pour un design fluide et moderne -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid #1f2937;
+            border-radius: 1rem;
+        }
+        .diamond-logo {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #00d2ff, #a855f7);
+            transform: rotate(45deg);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .diamond-logo:hover {
+            transform: rotate(225deg);
+        }
+        .diamond-inner {
+            transform: rotate(-45deg);
+            font-weight: 800;
+            color: #030712;
+            font-size: 0.85rem;
+        }
+        input[type="range"] {
+            accent-color: #a855f7;
+        }
+        .tab-btn {
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            border-bottom-color: #00d2ff;
+            color: #00d2ff;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col justify-between">
+
+    <!-- En-tête de la station de calcul -->
+    <header class="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between mb-8 pb-6 border-b border-gray-800 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="diamond-logo">
+                <div class="diamond-inner">IA</div>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-cyan-400 to-purple-400 bg-clip-text text-transparent uppercase">
+                    Calculateur Fonctionnel & Test t de Student
+                </h1>
+                <p class="text-xs text-gray-500 font-mono tracking-wider">Analyse comparative de groupes, Saisie (X,Y) & Traducteur de code | FST Fès</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 font-mono bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                <span class="w-2 h-2 bg-purple-500 rounded-full animate-ping"></span> Test de Student Comparatif Actif
+            </span>
+        </div>
+    </header>
+
+    <!-- Zone Principale de travail -->
+    <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow mb-8">
+        
+        <!-- Panneau de Contrôle à gauche (1/3) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="glass-panel p-6 space-y-6 flex-grow flex flex-col justify-between">
+                <div>
+                    <!-- Sélecteur de Fonctions principal -->
+                    <div class="mb-6">
+                        <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-gears"></i> Je choisis la fonction / l'Analyse
+                        </h2>
+                        <select id="function-selector" onchange="changerModeFonction(this.value)" class="w-full bg-gray-950 px-3 py-2.5 rounded-lg border border-gray-800 text-xs text-cyan-400 font-mono focus:outline-none focus:border-cyan-500">
+                            <option value="custom">Écrire ma Fonction f(x) (Formule libre)</option>
+                            <option value="sinusoid">Onde Sinusoïdale (Synthèse Temporelle)</option>
+                            <option value="ttest">Test t de Student (Comparaison A vs B)</option>
+                        </select>
+                    </div>
+
+                    <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-sliders text-sm"></i> Paramètres Actifs
+                    </h2>
+                    
+                    <div id="controls-container" class="space-y-6">
+                        <!-- Les contrôleurs ou les tableaux (X,Y) s'injectent ici selon l'état choisi -->
+                    </div>
+                </div>
+
+                <!-- Rapport Mathématique en temps réel -->
+                <div class="bg-gray-950/80 p-4 rounded-xl border border-gray-800 space-y-2 mt-6">
+                    <h3 class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Formulation & Diagnostique de Recherche</h3>
+                    <div id="equation-display" class="text-xs text-gray-300 font-mono leading-relaxed">--</div>
+                    <div id="metric-display" class="text-xs text-purple-400 font-mono font-bold pt-1 border-t border-gray-900">--</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Espace d'Affichage Interactif à droite (2/3) -->
+        <section class="lg:col-span-8 flex flex-col min-h-[500px]">
+            <div class="glass-panel p-6 flex flex-col h-full">
+                
+                <!-- En-tête des onglets de travail -->
+                <div class="flex justify-between items-center border-b border-gray-800 pb-3 mb-4">
+                    <div class="flex flex-wrap gap-4">
+                        <button id="btn-tab-canvas" onclick="changerOnglet('canvas')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 border-b-2 border-transparent text-gray-400 hover:text-white active">
+                            <i class="fa-solid fa-chart-line mr-1"></i> Traceur Graphique
+                        </button>
+                        <button id="btn-tab-html" onclick="changerOnglet('html')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 border-b-2 border-transparent text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-code mr-1"></i> Code HTML Généré
+                        </button>
+                        <button id="btn-tab-latex" onclick="changerOnglet('latex')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 border-b-2 border-transparent text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-square-root-variable mr-1"></i> Traduction LaTeX & MD
+                        </button>
+                        <button id="btn-tab-python" onclick="changerOnglet('python')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 border-b-2 border-transparent text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-python mr-1"></i> Code Python
+                        </button>
+                        <button id="btn-tab-r" onclick="changerOnglet('r')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 border-b-2 border-transparent text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-r-project mr-1"></i> Code R
+                        </button>
+                    </div>
+                    <span class="mono text-[10px] text-gray-500" id="active-mode-tag">MODE : INITIALISATION</span>
+                </div>
+
+                <!-- Conteneur d'affichage dynamique -->
+                <div class="flex-grow bg-gray-950 rounded-xl border border-gray-800 overflow-hidden relative min-h-[350px]">
+                    
+                    <!-- Onglet 1 : Graphique Canvas -->
+                    <div id="tab-content-canvas" class="w-full h-full">
+                        <canvas id="function-canvas" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <!-- Onglet 2 : Code HTML Généré -->
+                    <div id="tab-content-html" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">Script HTML5 Autonome d'affichage</span>
+                            <button onclick="copierPressePapier('html-code-area')" class="bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-cyan-500/30 transition-all flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy"></i> Copier le Code HTML
+                            </button>
+                        </div>
+                        <textarea id="html-code-area" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-gray-300 font-mono focus:outline-none resize-none" readonly></textarea>
+                    </div>
+
+                    <!-- Onglet 3 : Traduction LaTeX & Markdown -->
+                    <div id="tab-content-latex" class="hidden p-4 h-full flex flex-col gap-4 overflow-y-auto">
+                        <!-- Section LaTeX -->
+                        <div class="border border-gray-800 rounded-xl p-4 bg-gray-900/40">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Format d'Équation LaTeX (Overleaf / Paper)</span>
+                                <button onclick="copierPressePapier('latex-code-area')" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 text-[10px] font-bold px-2.5 py-1.5 rounded-lg border border-emerald-500/30 transition-all">
+                                    <i class="fa-regular fa-copy"></i> Copier LaTeX
+                                </button>
+                            </div>
+                            <textarea id="latex-code-area" class="w-full h-20 bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-xs text-gray-300 font-mono focus:outline-none resize-none" readonly></textarea>
+                        </div>
+
+                        <!-- Section Markdown -->
+                        <div class="border border-gray-800 rounded-xl p-4 bg-gray-900/40">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Documentation Markdown (.md / GitHub)</span>
+                                <button onclick="copierPressePapier('markdown-code-area')" class="bg-purple-600/20 hover:bg-purple-600/40 text-purple-400 text-[10px] font-bold px-2.5 py-1.5 rounded-lg border border-purple-500/30 transition-all">
+                                    <i class="fa-regular fa-copy"></i> Copier Markdown
+                                </button>
+                            </div>
+                            <textarea id="markdown-code-area" class="w-full h-32 bg-gray-950 border border-gray-800 rounded-lg p-2.5 text-xs text-gray-300 font-mono focus:outline-none resize-none" readonly></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Onglet 4 : Code Python Généré -->
+                    <div id="tab-content-python" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider">Script Python Scientifique (NumPy, Matplotlib & SciPy)</span>
+                            <button onclick="copierPressePapier('python-code-area')" class="bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-500 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-yellow-500/30 transition-all flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy"></i> Copier le Code Python
+                            </button>
+                        </div>
+                        <textarea id="python-code-area" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-gray-300 font-mono focus:outline-none resize-none" readonly></textarea>
+                    </div>
+
+                    <!-- Onglet 5 : Code R Généré -->
+                    <div id="tab-content-r" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Script R Statistique de tracé & d'Inférence</span>
+                            <button onclick="copierPressePapier('r-code-area')" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-blue-500/30 transition-all flex items-center gap-1.5">
+                                <i class="fa-regular fa-copy"></i> Copier le Code R
+                            </button>
+                        </div>
+                        <textarea id="r-code-area" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-gray-300 font-mono focus:outline-none resize-none" readonly></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Paquet de cartes interactives inférieur -->
+    <section class="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4 mb-8">
+        
+        <!-- Carte 1 : Écrire Fonction -->
+        <div id="card-custom" class="glass-panel p-4 cursor-pointer border-t-4 border-cyan-500 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="chargerModule('custom')">
+            <div>
+                <span class="text-[9px] font-bold text-cyan-400 uppercase tracking-wider block mb-1">Module Saisie</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">Écrire Fonction</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Tapez votre propre formule JavaScript pour la tracer en direct.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">Formule personnalisée</span>
+                <i class="fa-solid fa-rectangle-list text-cyan-400"></i>
+            </div>
+        </div>
+
+        <!-- Carte 2 : Signal Sinusoïdal -->
+        <div id="card-sinusoid" class="glass-panel p-4 cursor-pointer border-t-4 border-purple-500 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="chargerModule('sinusoid')">
+            <div>
+                <span class="text-[9px] font-bold text-purple-400 uppercase tracking-wider block mb-1">Traitement Signal</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">Synthèse d'onde</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Variation dynamique d'amplitude et de fréquence.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">Onde pure / RMS</span>
+                <i class="fa-solid fa-wave-square text-purple-400"></i>
+            </div>
+        </div>
+
+        <!-- Carte 3 : Tableau A(X, Y) -->
+        <div id="card-tableA" class="glass-panel p-4 cursor-pointer border-t-4 border-blue-400 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="chargerModule('tableA')">
+            <div>
+                <span class="text-[9px] font-bold text-blue-400 uppercase tracking-wider block mb-1">Groupe d'analyse A</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">Tableau A (X, Y)</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Édition des coordonnées de contrôle de la population A.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">Saisie Interactive</span>
+                <i class="fa-solid fa-table text-blue-400"></i>
+            </div>
+        </div>
+
+        <!-- Carte 4 : Tableau B(X, Y) -->
+        <div id="card-tableB" class="glass-panel p-4 cursor-pointer border-t-4 border-fuchsia-500 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="chargerModule('tableB')">
+            <div>
+                <span class="text-[9px] font-bold text-fuchsia-400 uppercase tracking-wider block mb-1">Groupe d'analyse B</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-fuchsia-400 transition-colors">Tableau B (X, Y)</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Saisie et édition dynamique de la population alternative B.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">Saisie comparative</span>
+                <i class="fa-solid fa-table-list text-fuchsia-400"></i>
+            </div>
+        </div>
+
+        <!-- Carte 5 : Test t de Student -->
+        <div id="card-ttest" class="glass-panel p-4 cursor-pointer border-t-4 border-amber-500 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="chargerModule('ttest')">
+            <div>
+                <span class="text-[9px] font-bold text-amber-400 uppercase tracking-wider block mb-1">Comparaison</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">Test t de Student</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Exécution d'un Welch's t-test bilatéral réel sur vos deux tables.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">t-stat / p-value / df</span>
+                <i class="fa-solid fa-scale-balanced text-amber-400"></i>
+            </div>
+        </div>
+
+        <!-- Carte 6 : Traducteur HTML -->
+        <div id="card-html-gen" class="glass-panel p-4 cursor-pointer border-t-4 border-sky-400 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="changerOnglet('html')">
+            <div>
+                <span class="text-[9px] font-bold text-sky-400 uppercase tracking-wider block mb-1">Générateur Web</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-sky-400 transition-colors">Exportation HTML</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Génère le canevas de tracé dynamique en page Web autonome.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">HTML Canvas</span>
+                <i class="fa-solid fa-file-code text-sky-400"></i>
+            </div>
+        </div>
+
+        <!-- Carte 7 : Traducteur LaTeX & MD -->
+        <div id="card-latex-gen" class="glass-panel p-4 cursor-pointer border-t-4 border-indigo-400 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="changerOnglet('latex')">
+            <div>
+                <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-wider block mb-1">Recherche</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">Traducteur LaTeX / MD</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Génère les équations complexes au format LaTeX pour Overleaf.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">LaTeX Equations</span>
+                <i class="fa-solid fa-square-root-variable text-indigo-400"></i>
+            </div>
+        </div>
+
+        <!-- Carte 8 : Générateur Python -->
+        <div id="card-python-gen" class="glass-panel p-4 cursor-pointer border-t-4 border-yellow-500 hover:bg-slate-900/60 transition-all flex flex-col justify-between group" onclick="changerOnglet('python')">
+            <div>
+                <span class="text-[9px] font-bold text-yellow-500 uppercase tracking-wider block mb-1">Programmation</span>
+                <h4 class="text-xs font-bold text-white mb-2 group-hover:text-yellow-500 transition-colors">Générateur Python</h4>
+                <p class="text-[11px] text-gray-400 leading-relaxed">Script SciPy, NumPy et Matplotlib de vos calculs.</p>
+            </div>
+            <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-800/60">
+                <span class="text-[9px] font-mono text-gray-500">SciPy / NumPy</span>
+                <i class="fa-brands fa-python text-yellow-500"></i>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Pied de page -->
+    <footer class="max-w-7xl mx-auto w-full text-center text-gray-600 text-[9px] font-bold uppercase tracking-[0.4em] pt-4 border-t border-gray-900">
+        Interactive Mathematical Simulation & Student T-Test Platform • FST Fès • © 2026
+    </footer>
+
+    <!-- Logique Algorithmique des calculs et tracés -->
+    <script>
+        const canvas = document.getElementById('function-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let currentModule = 'custom';
+        let parameters = {
+            alpha: 0.05,
+            customExpr: "Math.sin(x) * 2 + x * 0.1" // Fonction personnalisée par défaut
+        };
+
+        // Tableaux de saisie interactifs des populations A et B (X, Y)
+        let pointsTableA = [
+            { x: -5, y: -2.5 },
+            { x: -3, y: -1.2 },
+            { x: -1, y: 0.1 },
+            { x: 1, y: 1.4 },
+            { x: 3, y: 2.2 },
+            { x: 5, y: 3.5 }
+        ];
+
+        let pointsTableB = [
+            { x: -5, y: -1.0 },
+            { x: -3, y: 0.5 },
+            { x: -1, y: 1.8 },
+            { x: 1, y: 3.1 },
+            { x: 3, y: 4.5 },
+            { x: 5, y: 5.2 }
+        ];
+
+        // Signal sinusoïdal par défaut
+        let sinusParams = { A: 3.0, f: 1.0, phi: 0.0 };
+
+        // Approximation de la loi normale cumulée standard (CDF)
+        function normalCDF(x) {
+            let t = 1 / (1 + 0.2316419 * Math.abs(x));
+            let d = 0.3989423 * Math.exp(-x * x / 2);
+            let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+            if (x > 0) return 1 - p;
+            return p;
+        }
+
+        // Évaluation robuste et sécurisée d'une expression de fonction de la variable x
+        function evaluerExpressionLibre(x, expr) {
+            try {
+                let formula = expr.toLowerCase()
+                    .replace(/sin/g, 'Math.sin')
+                    .replace(/cos/g, 'Math.cos')
+                    .replace(/tan/g, 'Math.tan')
+                    .replace(/exp/g, 'Math.exp')
+                    .replace(/log/g, 'Math.log')
+                    .replace(/pow/g, 'Math.pow')
+                    .replace(/sqrt/g, 'Math.sqrt')
+                    .replace(/abs/g, 'Math.abs')
+                    .replace(/pi/g, 'Math.PI')
+                    .replace(/e/g, 'Math.E')
+                    .replace(/math\.math\./g, 'Math.');
+                
+                const constructeur = new Function('x', `return ${formula};`);
+                const res = constructeur(x);
+                return isNaN(res) || !isFinite(res) ? 0 : res;
+            } catch (err) {
+                return 0; // Sécurité de tracé en cas d'erreur de syntaxe
+            }
+        }
+
+        // Ajustement automatique de la résolution du canevas
+        function resizeCanvas() {
+            const rect = canvas.parentNode.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            tracerFonction();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Commutateur de mode via le select supérieur
+        function changerModeFonction(mode) {
+            chargerModule(mode);
+        }
+
+        // Contrôleur de module principal
+        function chargerModule(moduleName) {
+            currentModule = moduleName;
+            
+            const selector = document.getElementById('function-selector');
+            if (moduleName === 'custom' || moduleName === 'sinusoid' || moduleName === 'ttest') {
+                selector.value = moduleName;
+            }
+
+            // Réinitialisation des styles de cartes
+            document.querySelectorAll('.glass-panel').forEach(el => {
+                el.classList.remove('bg-slate-900/40', 'border-cyan-500/50', 'border-purple-500/50', 'border-blue-500/50', 'border-fuchsia-500/50', 'border-amber-500/50');
+            });
+
+            const modeTag = document.getElementById('active-mode-tag');
+            const controls = document.getElementById('controls-container');
+
+            if (moduleName === 'custom') {
+                modeTag.innerHTML = "MODE : ÉCRIRE FONCTION f(x)";
+                document.getElementById('card-custom').classList.add('bg-slate-900/40', 'border-cyan-500/50');
+                
+                controls.innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] text-gray-400 uppercase font-semibold block mb-1">Entrez votre formule mathématique f(x)</label>
+                            <input type="text" id="custom-formula-input" value="${parameters.customExpr}" oninput="mettreAJourFormuleCustom(this.value)" class="w-full bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-xs text-cyan-400 font-mono focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-relaxed italic">Vous pouvez utiliser: x, Math.sin(x), Math.cos(x), Math.pow(x,2), Math.exp(x), Math.PI, etc.</p>
+                    </div>
+                `;
+            }
+            else if (moduleName === 'sinusoid') {
+                modeTag.innerHTML = "MODE : SYNTHÈSE SINUSOÏDALE";
+                document.getElementById('card-sinusoid').classList.add('bg-slate-900/40', 'border-purple-500/50');
+                
+                controls.innerHTML = `
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-2 font-bold text-gray-400 uppercase">Amplitude (A) <span id="val-A" class="text-purple-400">${sinusParams.A.toFixed(1)}</span></div>
+                        <input type="range" min="0.5" max="5" step="0.1" value="${sinusParams.A}" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="changerParametreSinus('A', this.value)">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-2 font-bold text-gray-400 uppercase">Fréquence (f) <span id="val-f" class="text-purple-400">${sinusParams.f.toFixed(1)} Hz</span></div>
+                        <input type="range" min="0.2" max="4" step="0.1" value="${sinusParams.f}" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="changerParametreSinus('f', this.value)">
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-2 font-bold text-gray-400 uppercase">Phase (φ) <span id="val-phi" class="text-purple-400">${sinusParams.phi.toFixed(2)} rad</span></div>
+                        <input type="range" min="-3.14" max="3.14" step="0.1" value="${sinusParams.phi}" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="changerParametreSinus('phi', this.value)">
+                    </div>
+                `;
+            }
+            else if (moduleName === 'tableA') {
+                modeTag.innerHTML = "MODE : TABLEAU DE SAISIE A";
+                document.getElementById('card-tableA').classList.add('bg-slate-900/40', 'border-blue-500/50');
+                injecterInterfaceTableau('A');
+            }
+            else if (moduleName === 'tableB') {
+                modeTag.innerHTML = "MODE : TABLEAU DE SAISIE B";
+                document.getElementById('card-tableB').classList.add('bg-slate-900/40', 'border-fuchsia-500/50');
+                injecterInterfaceTableau('B');
+            }
+            else if (moduleName === 'ttest') {
+                modeTag.innerHTML = "MODE : TEST t DE STUDENT RÉEL";
+                document.getElementById('card-ttest').classList.add('bg-slate-900/40', 'border-amber-500/50');
+                
+                controls.innerHTML = `
+                    <div class="space-y-4">
+                        <p class="text-[11px] text-gray-400 leading-relaxed">Le Welch's t-test compare l'égalité des moyennes des populations réelles issues de votre Tableau A et de votre Tableau B (sur la coordonnée Y).</p>
+                        <div>
+                            <div class="flex justify-between text-[10px] mb-2 font-bold text-gray-400 uppercase">Seuil de signification (α) <span id="val-alpha" class="text-amber-400">${parameters.alpha.toFixed(2)}</span></div>
+                            <input type="range" min="0.01" max="0.10" step="0.01" value="${parameters.alpha}" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="changerParametreAlpha(this.value)">
+                        </div>
+                    </div>
+                `;
+            }
+
+            tracerFonction();
+            recalculerExports();
+        }
+
+        // Gestion de la formule textuelle entrée par l'utilisateur
+        function mettreAJourFormuleCustom(val) {
+            parameters.customExpr = val;
+            tracerFonction();
+            recalculerExports();
+        }
+
+        // Injection dynamique de l'éditeur de tableaux A et B
+        function injecterInterfaceTableau(tableType) {
+            const controls = document.getElementById('controls-container');
+            const targetPoints = tableType === 'A' ? pointsTableA : pointsTableB;
+            const accentColorClass = tableType === 'A' ? 'text-blue-400 border-blue-500/20' : 'text-fuchsia-400 border-fuchsia-500/20';
+            const btnBgHover = tableType === 'A' ? 'hover:bg-blue-600/40' : 'hover:bg-fuchsia-600/40';
+
+            let tableHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">Données du Tableau ${tableType} (X, Y)</span>
+                        <button onclick="ajouterLignePoint('${tableType}')" class="bg-gray-800 ${btnBgHover} ${accentColorClass} text-[10px] font-bold px-2.5 py-1 rounded border transition-all">
+                            <i class="fa-solid fa-plus mr-1"></i> Ajouter
+                        </button>
+                    </div>
+                    
+                    <div class="max-h-56 overflow-y-auto space-y-2 pr-1">
+            `;
+
+            targetPoints.forEach((pt, idx) => {
+                tableHTML += `
+                    <div class="flex gap-2 items-center">
+                        <div class="bg-gray-950 ${accentColorClass} font-mono text-[9px] px-2 py-1.5 rounded-lg border">P${idx+1}</div>
+                        <input type="number" step="0.5" value="${pt.x}" class="w-1/2 bg-gray-900 border border-gray-800 rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-cyan-500" onchange="mettreAJourPoint('${tableType}', ${idx}, 'x', this.value)">
+                        <input type="number" step="0.5" value="${pt.y}" class="w-1/2 bg-gray-900 border border-gray-800 rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-cyan-500" onchange="mettreAJourPoint('${tableType}', ${idx}, 'y', this.value)">
+                        <button onclick="supprimerLignePoint('${tableType}', ${idx})" class="text-red-500 hover:text-red-400 px-1 py-1 transition-all">
+                            <i class="fa-regular fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            });
+
+            tableHTML += `
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="reinitialiserPoints('${tableType}')" class="w-1/2 bg-gray-900 hover:bg-gray-850 text-[9px] text-gray-400 font-bold py-1.5 px-2 rounded-lg border border-gray-800 transition-all uppercase tracking-wider">
+                            Réinitialiser
+                        </button>
+                        <button onclick="viderPoints('${tableType}')" class="w-1/2 bg-gray-900 hover:bg-gray-850 text-[9px] text-red-400/80 font-bold py-1.5 px-2 rounded-lg border border-gray-800 transition-all uppercase tracking-wider">
+                            Vider Tout
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            controls.innerHTML = tableHTML;
+        }
+
+        // Actions d'édition des tables
+        function mettreAJourPoint(tableType, idx, coord, value) {
+            const target = tableType === 'A' ? pointsTableA : pointsTableB;
+            if (target[idx]) {
+                target[idx][coord] = parseFloat(value) || 0;
+                tracerFonction();
+                recalculerExports();
+            }
+        }
+
+        function ajouterLignePoint(tableType) {
+            const target = tableType === 'A' ? pointsTableA : pointsTableB;
+            let lastX = target.length > 0 ? target[target.length - 1].x : 0;
+            let lastY = target.length > 0 ? target[target.length - 1].y : 0;
+            target.push({ x: lastX + 1, y: lastY + 0.5 });
+            injecterInterfaceTableau(tableType);
+            tracerFonction();
+            recalculerExports();
+        }
+
+        function supprimerLignePoint(tableType, idx) {
+            const target = tableType === 'A' ? pointsTableA : pointsTableB;
+            target.splice(idx, 1);
+            injecterInterfaceTableau(tableType);
+            tracerFonction();
+            recalculerExports();
+        }
+
+        function reinitialiserPoints(tableType) {
+            if (tableType === 'A') {
+                pointsTableA = [
+                    { x: -5, y: -2.5 }, { x: -3, y: -1.2 }, { x: -1, y: 0.1 },
+                    { x: 1, y: 1.4 }, { x: 3, y: 2.2 }, { x: 5, y: 3.5 }
+                ];
+            } else {
+                pointsTableB = [
+                    { x: -5, y: -1.0 }, { x: -3, y: 0.5 }, { x: -1, y: 1.8 },
+                    { x: 1, y: 3.1 }, { x: 3, y: 4.5 }, { x: 5, y: 5.2 }
+                ];
+            }
+            injecterInterfaceTableau(tableType);
+            tracerFonction();
+            recalculerExports();
+        }
+
+        function viderPoints(tableType) {
+            if (tableType === 'A') pointsTableA = [];
+            else pointsTableB = [];
+            injecterInterfaceTableau(tableType);
+            tracerFonction();
+            recalculerExports();
+        }
+
+        // Calculateur de test t de Student (Welch's t-test pour échantillons de variances/tailles inégales)
+        function calculerTestTStudent() {
+            const yA = pointsTableA.map(p => p.y);
+            const yB = pointsTableB.map(p => p.y);
+            const nA = yA.length;
+            const nB = yB.length;
+
+            if (nA < 2 || nB < 2) {
+                return { tStat: 0, df: 1, pValue: 1, meanA: 0, meanB: 0, sA: 0, sB: 0 };
+            }
+
+            // Moyennes
+            const meanA = yA.reduce((sum, v) => sum + v, 0) / nA;
+            const meanB = yB.reduce((sum, v) => sum + v, 0) / nB;
+
+            // Écarts-types et variances
+            const varA = yA.reduce((sum, v) => sum + Math.pow(v - meanA, 2), 0) / (nA - 1);
+            const varB = yB.reduce((sum, v) => sum + Math.pow(v - meanB, 2), 0) / (nB - 1);
+
+            const sA = Math.sqrt(varA);
+            const sB = Math.sqrt(varB);
+
+            // Welch-Satterthwaite pour degrés de liberté et t-Statistique
+            const standardError = Math.sqrt((varA / nA) + (varB / nB));
+            const tStat = standardError !== 0 ? (meanA - meanB) / standardError : 0;
+
+            const numDf = Math.pow((varA / nA) + (varB / nB), 2);
+            const denDf = (Math.pow(varA / nA, 2) / (nA - 1)) + (Math.pow(varB / nB, 2) / (nB - 1));
+            const df = denDf !== 0 ? numDf / denDf : 1;
+
+            // Approximation de p-value
+            // Utilisation de la Welch t-statistique projetée vers une distribution standard normale (très proche pour df > 4)
+            const a = 1 - 1 / (4 * df);
+            const z = tStat * Math.sqrt(a / (1 + Math.pow(tStat, 2) / (2 * df)));
+            const pValue = 2 * (1 - normalCDF(Math.abs(z)));
+
+            return { tStat, df, pValue, meanA, meanB, sA, sB };
+        }
+
+        // Rendu du canevas graphique d'analyse
+        function tracerFonction() {
+            if (!canvas.width) return;
+            const w = canvas.width / window.devicePixelRatio;
+            const h = canvas.height / window.devicePixelRatio;
+            
+            ctx.clearRect(0, 0, w, h);
+
+            const minX = -10, maxX = 10;
+            const minY = -6, maxY = 6;
+
+            function mapX(x) { return ((x - minX) / (maxX - minX)) * w; }
+            function mapY(y) { return h - (((y - minY) / (maxY - minY)) * h); }
+
+            // Dessin de la Grille
+            ctx.strokeStyle = '#111827';
+            ctx.lineWidth = 1;
+            for (let x = minX; x <= maxX; x += 1) {
+                ctx.beginPath(); ctx.moveTo(mapX(x), 0); ctx.lineTo(mapX(x), h); ctx.stroke();
+            }
+            for (let y = minY; y <= maxY; y += 1) {
+                ctx.beginPath(); ctx.moveTo(0, mapY(y)); ctx.lineTo(w, mapY(y)); ctx.stroke();
+            }
+
+            // Axes
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(mapX(minX), mapY(0)); ctx.lineTo(mapX(maxX), mapY(0));
+            ctx.moveTo(mapX(0), mapY(minY)); ctx.lineTo(mapX(0), mapY(maxY));
+            ctx.stroke();
+
+            ctx.fillStyle = '#4b5563';
+            ctx.font = '10px JetBrains Mono';
+            ctx.fillText('0', mapX(0.2), mapY(-0.4));
+            ctx.fillText('x', mapX(9.5), mapY(-0.4));
+            ctx.fillText('y', mapX(0.3), mapY(5.5));
+
+            const eqBox = document.getElementById('equation-display');
+            const metricBox = document.getElementById('metric-display');
+
+            // --- Logique d'affichage par module actif ---
+            if (currentModule === 'custom') {
+                eqBox.innerHTML = `Modèle libre : y = f(x) = ${parameters.customExpr}`;
+                metricBox.innerHTML = `Moteur actif : Saisie et tracé d'équations en temps réel.`;
+
+                // Dessin de la courbe personnalisée
+                ctx.strokeStyle = '#00d2ff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                let started = false;
+                for (let x = minX; x <= maxX; x += 0.05) {
+                    const y = evaluerExpressionLibre(x, parameters.customExpr);
+                    if (!started) {
+                        ctx.moveTo(mapX(x), mapY(y));
+                        started = true;
+                    } else {
+                        ctx.lineTo(mapX(x), mapY(y));
+                    }
+                }
+                ctx.stroke();
+            } 
+            else if (currentModule === 'sinusoid') {
+                const { A, f, phi } = sinusParams;
+                eqBox.innerHTML = `Formule : y(t) = ${A.toFixed(2)} * sin( 2π * ${f.toFixed(2)} * t + ${phi.toFixed(2)} )`;
+                const rms = A / Math.sqrt(2);
+                metricBox.innerHTML = `Métrique : Puissance Efficace (RMS) = ${rms.toFixed(4)} V`;
+
+                ctx.strokeStyle = '#a855f7';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let t = minX; t <= maxX; t += 0.05) {
+                    const valSinus = A * Math.sin(2 * Math.PI * f * (t / 4) + phi);
+                    if (t === minX) ctx.moveTo(mapX(t), mapY(valSinus));
+                    else ctx.lineTo(mapX(t), mapY(valSinus));
+                }
+                ctx.stroke();
+            }
+            else if (currentModule === 'tableA' || currentModule === 'tableB' || currentModule === 'ttest') {
+                const results = calculerTestTStudent();
+
+                if (currentModule === 'ttest') {
+                    eqBox.innerHTML = `Hypothèse H0 : Moyenne(A) = Moyenne(B) (Les moyennes des deux groupes sont statistiquement identiques)`;
+                    const interpretation = results.pValue < parameters.alpha ? "Différence significative (Rejet de H0)" : "Différence non-significative (H0 validée)";
+                    metricBox.innerHTML = `t-Stat = ${results.tStat.toFixed(4)} | df = ${results.df.toFixed(1)} | p-value = ${results.pValue.toFixed(5)} | ${interpretation}`;
+                } else {
+                    eqBox.innerHTML = `Échantillon A : N=${pointsTableA.length} (Moyenne = ${results.meanA.toFixed(2)}) | Échantillon B : N=${pointsTableB.length} (Moyenne = ${results.meanB.toFixed(2)})`;
+                    metricBox.innerHTML = `Tracé comparatif en direct des observations géométriques.`;
+                }
+
+                // Tracé des points du Tableau A (Bleu)
+                ctx.fillStyle = '#00d2ff';
+                pointsTableA.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(mapX(p.x), mapY(p.y), 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                });
+
+                // Tracé des points du Tableau B (Fuchsia)
+                ctx.fillStyle = '#d946ef';
+                pointsTableB.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(mapX(p.x), mapY(p.y), 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                });
+
+                // Dessin des lignes indicatives de moyennes respectives de Y
+                if (pointsTableA.length > 1 && pointsTableB.length > 1) {
+                    // Moyenne A (Ligne pointillée bleue)
+                    ctx.strokeStyle = 'rgba(0, 210, 255, 0.5)';
+                    ctx.setLineDash([4, 4]);
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(mapX(minX), mapY(results.meanA));
+                    ctx.lineTo(mapX(maxX), mapY(results.meanA));
+                    ctx.stroke();
+
+                    // Moyenne B (Ligne pointillée fuchsia)
+                    ctx.strokeStyle = 'rgba(217, 70, 239, 0.5)';
+                    ctx.beginPath();
+                    ctx.moveTo(mapX(minX), mapY(results.meanB));
+                    ctx.lineTo(mapX(maxX), mapY(results.meanB));
+                    ctx.stroke();
+
+                    ctx.setLineDash([]); // Reset line dash
+                }
+            }
+        }
+
+        // Onglets d'affichage de droite
+        function changerOnglet(ongletId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const targetBtn = document.getElementById(`btn-tab-${ongletId}`);
+            if (targetBtn) targetBtn.classList.add('active');
+
+            document.getElementById('tab-content-canvas').classList.add('hidden');
+            document.getElementById('tab-content-html').classList.add('hidden');
+            document.getElementById('tab-content-latex').classList.add('hidden');
+            document.getElementById('tab-content-python').classList.add('hidden');
+            document.getElementById('tab-content-r').classList.add('hidden');
+
+            document.getElementById(`tab-content-${ongletId}`).classList.remove('hidden');
+
+            if (ongletId === 'canvas') {
+                setTimeout(resizeCanvas, 50);
+            }
+        }
+
+        // Recalculateur des modules d'exportations multilangages
+        function recalculerExports() {
+            const htmlTextarea = document.getElementById('html-code-area');
+            const latexTextarea = document.getElementById('latex-code-area');
+            const markdownTextarea = document.getElementById('markdown-code-area');
+            const pythonTextarea = document.getElementById('python-code-area');
+            const rTextarea = document.getElementById('r-code-area');
+
+            // --- HTML autonome ---
+            let codeHTML = `<!DOCTYPE html>\n<html>\n<head>\n    <title>Tracé Dynamique de Fonction Autonome</title>\n</head>\n<body style="background:#030712; color:#fff; font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;">\n    <div style="text-align:center;">\n        <h3>Support de Recherche Académique FST Fès</h3>\n        <canvas id="standalone-canvas" width="600" height="400" style="border:1px solid #1f2937; background:#000; border-radius:8px;"></canvas>\n    </div>\n    <script>\n        const canvas = document.getElementById('standalone-canvas');\n        const ctx = canvas.getContext('2d');\n        const w = 600, h = 400;\n\n        function mapX(x) { return ((x - (-10)) / (10 - (-10))) * w; }\n        function mapY(y) { return h - (((y - (-6)) / (6 - (-6))) * h); }\n\n        // Grille & Axes\n        ctx.strokeStyle = '#111827';\n        for (let x = -10; x <= 10; x++) {\n            ctx.beginPath(); ctx.moveTo(mapX(x), 0); ctx.lineTo(mapX(x), h); ctx.stroke();\n        }\n        for (let y = -6; y <= 6; y++) {\n            ctx.beginPath(); ctx.moveTo(0, mapY(y)); ctx.lineTo(w, mapY(y)); ctx.stroke();\n        }\n\n        ctx.strokeStyle = '#374151';\n        ctx.beginPath(); ctx.moveTo(mapX(-10), mapY(0)); ctx.lineTo(mapX(10), mapY(0));\n        ctx.moveTo(mapX(0), mapY(-6)); ctx.lineTo(mapX(0), mapY(6)); ctx.stroke();\n`;
+
+            if (currentModule === 'custom') {
+                codeHTML += `\n        // Tracé de la fonction libre\n        ctx.strokeStyle = '#00d2ff';\n        ctx.lineWidth = 3;\n        ctx.beginPath();\n        let started = false;\n        for (let x = -10; x <= 10; x += 0.05) {\n            const y = eval(\`${parameters.customExpr.replace(/Math\./g, 'Math.')}\`);\n            if (!started) { ctx.moveTo(mapX(x), mapY(y)); started = true; } \n            else { ctx.lineTo(mapX(x), mapY(y)); }\n        }\n        ctx.stroke();\n`;
+            }
+            else if (currentModule === 'sinusoid') {
+                const { A, f, phi } = sinusParams;
+                codeHTML += `\n        // Tracé de l'Onde Sinusoïdale\n        ctx.strokeStyle = '#a855f7';\n        ctx.lineWidth = 3;\n        ctx.beginPath();\n        for (let t = -10; t <= 10; t += 0.05) {\n            const y = ${A} * Math.sin(2 * Math.PI * ${f} * (t / 4) + ${phi});\n            if (t === -10) ctx.moveTo(mapX(t), mapY(y));\n            else ctx.lineTo(mapX(t), mapY(y));\n        }\n        ctx.stroke();\n`;
+            }
+            else {
+                // Tableaux et t-test
+                codeHTML += `\n        // Tracé des points Table A et B\n        const tableA = ${JSON.stringify(pointsTableA)};\n        const tableB = ${JSON.stringify(pointsTableB)};\n        \n        ctx.fillStyle = '#00d2ff';\n        tableA.forEach(p => { ctx.beginPath(); ctx.arc(mapX(p.x), mapY(p.y), 5, 0, 2*Math.PI); ctx.fill(); });\n        \n        ctx.fillStyle = '#d946ef';\n        tableB.forEach(p => { ctx.beginPath(); ctx.arc(mapX(p.x), mapY(p.y), 5, 0, 2*Math.PI); ctx.fill(); });\n`;
+            }
+
+            codeHTML += `    <\/script>\n</body>\n</html>`;
+            htmlTextarea.value = codeHTML;
+
+            // --- LaTeX & Markdown, Python et R exports ---
+            let textLatex = '';
+            let textMarkdown = '';
+            let textPython = '';
+            let textR = '';
+
+            const formatArrPy = (arr) => `np.array([${arr.map(p => p.y).join(', ')}])`;
+            const formatArrR = (arr) => `c(${arr.map(p => p.y).join(', ')})`;
+
+            if (currentModule === 'custom') {
+                textLatex = `\\begin{equation}\ny = f(x) = ${parameters.customExpr}\n\\label{eq:fonction_personnalisee}\n\\end{equation}`;
+                
+                textMarkdown = `### Tracé de la Fonction Libre Personnalisée\n\n*   **Expression évaluée :** $y = ${parameters.customExpr}$\n*   **Type d'évaluation :** Résolution dynamique point par point en JavaScript sur un repère cartésien bidimensionnel.`;
+
+                textPython = `import numpy as np\nimport matplotlib.pyplot as plt\n\n# Fonction personnalisée définie par l'utilisateur\ndef f(x):\n    return ${parameters.customExpr.replace(/Math\./g, 'np.')}\n\nx = np.linspace(-10, 10, 500)\ny = f(x)\n\nplt.figure(figsize=(8, 5))\nplt.plot(x, y, color='#00d2ff', linewidth=2.5, label='y = f(x)')\nplt.axhline(0, color='gray', linestyle='--', linewidth=0.5)\nplt.axvline(0, color='gray', linestyle='--', linewidth=0.5)\nplt.title("Tracé de votre Fonction Personnalisée")\nplt.grid(True, alpha=0.3)\nplt.legend()\nplt.show()`;
+
+                textR = `# Script R - Modélisation de la Fonction personnalisée\nf <- function(x) {\n  return(${parameters.customExpr.replace(/Math\./g, '')})\n}\n\nx <- seq(-10, 10, length.out = 500)\ny <- f(x)\n\nplot(x, y, type = "l", col = "#00d2ff", lwd = 2.5,\n     main = "Graphique de la Fonction", panel.first = grid())\nabline(h = 0, v = 0, col = "gray", lty = 2)`;
+            } 
+            else if (currentModule === 'sinusoid') {
+                const { A, f, phi } = sinusParams;
+                textLatex = `\\begin{equation}\ny(t) = ${A.toFixed(2)} \\cdot \\sin\\left(2\\pi \\cdot ${f.toFixed(2)} \\cdot t + ${phi.toFixed(2)}\\right)\n\\label{eq:synthese_sinusoide}\n\\end{equation}`;
+                
+                textMarkdown = `### Analyse de Signal Temporel Pur\n\n*   **Formulation mathématique :** $y(t) = A \\cdot \\sin(2\\pi \\cdot f \\cdot t + \\phi)$\n*   **Paramètres réels configurés :**\n    *   Amplitude de crête ($A$) = \`${A.toFixed(2)}\` V\n    *   Fréquence fondamentale ($f$) = \`${f.toFixed(2)}\` Hz\n    *   Déphasage d'onde ($\\phi$) = \`${phi.toFixed(2)}\` rad\n    *   Tension Efficace ($V_{RMS}$) = \`${(A / Math.sqrt(2)).toFixed(4)}\` V`;
+
+                textPython = `import numpy as np\nimport matplotlib.pyplot as plt\n\n# Paramètres du signal d'onde\nA = ${A.toFixed(2)}\nf = ${f.toFixed(2)}\nphi = ${phi.toFixed(2)}\n\nt = np.linspace(-10, 10, 1000)\ny = A * np.sin(2 * np.pi * f * (t / 4) + phi)\n\nplt.figure(figsize=(8, 5))\nplt.plot(t, y, color='#a855f7', linewidth=2.5, label=f'f={f}Hz, A={A}')\nplt.title("Synthèse de Signal Acoustique Pur")\nplt.xlabel("Temps (s)")\nplt.ylabel("Tension (V)")\nplt.grid(True, alpha=0.3)\nplt.legend()\nplt.show()`;
+
+                textR = `# Script R - Modélisation de Signal Sinusoïdal\nA <- ${A.toFixed(2)}\nf <- ${f.toFixed(2)}\nphi <- ${phi.toFixed(2)}\n\nt <- seq(-10, 10, length.out = 1000)\ny <- A * sin(2 * pi * f * (t / 4) + phi)\n\nplot(t, y, type = "l", col = "#a855f7", lwd = 2.5,\n     main = "Synthèse et Traitement du Signal",\n     xlab = "Temps (s)", ylab = "Tension", panel.first = grid())\nabline(h = 0, col = "gray", lty = 2)`;
+            }
+            else {
+                // Tableaux et test t de Student (Welch)
+                const results = calculerTestTStudent();
+                textLatex = `\\begin{array}{l}\n\\text{Welch's t-test Comparatif entre les groupes A et B:}\\\\\nt = \\frac{\\bar{X}_A - \\bar{X}_B}{\\sqrt{\\frac{s_A^2}{n_A} + \\frac{s_B^2}{n_B}}} = ${results.tStat.toFixed(4)}\\\\\n\\text{Degrés de liberté : } df = ${results.df.toFixed(2)}, \\quad p = ${results.pValue.toFixed(6)}\\\\\n\\alpha = ${parameters.alpha.toFixed(2)}\n\\end{array}`;
+                
+                textMarkdown = `### Test de Comparaison de Moyennes de Student (Welch)\n\n*   **Hypothèses de recherche :**\n    *   $H_0 : \\mu_A = \\mu_B$\n    *   $H_1 : \\mu_A \\neq \\mu_B$\n*   **Métriques de vos groupes réels :**\n    *   Effectif Groupe A ($n_A$) = \`${pointsTableA.length}\` | Moyenne $\\bar{X}_A$ = \`${results.meanA.toFixed(4)}\` | Écart-type $s_A$ = \`${results.sA.toFixed(4)}\`\n    *   Effectif Groupe B ($n_B$) = \`${pointsTableB.length}\` | Moyenne $\\bar{X}_B$ = \`${results.meanB.toFixed(4)}\` | Écart-type $s_B$ = \`${results.sB.toFixed(4)}\`\n*   **Résultats de la confrontation :**\n    *   $t$-Statistique calculé = \`${results.tStat.toFixed(4)}\`\n    *   Degrés de liberté ($df$) = \`${results.df.toFixed(2)}\`\n    *   $p$-Value calculée = \`${results.pValue.toFixed(6)}\`\n    *   **Verdict :** ${results.pValue < parameters.alpha ? "Différence significativement différente (Rejet de H0)" : "Différence non significative au seuil alpha."}`;
+
+                textPython = `import numpy as np\nimport scipy.stats as stats\n\n# Groupes de données réels issus de vos Tableaux\ngroup_a = ${formatArrPy(pointsTableA)}\ngroup_b = ${formatArrPy(pointsTableB)}\n\n# Welch's t-test (Variances supposées inégales)\nt_stat, p_val = stats.ttest_ind(group_a, group_b, equal_var=False)\n\nprint(f"t-Statistique : {t_stat:.4f}")\nprint(f"p-Value : {p_val:.6f}")\nif p_val < ${parameters.alpha}:\n    print("Verdict : Rejet de H0 (Moyennes significativement différentes)")\nelse:\n    print("Verdict : Non rejet de H0 (Pas de différence significative)")`;
+
+                textR = `# Script R Statistique - Welch's t-test de comparaison de moyennes\ngroup_a <- ${formatArrR(pointsTableA)}\ngroup_b <- ${formatArrR(pointsTableB)}\n\n# t-test bilatéral à deux échantillons indépendants\ntest_res <- t.test(group_a, group_b, alternative = "two.sided", mu = 0, var.equal = FALSE, conf.level = ${1 - parameters.alpha})\n\nprint(test_res)\n# Interprétation de la p-value\nif(test_res$p.value < ${parameters.alpha}) {\n  cat("Rejet de H0 (Différence significative)\\n")\n} else {\n  cat("Non rejet de H0 (Différence non significative)\\n")\n}`;
+            }
+
+            latexTextarea.value = textLatex;
+            markdownTextarea.value = textMarkdown;
+            pythonTextarea.value = textPython;
+            rTextarea.value = textR;
+        }
+
+        // Copie robuste
+        function copierPressePapier(elementId) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                const btn = window.event.target;
+                const orig = btn.innerHTML;
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> Copié !`;
+                setTimeout(() => { btn.innerHTML = orig; }, 1500);
+            } catch (err) {
+                console.warn("Échec du presse-papier.");
+            }
+        }
+
+        // Démarrage
+        setTimeout(() => {
+            resizeCanvas();
+            chargerModule('custom');
+        }, 100);
+    </script>
+</body>
+</html>
+```
+eof
+
+Toutes les cartes ont été mises à jour pour s'adapter à votre test de Student et à votre carte d'expression libre. Vous pouvez copier ce code complet dans votre fichier `index.html` sur GitHub et observer instantanément la mise à jour sur Netlify !

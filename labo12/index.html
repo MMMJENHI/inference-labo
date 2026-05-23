@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suite d'Inférence Statistique & Plateforme d'Analyse Quantitative</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX for rendering equations perfectly -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght=400;500;600&family=Inter:wght=300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .math-code {
+            font-family: 'Fira Code', monospace;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Floating Toast Notification System -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+    <!-- Header / Branding -->
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-md border-b-4 border-emerald-500">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-white p-2 rounded-lg shadow-inner flex items-center justify-center">
+                    <span class="text-indigo-950 font-extrabold text-xl tracking-wider">STATS</span>
+                    <span class="text-emerald-600 font-extrabold text-xl">LAB</span>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight">Suite d'Inférence Statistique & Analyses Décisionnelles</h1>
+                    <p class="text-xs text-slate-300">Plateforme de Modélisation Quantitative • Laboratoire de Recherche</p>
+                </div>
+            </div>
+            
+            <!-- Gemini API Credentials Panel -->
+            <div class="flex flex-wrap items-center gap-3 bg-slate-800/60 p-2 rounded-xl border border-slate-700/50">
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="api-status-dot"></span>
+                    <span class="text-[10px] uppercase font-bold text-slate-300" id="api-status-label">API Active</span>
+                </div>
+                <button onclick="toggleLang()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-md font-semibold transition-all shadow flex items-center gap-1.5">
+                    <i class="fa-solid fa-language text-sm"></i>
+                    <span id="langBtnText">EN / FR</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto custom-scrollbar">
+            <button onclick="switchTab('calc')" id="tab-calc" class="tab-btn px-6 py-3.5 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap text-blue-600 border-blue-600">
+                <i class="fa-solid fa-calculator"></i> <span data-key="tab-calculator">1. Analyses & Tests Statistiques</span>
+            </button>
+            <button onclick="switchTab('scripts')" id="tab-scripts" class="tab-btn px-6 py-3.5 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap text-slate-500 border-transparent hover:text-slate-800 hover:border-slate-300">
+                <i class="fa-solid fa-code"></i> <span data-key="tab-scripts">2. Codes Python & R</span>
+            </button>
+            <button onclick="switchTab('math')" id="tab-math" class="tab-btn px-6 py-3.5 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap text-slate-500 border-transparent hover:text-slate-800 hover:border-slate-300">
+                <i class="fa-solid fa-book-open"></i> <span data-key="tab-theory">3. Formules & Cours (LaTeX)</span>
+            </button>
+            <button onclick="switchTab('lex')" id="tab-lex" class="tab-btn px-6 py-3.5 border-b-2 font-medium text-sm flex items-center gap-2 whitespace-nowrap text-slate-500 border-transparent hover:text-slate-800 hover:border-slate-300">
+                <i class="fa-solid fa-language"></i> <span data-key="tab-translator">4. Traducteur & Lexique</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- TAB 1: CALCULATEUR / STATISTIQUES -->
+        <section id="content-calc" class="tab-content block space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Inputs and Setup Panel -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="border-b border-slate-100 pb-2 mb-2">
+                        <div class="flex justify-between items-center flex-wrap gap-2">
+                            <h4 class="font-bold text-slate-900 flex items-center gap-2 text-base">
+                                <i class="fa-solid fa-edit text-blue-600"></i>
+                                <span data-key="input-panel-title">Saisie des Échantillons</span>
+                            </h4>
+                            <!-- Presets selector -->
+                            <select id="data-preset" onchange="loadPreset()" class="text-xs border border-slate-200 bg-slate-50 text-slate-700 font-semibold rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                <option value="preset1">Preset: Performance Académique (Notes)</option>
+                                <option value="preset2">Preset: Vitesse Algorithme A vs B</option>
+                                <option value="preset3">Preset: Homogènes (H0 Vrai)</option>
+                                <option value="preset4">Preset ANOVA: 3 Groupes Distincts</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Gemini Prompt-to-Dataset Generator integration -->
+                    <div class="bg-indigo-50/70 p-3 rounded-lg border border-indigo-100 space-y-2">
+                        <label class="block text-[11px] font-bold text-indigo-950 uppercase tracking-wider flex items-center justify-between">
+                            <span>🪄 Générer un cas réel par l'IA</span>
+                            <span class="text-[9px] bg-indigo-200 text-indigo-800 px-1.5 py-0.5 rounded font-semibold uppercase">Gemini IA</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="ai-prompt-input" placeholder="Ex: Notes d'un test d'Algèbre de trois groupes..." class="flex-1 text-xs px-2.5 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                            <button onclick="triggerAiDatasetGeneration()" id="btn-ai-dataset" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-2 rounded-md transition-all shadow-sm flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </button>
+                        </div>
+                        <div id="ai-dataset-loader" class="hidden text-[10px] text-indigo-600 font-medium flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-notch animate-spin"></i>
+                            <span>L'IA conçoit l'expérience...</span>
+                        </div>
+                    </div>
+
+                    <!-- Group X Input -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex justify-between">
+                            <span>Groupe X (Série A)</span>
+                            <span class="text-blue-600" id="count-x">N = 0</span>
+                        </label>
+                        <textarea id="input-x" rows="2" placeholder="Saisir des nombres séparés par des virgules ou espaces..." class="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none" oninput="parseInputs()"></textarea>
+                    </div>
+
+                    <!-- Group Y Input -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex justify-between">
+                            <span>Groupe Y (Série B)</span>
+                            <span class="text-emerald-600" id="count-y">N = 0</span>
+                        </label>
+                        <textarea id="input-y" rows="2" placeholder="Saisir des nombres séparés par des virgules ou espaces..." class="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none" oninput="parseInputs()"></textarea>
+                    </div>
+
+                    <!-- Group Z Input (Hidden/shown dynamically for ANOVA) -->
+                    <div id="group-z-container" class="hidden">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex justify-between">
+                            <span>Groupe Z (Série C)</span>
+                            <span class="text-purple-600" id="count-z">N = 0</span>
+                        </label>
+                        <textarea id="input-z" rows="2" placeholder="Saisir des nombres pour le 3ème groupe (Requis pour l'ANOVA)..." class="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-purple-500 focus:outline-none" oninput="parseInputs()"></textarea>
+                    </div>
+
+                    <!-- Test Config -->
+                    <div class="pt-2 border-t border-slate-100 space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1" data-key="label-test-type">Type de Test d'Hypothèse</label>
+                            <select id="calc-test-type" class="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" onchange="adjustUIForTestType(); runAnalysis();">
+                                <optgroup label="Tests t de Student (2 groupes)">
+                                    <option value="ind-equal" selected>Student Indépendant (Variances égales)</option>
+                                    <option value="ind-unequal">Welch Indépendant (Variances inégales)</option>
+                                    <option value="paired">Student Apparié (Paires dépendantes)</option>
+                                </optgroup>
+                                <optgroup label="Tests Non Paramétriques (2 groupes)">
+                                    <option value="mann-whitney">Test U de Mann-Whitney (Indépendant)</option>
+                                    <option value="wilcoxon">Test de Wilcoxon (Apparié)</option>
+                                </optgroup>
+                                <optgroup label="Analyse de Variance (3 groupes et plus)">
+                                    <option value="anova">ANOVA à un facteur (X, Y, Z)</option>
+                                </optgroup>
+                                <optgroup label="Analyses d'Association / Corrélation">
+                                    <option value="correlation-pearson">Corrélation de Pearson (X vs Y)</option>
+                                    <option value="correlation-spearman">Corrélation de Spearman (X vs Y)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div id="h1-container">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1" data-key="label-alt-hyp">Alternative H1</label>
+                                <select id="calc-h1" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" onchange="runAnalysis()">
+                                    <option value="two-tailed" selected>Bilatéral (X ≠ Y)</option>
+                                    <option value="greater">Unilatéral Droit (X > Y)</option>
+                                    <option value="less">Unilatéral Gauche (X < Y)</option>
+                                </select>
+                            </div>
+                            <div id="alpha-container" class="col-span-1">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex justify-between">
+                                    <span data-key="label-alpha">Seuil α</span>
+                                    <span id="alpha-val" class="font-bold text-blue-600">0.05</span>
+                                </label>
+                                <input type="range" id="calc-alpha" min="0.01" max="0.10" value="0.05" step="0.01" oninput="document.getElementById('alpha-val').textContent = this.value; runAnalysis();" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Summary and Charting -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 lg:col-span-2 space-y-6">
+                    <!-- Diagnostic / Alerts -->
+                    <div id="calc-error-banner" class="hidden bg-rose-50 border-l-4 border-rose-500 p-3.5 rounded-r-lg text-rose-800 text-xs font-medium"></div>
+
+                    <!-- Key Stats Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="block text-[10px] text-slate-500 uppercase font-semibold" id="stat-test-name">Statistique</span>
+                            <span class="text-xl font-bold text-indigo-950" id="stat-t">--</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="block text-[10px] text-slate-500 uppercase font-semibold" id="stat-df-label">Degrés de liberté</span>
+                            <span class="text-xl font-bold text-indigo-950" id="stat-df">--</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                            <span class="block text-[10px] text-slate-500 uppercase font-semibold">p-value</span>
+                            <span class="text-xl font-bold text-indigo-950" id="stat-p">--</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex flex-col justify-center">
+                            <span class="block text-[10px] text-slate-500 uppercase font-semibold" data-key="stat-verdict">Verdict</span>
+                            <span class="text-xs font-bold px-2 py-0.5 mt-1 rounded text-center w-full" id="stat-verdict-badge">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Tabular descriptive stats -->
+                    <div class="overflow-x-auto border border-slate-100 rounded-lg">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                                    <th class="p-2.5">Groupe</th>
+                                    <th class="p-2.5">N</th>
+                                    <th class="p-2.5">Moyenne (X̄)</th>
+                                    <th class="p-2.5">Variance (S²)</th>
+                                    <th class="p-2.5">Écart-Type (S)</th>
+                                    <th class="p-2.5">Erreur-Type (SE)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr class="text-slate-700">
+                                    <td class="p-2.5 font-semibold text-blue-600">X (Série A)</td>
+                                    <td class="p-2.5" id="tbl-n-x">--</td>
+                                    <td class="p-2.5" id="tbl-mean-x">--</td>
+                                    <td class="p-2.5" id="tbl-var-x">--</td>
+                                    <td class="p-2.5" id="tbl-std-x">--</td>
+                                    <td class="p-2.5" id="tbl-se-x">--</td>
+                                </tr>
+                                <tr class="text-slate-700">
+                                    <td class="p-2.5 font-semibold text-emerald-600">Y (Série B)</td>
+                                    <td class="p-2.5" id="tbl-n-y">--</td>
+                                    <td class="p-2.5" id="tbl-mean-y">--</td>
+                                    <td class="p-2.5" id="tbl-var-y">--</td>
+                                    <td class="p-2.5" id="tbl-std-y">--</td>
+                                    <td class="p-2.5" id="tbl-se-y">--</td>
+                                </tr>
+                                <tr id="tbl-row-z" class="text-slate-700 hidden">
+                                    <td class="p-2.5 font-semibold text-purple-600">Z (Série C)</td>
+                                    <td class="p-2.5" id="tbl-n-z">--</td>
+                                    <td class="p-2.5" id="tbl-mean-z">--</td>
+                                    <td class="p-2.5" id="tbl-var-z">--</td>
+                                    <td class="p-2.5" id="tbl-std-z">--</td>
+                                    <td class="p-2.5" id="tbl-se-z">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Interactive Charting Area -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Distribution Graph -->
+                        <div class="border border-slate-150 rounded-xl p-3.5 flex flex-col">
+                            <span class="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-chart-simple text-blue-500"></i> Boxplot & Points Expérimentaux
+                            </span>
+                            <canvas id="canvas-boxplot" class="w-full h-48 bg-slate-50 rounded border border-slate-100"></canvas>
+                        </div>
+
+                        <!-- Density Curve with Rejection Area -->
+                        <div class="border border-slate-150 rounded-xl p-3.5 flex flex-col">
+                            <span class="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-chart-line text-red-500"></i> Zone de Rejet de H₀ & Positionnement
+                            </span>
+                            <canvas id="canvas-density" class="w-full h-48 bg-slate-50 rounded border border-slate-100"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- F-test & Academic Advisor Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <!-- Fisher Variance test results -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200" id="fish-test-container">
+                    <h5 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-indigo-500"></i>
+                        Test de Fisher d'Égalité des Variances (Homoscédasticité)
+                    </h5>
+                    <div class="bg-slate-50 p-4 rounded-lg space-y-2 border border-slate-100">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Ratio des Variances (F) :</span>
+                            <span class="font-bold text-slate-800" id="fish-f">--</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">Degrés de Liberté :</span>
+                            <span class="font-bold text-slate-800" id="fish-df">--</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">p-value (Fisher) :</span>
+                            <span class="font-bold text-slate-800" id="fish-p">--</span>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200 flex justify-between items-center text-xs">
+                            <span class="text-slate-500">Diagnostic :</span>
+                            <span class="font-bold px-2.5 py-1 rounded text-[10px]" id="fish-badge">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Traditional Export Reports -->
+                    <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                        <h6 class="text-xs font-bold text-slate-800 uppercase">Rapports Classiques</h6>
+                        <button onclick="copyMarkdownReport()" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold py-2.5 px-3 rounded-md transition flex items-center justify-center gap-1.5 shadow">
+                            <i class="fa-solid fa-copy"></i> Copier le rapport Markdown
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gemini Academic Interpretation Module -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-indigo-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h5 class="font-bold text-indigo-950 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-brain text-indigo-600"></i>
+                                Discussion Universitaire & Analyse IA (Gemini)
+                            </h5>
+                            <span class="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-full">Intelligent</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3 leading-relaxed">
+                            L'IA analyse vos résultats statistiques réels calculés et rédige une discussion scientifique rigoureuse, complétée de citations académiques réelles ou de détails théoriques selon vos besoins.
+                        </p>
+                        
+                        <!-- AI Search Checkbox -->
+                        <div class="flex items-center gap-2 mb-4 bg-slate-50 p-2 rounded border border-slate-150">
+                            <input type="checkbox" id="ai-grounding-check" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"/>
+                            <label for="ai-grounding-check" class="text-xs text-slate-700 font-medium select-none cursor-pointer">
+                                Activer le <strong>Google Search Grounding</strong> (recherche de références réelles)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="generateAcademicDiscussion()" id="btn-ai-discuss" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-xs font-bold py-3 px-4 rounded-lg transition-all shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-graduation-cap"></i> Rédiger l'Analyse Académique par l'IA
+                        </button>
+
+                        <div id="ai-discuss-loader" class="hidden flex items-center justify-center gap-2 p-3 bg-indigo-50 border border-indigo-150 rounded-lg text-xs text-indigo-700 font-semibold">
+                            <i class="fa-solid fa-circle-notch animate-spin text-indigo-600"></i>
+                            <span>Analyse de l'inférence par Gemini...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Report Viewer Window -->
+            <div id="ai-report-panel" class="hidden bg-white rounded-xl shadow-sm border border-indigo-300 p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-indigo-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-indigo-100 text-indigo-700 p-1.5 rounded-lg">
+                            <i class="fa-solid fa-file-contract text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm">Rapport Scientifique Académique</h4>
+                            <p class="text-[10px] text-slate-500">Discussion théorique validée par le modèle Gemini Flash</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="copyAiReportToClipboard()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-md flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-copy"></i> Copier le rapport
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Generated Document Container -->
+                <div id="ai-report-content" class="text-sm text-slate-700 leading-relaxed bg-slate-50 p-5 rounded-xl border border-slate-150 overflow-y-auto max-h-[400px] custom-scrollbar space-y-3">
+                    <!-- Dynamic Text will be parsed and printed here -->
+                </div>
+
+                <!-- Grounding Citations -->
+                <div id="ai-citations-container" class="hidden bg-indigo-50/50 p-4 rounded-lg border border-indigo-150 space-y-2">
+                    <h5 class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                        <i class="fa-solid fa-bookmark text-indigo-600"></i> Sources d'Inférence Identifiées (Google Search)
+                    </h5>
+                    <ul id="ai-citations-list" class="list-disc pl-5 text-xs text-slate-600 space-y-1"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: SCRIPTS GENERATOR (PYTHON / R) -->
+        <section id="content-scripts" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-3 mb-4 flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-laptop-code text-indigo-600"></i>
+                            Générateur de Scripts d'Analyse (Python & R)
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Ces scripts sont générés dynamiquement et configurés avec vos données expérimentales actuelles.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <label class="text-xs font-semibold text-slate-600 whitespace-nowrap">Synchroniser avec :</label>
+                        <select id="script-test-sync" onchange="syncScriptSelection()" class="text-xs border border-slate-300 rounded bg-white px-2 py-1 font-semibold focus:outline-none">
+                            <option value="ind-equal">Student Indépendant (Variances égales)</option>
+                            <option value="ind-unequal">Welch Indépendant (Variances inégales)</option>
+                            <option value="paired">Student Apparié (Paires dépendantes)</option>
+                            <option value="mann-whitney">Mann-Whitney U (Non paramétrique)</option>
+                            <option value="wilcoxon">Wilcoxon (Paires associées)</option>
+                            <option value="anova">ANOVA à un facteur</option>
+                            <option value="correlation-pearson">Corrélation de Pearson</option>
+                            <option value="correlation-spearman">Corrélation de Spearman</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grid Python vs R -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- PYTHON CARD -->
+                    <div class="flex flex-col border border-slate-200 rounded-xl overflow-hidden bg-slate-900 text-slate-100">
+                        <div class="bg-slate-800 px-4 py-2.5 flex justify-between items-center border-b border-slate-750">
+                            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-brands fa-python text-lg"></i> Script Python (Pandas & SciPy)
+                            </span>
+                            <button onclick="copyCodeBlock('python-code')" class="text-[10px] bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold px-2.5 py-1 rounded transition flex items-center gap-1">
+                                <i class="fa-solid fa-copy"></i> Copier
+                            </button>
+                        </div>
+                        <div class="p-4 overflow-x-auto custom-scrollbar">
+                            <pre id="python-code" class="text-xs font-mono text-emerald-400 leading-relaxed max-h-[500px] select-all"></pre>
+                        </div>
+                    </div>
+
+                    <!-- R CARD -->
+                    <div class="flex flex-col border border-slate-200 rounded-xl overflow-hidden bg-slate-900 text-slate-100">
+                        <div class="bg-slate-800 px-4 py-2.5 flex justify-between items-center border-b border-slate-750">
+                            <span class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-registered text-lg"></i> Script R (Base & Stat)
+                            </span>
+                            <button onclick="copyCodeBlock('r-code')" class="text-[10px] bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold px-2.5 py-1 rounded transition flex items-center gap-1">
+                                <i class="fa-solid fa-copy"></i> Copier
+                            </button>
+                        </div>
+                        <div class="p-4 overflow-x-auto custom-scrollbar">
+                            <pre id="r-code" class="text-xs font-mono text-sky-300 leading-relaxed max-h-[500px] select-all"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: FORMULES & THÉORIE (LATEX) -->
+        <section id="content-math" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Theoretical Course Panel -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6 lg:col-span-2">
+                    <div class="border-b border-slate-100 pb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open-reader text-indigo-600 text-lg"></i>
+                        <h3 class="font-bold text-slate-900 text-lg">Fiches Méthodologiques & Formulaires LaTeX</h3>
+                    </div>
+
+                    <div class="prose max-w-none text-sm text-slate-600 leading-relaxed space-y-6">
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-base mb-2">1. Analyse de Variance (ANOVA) Unidirectionnelle</h4>
+                            <p class="mb-3">Pour tester l'égalité des moyennes entre $k$ groupes ($k \ge 3$), nous décomposons la somme des carrés totale ($SST$) en somme des carrés inter-groupes ($SSB$) et somme des carrés intra-groupes ou résiduelle ($SSW$) :</p>
+                            <div class="bg-slate-50 p-4 rounded-lg overflow-x-auto text-center border border-slate-100 mb-3">
+                                $$SSB = \sum_{j=1}^k n_j (\bar{X}_j - \bar{X}_{\text{global}})^2 \qquad \text{et} \qquad SSW = \sum_{j=1}^k \sum_{i=1}^{n_j} (X_{ij} - \bar{X}_j)^2$$
+                            </div>
+                            <p class="mb-3">La statistique $F$ de Fisher-Snedecor est calculée comme suit à $df_1 = k - 1$ et $df_2 = N - k$ degrés de liberté :</p>
+                            <div class="bg-slate-50 p-4 rounded-lg overflow-x-auto text-center border border-slate-100">
+                                $$F = \frac{MSB}{MSW} = \frac{SSB / (k - 1)}{SSW / (N - k)} \sim \mathcal{F}(k-1, N-k)$$
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-base mb-2">2. Tests Non Paramétriques : U de Mann-Whitney</h4>
+                            <p class="mb-3">Lorsque les conditions de normalité des distributions ne sont pas respectées, le test de Mann-Whitney évalue l'égalité des médianes en combinant et classant l'ensemble des observations par rangs :</p>
+                            <div class="bg-slate-50 p-4 rounded-lg overflow-x-auto text-center border border-slate-100 mb-3">
+                                $$U_1 = n_1 n_2 + \frac{n_1(n_1 + 1)}{2} - R_1 \qquad \text{et} \qquad U_2 = n_1 n_2 - U_1$$
+                            </div>
+                            <p class="mb-3">La statistique finale $U = \min(U_1, U_2)$ est normalisée pour de grands échantillons ($n_1, n_2 > 10$) sous la forme :</p>
+                            <div class="bg-slate-50 p-4 rounded-lg overflow-x-auto text-center border border-slate-100">
+                                $$z = \frac{U - \frac{n_1 n_2}{2}}{\sqrt{\frac{n_1 n_2 (n_1 + n_2 + 1)}{12}}} \sim \mathcal{N}(0, 1)$$
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-base mb-2">3. Analyse de Corrélation Lineaire (Pearson)</h4>
+                            <p class="mb-3">Le coefficient $r$ de Pearson mesure la force de l'association linéaire entre deux variables $X$ et $Y$ :</p>
+                            <div class="bg-slate-50 p-4 rounded-lg overflow-x-auto text-center border border-slate-100 mb-3">
+                                $$r = \frac{\sum (X_i - \bar{X})(Y_i - \bar{Y})}{\sqrt{\sum (X_i - \bar{X})^2 \sum (Y_i - \bar{Y})^2}}$$
+                            </div>
+                            <p class="mb-3">La statistique de test $t$ associée sous l'hypothèse nulle d'indépendance ($H_0: \rho = 0$) suit une loi de Student à $\nu = n - 2$ ddl :</p>
+                            <div class="bg-slate-50 p-4 rounded-lg overflow-x-auto text-center border border-slate-100">
+                                $$t = r \sqrt{\frac{n-2}{1-r^2}} \sim \mathcal{T}(n-2)$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Tutor Chat Panel -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-indigo-200 flex flex-col justify-between h-[600px] lg:sticky lg:top-20">
+                    <div class="flex flex-col h-full justify-between">
+                        <!-- Chat Header -->
+                        <div class="border-b border-indigo-50 pb-3 mb-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="bg-emerald-100 text-emerald-800 p-2 rounded-full">
+                                    <i class="fa-solid fa-graduation-cap text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-xs uppercase">AI Tutor</h4>
+                                    <p class="text-[9px] text-slate-500">Posez vos questions théoriques</p>
+                                </div>
+                            </div>
+                            <button onclick="clearTutorChat()" class="text-[10px] text-slate-400 hover:text-rose-600 transition">Effacer</button>
+                        </div>
+
+                        <!-- Messages Container -->
+                        <div id="tutor-chat-box" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-3 text-xs mb-3">
+                            <div class="bg-slate-50 text-slate-700 p-3 rounded-lg border border-slate-100 leading-relaxed">
+                                Bonjour ! Je suis votre tuteur en inférence statistique et modélisation quantitative. Je peux vous expliquer les formules LaTeX, vous aider à choisir entre l'ANOVA et un test de Kruskal-Wallis, ou éclaircir les conditions de validité d'un test paramétrique. Posez-moi votre question !
+                            </div>
+                        </div>
+
+                        <!-- Input Bar -->
+                        <div class="space-y-2 border-t border-indigo-50 pt-3">
+                            <div class="flex gap-1.5">
+                                <input type="text" id="tutor-input" placeholder="Poser une question (ex: Expliquer le calcul de l'ANOVA)..." class="flex-1 text-xs border border-indigo-150 rounded-md px-3 py-2.5 focus:ring-1 focus:ring-indigo-500 focus:outline-none" onkeydown="if(event.key === 'Enter') triggerTutorQuery()"/>
+                                <button onclick="triggerTutorQuery()" id="btn-tutor" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md px-3.5 flex items-center justify-center transition shadow-sm">
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </div>
+                            <div id="tutor-loader" class="hidden text-[10px] text-indigo-600 font-semibold flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-notch animate-spin"></i>
+                                <span>L'IA formule la réponse mathématique...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: TRADUCTEUR & LEXIQUE -->
+        <section id="content-lex" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-3 mb-4 flex justify-between items-center flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-language text-blue-600 text-lg"></i>
+                        <h3 class="font-bold text-slate-900 text-lg">Traducteur Universitaire & Glossaire Statistique</h3>
+                    </div>
+                    <!-- Live Search inside glossary -->
+                    <input type="text" id="glossary-search" placeholder="Rechercher un terme (FR, EN, AR)..." class="text-xs border border-slate-200 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-none w-64" oninput="filterGlossary()">
+                </div>
+
+                <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                    Ce module permet de traduire instantanément les terminologies de biostatistiques et de sciences de données requises pour la lecture d'articles de recherche ou la rédaction scientifique en 3 langues.
+                </p>
+
+                <div class="overflow-x-auto border border-slate-150 rounded-xl">
+                    <table class="w-full text-left border-collapse text-xs" id="glossary-table">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-100 uppercase">
+                                <th class="p-3">Français (Académique)</th>
+                                <th class="p-3">English (Scientific)</th>
+                                <th class="p-3 text-right">العربية (الأكاديمية)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Hypothèse Nulle ($H_0$)</td>
+                                <td class="p-3 italic">Null Hypothesis ($H_0$)</td>
+                                <td class="p-3 text-right font-medium">الفرضية الصفرية / العدم ($H_0$)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Degrés de Liberté ($ddl$)</td>
+                                <td class="p-3 italic">Degrees of Freedom ($df$)</td>
+                                <td class="p-3 text-right font-medium">درجات الحرية ($ddl$)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Écart-Type</td>
+                                <td class="p-3 italic">Standard Deviation ($SD$)</td>
+                                <td class="p-3 text-right font-medium">الانحراف المعياري</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Erreur-Type</td>
+                                <td class="p-3 italic">Standard Error ($SE$)</td>
+                                <td class="p-3 text-right font-medium">الخطأ المعياري</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Homoscédasticité</td>
+                                <td class="p-3 italic">Homoscedasticity / Equal Variances</td>
+                                <td class="p-3 text-right font-medium">تجانس التباين / تساوي التشتت</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Seuil de Signification ($\alpha$)</td>
+                                <td class="p-3 italic">Significance Level ($\alpha$)</td>
+                                <td class="p-3 text-right font-medium">مستوى المعنوية ($\alpha$)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Analyse de Variance (ANOVA)</td>
+                                <td class="p-3 italic">Analysis of Variance (ANOVA)</td>
+                                <td class="p-3 text-right font-medium">تحليل التباين (أنوفا)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Test Non Paramétrique</td>
+                                <td class="p-3 italic">Non-parametric Test</td>
+                                <td class="p-3 text-right font-medium">اختبار غير معلمي</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Rapport Signal / Bruit</td>
+                                <td class="p-3 italic">Signal-to-Noise Ratio</td>
+                                <td class="p-3 text-right font-medium">نسبة الإشارة إلى الضوضاء</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold text-slate-900">Échantillonnage Apparié</td>
+                                <td class="p-3 italic">Paired / Dependent Sampling</td>
+                                <td class="p-3 text-right font-medium">العينات المترابطة / المزدوجة</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex flex-col gap-1">
+                <p>&copy; 2026 Laboratoire d'Analyse Quantitative et Modélisation Statistique.</p>
+                <p class="text-[10px] text-slate-500">Conçu pour l'usage académique, l'évaluation des algorithmes IA et la recherche statistique.</p>
+            </div>
+            <div class="flex gap-4">
+                <a href="https://github.com" target="_blank" class="hover:text-white transition"><i class="fa-brands fa-github text-base"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Script Logic Section -->
+    <script>
+        const langData = {
+            fr: {
+                "tab-calculator": "1. Analyses & Tests Statistiques",
+                "tab-scripts": "2. Codes Python & R",
+                "tab-theory": "3. Formules & Cours (LaTeX)",
+                "tab-translator": "4. Traducteur & Lexique",
+                "input-panel-title": "Saisie des Échantillons",
+                "label-test-type": "Type de Test d'Hypothèse",
+                "label-alt-hyp": "Alternative H1",
+                "label-alpha": "Seuil α",
+                "stat-verdict": "Verdict",
+                "fish-badge-equal": "Homogène (Variances Égales)",
+                "fish-badge-unequal": "Hétérogène (Variances Inégales)"
+            },
+            en: {
+                "tab-calculator": "1. Analyses & Statistical Tests",
+                "tab-scripts": "2. Python & R Scripts",
+                "tab-theory": "3. LaTeX Formulas & Course",
+                "tab-translator": "4. Glossary Translator",
+                "input-panel-title": "Dataset Input",
+                "label-test-type": "Hypothesis Test Type",
+                "label-alt-hyp": "Alternative Hypothesis (H1)",
+                "label-alpha": "Alpha Threshold α",
+                "stat-verdict": "Verdict",
+                "fish-badge-equal": "Homoscedastic (Equal)",
+                "fish-badge-unequal": "Heteroscedastic (Unequal)"
+            }
+        };
+
+        let currentLang = 'fr';
+        const apiKey = ""; // En milieu d'exécution réel, la clé est injectée automatiquement par l'environnement
+
+        function toggleLang() {
+            currentLang = currentLang === 'fr' ? 'en' : 'fr';
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            const dictionary = langData[currentLang];
+            document.querySelectorAll('[data-key]').forEach(elem => {
+                const key = elem.getAttribute('data-key');
+                if (dictionary[key]) {
+                    elem.textContent = dictionary[key];
+                }
+            });
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-blue-600', 'border-blue-600');
+                btn.classList.add('text-slate-500', 'border-transparent');
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.remove('text-slate-500', 'border-transparent');
+            activeBtn.classList.add('text-blue-600', 'border-blue-600');
+
+            if (tabId === 'calc') {
+                adjustUIForTestType();
+                runAnalysis();
+            }
+            if (tabId === 'scripts') {
+                updateScriptsTab();
+            }
+            if (tabId === 'math') {
+                renderMathOnLoad();
+            }
+        }
+
+        // Global state for calculations
+        let groupX = [];
+        let groupY = [];
+        let groupZ = [];
+        let lastAnalysisOutputs = {};
+
+        // Preloaded datasets for rapid testing
+        const presets = {
+            preset1: {
+                x: "14, 15, 13.5, 12, 16, 17, 14, 15.5, 13, 16",
+                y: "11, 12.5, 10, 13, 11.5, 12, 10.5, 14, 11, 12",
+                z: "15, 14, 16, 15.5, 13, 14.5, 14, 13.5, 16, 15"
+            },
+            preset2: {
+                x: "102, 105, 98, 110, 104, 106, 101, 103, 107",
+                y: "92, 95, 91, 99, 94, 96, 90, 93, 97",
+                z: "85, 87, 88, 89, 86, 84, 88, 90, 86"
+            },
+            preset3: {
+                x: "12, 12.5, 11.8, 12.2, 13, 11.5, 12.1, 12.4",
+                y: "12.1, 12.3, 11.9, 12.2, 12.8, 11.6, 12.0, 12.5",
+                z: "12.2, 12.0, 12.4, 12.1, 11.9, 12.3, 12.2, 12.1"
+            },
+            preset4: {
+                x: "24, 28, 30, 25, 29, 32, 26, 27",
+                y: "18, 19, 22, 15, 21, 20, 17, 18",
+                z: "12, 15, 14, 11, 16, 13, 14, 15"
+            }
+        };
+
+        function loadPreset() {
+            const selector = document.getElementById('data-preset');
+            const preset = presets[selector.value];
+            if (preset) {
+                document.getElementById('input-x').value = preset.x;
+                document.getElementById('input-y').value = preset.y;
+                document.getElementById('input-z').value = preset.z;
+                parseInputs();
+            }
+        }
+
+        function adjustUIForTestType() {
+            const testType = document.getElementById('calc-test-type').value;
+            const containerZ = document.getElementById('group-z-container');
+            const h1Container = document.getElementById('h1-container');
+            const tblRowZ = document.getElementById('tbl-row-z');
+            const fishContainer = document.getElementById('fish-test-container');
+
+            // Mettre à jour le sélecteur de synchronisation dans l'onglet code
+            document.getElementById('script-test-sync').value = testType;
+
+            // Handle Group Z visibility for ANOVA
+            if (testType === 'anova') {
+                containerZ.classList.remove('hidden');
+                tblRowZ.classList.remove('hidden');
+                h1Container.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                containerZ.classList.add('hidden');
+                tblRowZ.classList.add('hidden');
+                h1Container.classList.remove('opacity-50', 'pointer-events-none');
+            }
+
+            // Fisher test only applicable for Independent t-tests
+            if (testType === 'ind-equal' || testType === 'ind-unequal') {
+                fishContainer.classList.remove('hidden');
+            } else {
+                fishContainer.classList.add('hidden');
+            }
+
+            // Adjust labels for Correlation tests
+            if (testType.startsWith('correlation-')) {
+                document.getElementById('stat-test-name').textContent = "r de Pearson / ρ";
+                document.getElementById('stat-df-label').textContent = "Degrés de liberté (n-2)";
+            } else if (testType === 'anova') {
+                document.getElementById('stat-test-name').textContent = "F de Fisher";
+                document.getElementById('stat-df-label').textContent = "Degrés (df1, df2)";
+            } else if (testType === 'mann-whitney' || testType === 'wilcoxon') {
+                document.getElementById('stat-test-name').textContent = "Score standardisé (Z)";
+                document.getElementById('stat-df-label').textContent = "Score U / W";
+            } else {
+                document.getElementById('stat-test-name').textContent = "T-Statistique";
+                document.getElementById('stat-df-label').textContent = "Degrés de liberté (ddl)";
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPreset();
+            applyTranslations();
+            renderMathOnLoad();
+        });
+
+        function parseInputs() {
+            const rx = /[\s,;\n]+/;
+            const textX = document.getElementById('input-x').value;
+            const textY = document.getElementById('input-y').value;
+            const textZ = document.getElementById('input-z').value;
+
+            groupX = textX.split(rx).map(Number).filter(n => !isNaN(n) && n !== 0);
+            groupY = textY.split(rx).map(Number).filter(n => !isNaN(n) && n !== 0);
+            groupZ = textZ.split(rx).map(Number).filter(n => !isNaN(n) && n !== 0);
+
+            document.getElementById('count-x').textContent = `N = ${groupX.length}`;
+            document.getElementById('count-y').textContent = `N = ${groupY.length}`;
+            document.getElementById('count-z').textContent = `N = ${groupZ.length}`;
+
+            runAnalysis();
+            updateScriptsTab();
+        }
+
+        // Descriptive Stats
+        function calcStats(arr) {
+            const n = arr.length;
+            if (n === 0) return { n: 0, mean: 0, variance: 0, std: 0, se: 0 };
+            const mean = arr.reduce((acc, v) => acc + v, 0) / n;
+            const variance = n > 1 ? arr.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / (n - 1) : 0;
+            const std = Math.sqrt(variance);
+            const se = std / Math.sqrt(n);
+            return { n, mean, variance, std, se };
+        }
+
+        // Mathematical Helpers
+        function gamma(x) {
+            const p = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+                 771.32342877765313, -176.61502916214059, 12.507343278686905,
+                 -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+            if (x < 0.5) return Math.PI / (Math.sin(Math.PI * x) * gamma(1 - x));
+            x -= 1;
+            let a = p[0];
+            let t = x + 7.5;
+            for (let i = 1; i < p.length; i++) {
+                a += p[i] / (x + i);
+            }
+            return Math.sqrt(2 * Math.PI) * Math.pow(t, x + 0.5) * Math.exp(-t) * a;
+        }
+
+        function logGamma(x) {
+            return Math.log(gamma(x));
+        }
+
+        // Student's T PDF & CDF
+        function t_pdf(t, df) {
+            const num = gamma((df + 1) / 2);
+            const den = Math.sqrt(df * Math.PI) * gamma(df / 2);
+            return (num / den) * Math.pow(1 + (t * t) / df, -(df + 1) / 2);
+        }
+
+        function t_cdf(t, df) {
+            if (t === 0) return 0.5;
+            if (t < 0) return 1 - t_cdf(-t, df);
+            const steps = 1000;
+            const h = t / steps;
+            let sum = t_pdf(0, df) + t_pdf(t, df);
+            for (let i = 1; i < steps; i++) {
+                const x = i * h;
+                sum += (i % 2 === 0 ? 2 : 4) * t_pdf(x, df);
+            }
+            return 0.5 + (sum * h / 3);
+        }
+
+        // Normal Distribution CDF (for Z values)
+        function normal_cdf(z) {
+            const b1 = 0.319381530;
+            const b2 = -0.356563782;
+            const b3 = 1.781477937;
+            const b4 = -1.821255978;
+            const b5 = 1.330274429;
+            const p = 0.2316419;
+            const c = 0.39894228;
+            if (z >= 0) {
+                let t = 1.0 / (1.0 + p * z);
+                return 1.0 - c * Math.exp(-z * z / 2.0) * t * (t * (t * (t * (t * b5 + b4) + b3) + b2) + b1);
+            } else {
+                let t = 1.0 / (1.0 - p * z);
+                return c * Math.exp(-z * z / 2.0) * t * (t * (t * (t * (t * b5 + b4) + b3) + b2) + b1);
+            }
+        }
+
+        // Fisher F CDF & PDF
+        function f_pdf(x, df1, df2) {
+            if (x <= 0) return 0;
+            const num = Math.pow(df1 * x, df1) * Math.pow(df2, df2);
+            const den = Math.pow(df1 * x + df2, df1 + df2);
+            const coeff = Math.exp(logGamma((df1 + df2) / 2) - logGamma(df1 / 2) - logGamma(df2 / 2));
+            return coeff * Math.sqrt(num / den) / x;
+        }
+
+        function f_cdf(f, df1, df2) {
+            const x = (df2) / (df2 + df1 * f);
+            return regularizedBeta(x, df2 / 2, df1 / 2);
+        }
+
+        function regularizedBeta(x, a, b) {
+            if (x < 0 || x > 1) return NaN;
+            if (x > (a + 1) / (a + b + 2)) {
+                return 1 - regularizedBeta(1 - x, b, a);
+            }
+            const eps = 3e-7;
+            const max_iter = 100;
+            const qab = a + b;
+            const qap = a + 1;
+            const qam = a - 1;
+            let c = 1;
+            let d = 1 - qab * x / qap;
+            if (Math.abs(d) < eps) d = eps;
+            d = 1 / d;
+            let h = d;
+            for (let m = 1; m <= max_iter; m++) {
+                const m2 = 2 * m;
+                let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+                d = 1 + aa * d;
+                if (Math.abs(d) < eps) d = eps;
+                c = 1 + aa / c;
+                if (Math.abs(c) < eps) c = eps;
+                d = 1 / d;
+                h *= d * c;
+                aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+                d = 1 + aa * d;
+                if (Math.abs(d) < eps) d = eps;
+                c = 1 + aa / c;
+                if (Math.abs(c) < eps) c = eps;
+                d = 1 / d;
+                h *= d * c;
+                if (Math.abs(d * c - 1) < eps) break;
+            }
+            const coeff = Math.exp(a * Math.log(x) + b * Math.log(1 - x) + logGamma(a + b) - logGamma(a) - logGamma(b));
+            return coeff * h / a;
+        }
+
+        // Ranks extraction for Non-Parametrics (Mann-Whitney / Wilcoxon)
+        function getRanksCombined(arr1, arr2) {
+            let combined = [];
+            arr1.forEach((val, idx) => combined.push({ val, group: 1, originalIdx: idx }));
+            arr2.forEach((val, idx) => combined.push({ val, group: 2, originalIdx: idx }));
+
+            combined.sort((a, b) => a.val - b.val);
+
+            let ranks = new Array(combined.length);
+            let i = 0;
+            while (i < combined.length) {
+                let j = i;
+                while (j < combined.length - 1 && combined[j + 1].val === combined[j].val) {
+                    j++;
+                }
+                // Compute average rank for ties
+                let avgRank = (i + 1 + j + 1) / 2;
+                for (let k = i; k <= j; k++) {
+                    combined[k].rank = avgRank;
+                }
+                i = j + 1;
+            }
+            return combined;
+        }
+
+        // Main statistical calculations engine
+        function runAnalysis() {
+            const errorBanner = document.getElementById('calc-error-banner');
+            errorBanner.classList.add('hidden');
+            errorBanner.textContent = '';
+
+            const testType = document.getElementById('calc-test-type').value;
+            const h1 = document.getElementById('calc-h1').value;
+            const alpha = parseFloat(document.getElementById('calc-alpha').value);
+
+            if (groupX.length < 2 || groupY.length < 2) {
+                errorBanner.classList.remove('hidden');
+                errorBanner.textContent = "Erreur de données : Les groupes X et Y doivent comporter au moins 2 éléments.";
+                clearResults();
+                return;
+            }
+
+            const statsX = calcStats(groupX);
+            const statsY = calcStats(groupY);
+
+            // Populate base tables
+            document.getElementById('tbl-n-x').textContent = statsX.n;
+            document.getElementById('tbl-mean-x').textContent = statsX.mean.toFixed(4);
+            document.getElementById('tbl-var-x').textContent = statsX.variance.toFixed(4);
+            document.getElementById('tbl-std-x').textContent = statsX.std.toFixed(4);
+            document.getElementById('tbl-se-x').textContent = statsX.se.toFixed(4);
+
+            document.getElementById('tbl-n-y').textContent = statsY.n;
+            document.getElementById('tbl-mean-y').textContent = statsY.mean.toFixed(4);
+            document.getElementById('tbl-var-y').textContent = statsY.variance.toFixed(4);
+            document.getElementById('tbl-std-y').textContent = statsY.std.toFixed(4);
+            document.getElementById('tbl-se-y').textContent = statsY.se.toFixed(4);
+
+            let value = 0;
+            let df = "";
+            let pVal = 0.5;
+            let verdict = "";
+
+            if (testType === 'ind-equal') {
+                const sp2 = ((statsX.n - 1) * statsX.variance + (statsY.n - 1) * statsY.variance) / (statsX.n + statsY.n - 2);
+                value = (statsX.mean - statsY.mean) / Math.sqrt(sp2 * (1 / statsX.n + 1 / statsY.n));
+                df = (statsX.n + statsY.n - 2).toString();
+                pVal = h1 === 'two-tailed' ? 2 * (1 - t_cdf(Math.abs(value), parseInt(df))) : 
+                       h1 === 'greater' ? 1 - t_cdf(value, parseInt(df)) : t_cdf(value, parseInt(df));
+
+            } else if (testType === 'ind-unequal') {
+                value = (statsX.mean - statsY.mean) / Math.sqrt(statsX.variance / statsX.n + statsY.variance / statsY.n);
+                const num = Math.pow(statsX.variance / statsX.n + statsY.variance / statsY.n, 2);
+                const den = Math.pow(statsX.variance / statsX.n, 2) / (statsX.n - 1) + Math.pow(statsY.variance / statsY.n, 2) / (statsY.n - 1);
+                df = (num / den).toFixed(2);
+                pVal = h1 === 'two-tailed' ? 2 * (1 - t_cdf(Math.abs(value), parseFloat(df))) : 
+                       h1 === 'greater' ? 1 - t_cdf(value, parseFloat(df)) : t_cdf(value, parseFloat(df));
+
+            } else if (testType === 'paired') {
+                if (statsX.n !== statsY.n) {
+                    errorBanner.classList.remove('hidden');
+                    errorBanner.textContent = "Erreur : Le test t apparié nécessite deux séries de même longueur.";
+                    clearResults();
+                    return;
+                }
+                const diffs = groupX.map((v, i) => v - groupY[i]);
+                const statsD = calcStats(diffs);
+                value = statsD.mean / (statsD.std / Math.sqrt(statsX.n));
+                df = (statsX.n - 1).toString();
+                pVal = h1 === 'two-tailed' ? 2 * (1 - t_cdf(Math.abs(value), parseInt(df))) : 
+                       h1 === 'greater' ? 1 - t_cdf(value, parseInt(df)) : t_cdf(value, parseInt(df));
+
+            } else if (testType === 'mann-whitney') {
+                const combined = getRanksCombined(groupX, groupY);
+                const rankSumX = combined.filter(c => c.group === 1).reduce((acc, c) => acc + c.rank, 0);
+                const u1 = statsX.n * statsY.n + (statsX.n * (statsX.n + 1)) / 2 - rankSumX;
+                const u2 = statsX.n * statsY.n - u1;
+                const u = Math.min(u1, u2);
+                const mu = (statsX.n * statsY.n) / 2;
+                const sigma = Math.sqrt((statsX.n * statsY.n * (statsX.n + statsY.n + 1)) / 12);
+                value = (u - mu) / sigma; // Normal approximation Z-score
+                df = `U = ${u.toFixed(1)}`;
+                pVal = 2 * (1 - normal_cdf(Math.abs(value)));
+
+            } else if (testType === 'wilcoxon') {
+                if (statsX.n !== statsY.n) {
+                    errorBanner.classList.remove('hidden');
+                    errorBanner.textContent = "Erreur : Le test de Wilcoxon nécessite des séries de même longueur.";
+                    clearResults();
+                    return;
+                }
+                let diffs = groupX.map((v, i) => ({ d: v - groupY[i], abs: Math.abs(v - groupY[i]) })).filter(x => x.d !== 0);
+                diffs.sort((a, b) => a.abs - b.abs);
+                // Assign ranks to differences
+                let i = 0;
+                while (i < diffs.length) {
+                    let j = i;
+                    while (j < diffs.length - 1 && diffs[j + 1].abs === diffs[j].abs) j++;
+                    let avgRank = (i + 1 + j + 1) / 2;
+                    for (let k = i; k <= j; k++) diffs[k].rank = avgRank;
+                    i = j + 1;
+                }
+                let wPlus = diffs.filter(x => x.d > 0).reduce((acc, x) => acc + x.rank, 0);
+                let wMinus = diffs.filter(x => x.d < 0).reduce((acc, x) => acc + x.rank, 0);
+                const w = Math.min(wPlus, wMinus);
+                const n = diffs.length;
+                const mw = (n * (n + 1)) / 4;
+                const sw = Math.sqrt((n * (n + 1) * (2 * n + 1)) / 24);
+                value = (w - mw) / sw; // Z-score approximation
+                df = `W = ${w}`;
+                pVal = 2 * (1 - normal_cdf(Math.abs(value)));
+
+            } else if (testType === 'anova') {
+                if (groupZ.length < 2) {
+                    errorBanner.classList.remove('hidden');
+                    errorBanner.textContent = "Erreur : L'ANOVA nécessite un Groupe Z valide avec au moins 2 éléments.";
+                    clearResults();
+                    return;
+                }
+                const statsZ = calcStats(groupZ);
+                // Populate Table row Z
+                document.getElementById('tbl-row-z').classList.remove('hidden');
+                document.getElementById('tbl-n-z').textContent = statsZ.n;
+                document.getElementById('tbl-mean-z').textContent = statsZ.mean.toFixed(4);
+                document.getElementById('tbl-var-z').textContent = statsZ.variance.toFixed(4);
+                document.getElementById('tbl-std-z').textContent = statsZ.std.toFixed(4);
+                document.getElementById('tbl-se-z').textContent = statsZ.se.toFixed(4);
+
+                // Global calculations
+                const grandTotal = groupX.reduce((a, b) => a + b, 0) + groupY.reduce((a, b) => a + b, 0) + groupZ.reduce((a, b) => a + b, 0);
+                const N = statsX.n + statsY.n + statsZ.n;
+                const grandMean = grandTotal / N;
+
+                const ssb = statsX.n * Math.pow(statsX.mean - grandMean, 2) + statsY.n * Math.pow(statsY.mean - grandMean, 2) + statsZ.n * Math.pow(statsZ.mean - grandMean, 2);
+                const ssw = groupX.reduce((acc, v) => acc + Math.pow(v - statsX.mean, 2), 0) +
+                            groupY.reduce((acc, v) => acc + Math.pow(v - statsY.mean, 2), 0) +
+                            groupZ.reduce((acc, v) => acc + Math.pow(v - statsZ.mean, 2), 0);
+
+                const df1 = 2; // k - 1
+                const df2 = N - 3; // N - k
+                const msb = ssb / df1;
+                const msw = ssw / df2;
+                value = msb / msw; // F-statistic
+                df = `${df1}, ${df2}`;
+                pVal = 1 - f_cdf(value, df1, df2);
+
+            } else if (testType.startsWith('correlation-')) {
+                if (statsX.n !== statsY.n) {
+                    errorBanner.classList.remove('hidden');
+                    errorBanner.textContent = "Erreur : Les analyses de corrélation requièrent des séries X et Y de longueurs identiques.";
+                    clearResults();
+                    return;
+                }
+                const n = statsX.n;
+                let r = 0;
+                if (testType === 'correlation-pearson') {
+                    const num = groupX.reduce((acc, x, i) => acc + (x - statsX.mean) * (groupY[i] - statsY.mean), 0);
+                    const den = Math.sqrt(groupX.reduce((acc, x) => acc + Math.pow(x - statsX.mean, 2), 0) * groupY.reduce((acc, y) => acc + Math.pow(y - statsY.mean, 2), 0));
+                    r = num / den;
+                } else {
+                    // Spearman ranks
+                    const sortedX = [...groupX].map((val, idx) => ({ val, idx })).sort((a, b) => a.val - b.val);
+                    const sortedY = [...groupY].map((val, idx) => ({ val, idx })).sort((a, b) => a.val - b.val);
+                    let rankX = new Array(n), rankY = new Array(n);
+                    
+                    let i = 0;
+                    while (i < n) {
+                        let j = i;
+                        while (j < n - 1 && sortedX[j + 1].val === sortedX[j].val) j++;
+                        let avgRank = (i + 1 + j + 1) / 2;
+                        for (let k = i; k <= j; k++) rankX[sortedX[k].idx] = avgRank;
+                        i = j + 1;
+                    }
+                    i = 0;
+                    while (i < n) {
+                        let j = i;
+                        while (j < n - 1 && sortedY[j + 1].val === sortedY[j].val) j++;
+                        let avgRank = (i + 1 + j + 1) / 2;
+                        for (let k = i; k <= j; k++) rankY[sortedY[k].idx] = avgRank;
+                        i = j + 1;
+                    }
+
+                    const meanRankX = rankX.reduce((a, b) => a + b, 0) / n;
+                    const meanRankY = rankY.reduce((a, b) => a + b, 0) / n;
+                    const num = rankX.reduce((acc, rx, i) => acc + (rx - meanRankX) * (rankY[i] - meanRankY), 0);
+                    const den = Math.sqrt(rankX.reduce((acc, rx) => acc + Math.pow(rx - meanRankX, 2), 0) * rankY.reduce((acc, ry) => acc + Math.pow(ry - meanRankY, 2), 0));
+                    r = num / den;
+                }
+
+                value = r;
+                df = (n - 2).toString();
+                // Test statistic t for correlation significance
+                const t_stat = r * Math.sqrt((n - 2) / (1 - r * r));
+                pVal = 2 * (1 - t_cdf(Math.abs(t_stat), n - 2));
+            }
+
+            if (pVal < 0.00001) pVal = 0;
+            if (pVal > 1) pVal = 1;
+
+            document.getElementById('stat-t').textContent = value.toFixed(5);
+            document.getElementById('stat-df').textContent = df;
+            document.getElementById('stat-p').textContent = pVal === 0 ? "< 0.00001" : pVal.toFixed(5);
+
+            const verdictBadge = document.getElementById('stat-verdict-badge');
+            if (pVal < alpha) {
+                verdictBadge.className = "text-xs font-bold px-2 py-1 rounded text-center w-full bg-rose-100 text-rose-800 border border-rose-300";
+                verdictBadge.textContent = "Rejet H0 (Significatif)";
+                verdict = `Rejet de l'hypothèse nulle H0. Différence ou relation statistiquement significative au seuil alpha de ${alpha}`;
+            } else {
+                verdictBadge.className = "text-xs font-bold px-2 py-1 rounded text-center w-full bg-slate-100 text-slate-800 border border-slate-300";
+                verdictBadge.textContent = "Échec Rejet H0 (Non Signif.)";
+                verdict = `Échec du rejet de l'hypothèse nulle H0. Différence ou relation non statistiquement significative au seuil alpha de ${alpha}`;
+            }
+
+            // Fisher Diagnostics (Only for Independent T tests)
+            const fValue = statsX.variance / statsY.variance;
+            const fishDF1 = statsX.n - 1;
+            const fishDF2 = statsY.n - 1;
+            let fishP = 2 * (1 - f_cdf(fValue > 1 ? fValue : 1 / fValue, fishDF1, fishDF2));
+            if (isNaN(fishP)) fishP = 1.0;
+
+            document.getElementById('fish-f').textContent = fValue.toFixed(4);
+            document.getElementById('fish-df').textContent = `${fishDF1}, ${fishDF2}`;
+            document.getElementById('fish-p').textContent = fishP.toFixed(5);
+
+            const fishBadge = document.getElementById('fish-badge');
+            let fishDiagText = "";
+            if (fishP < 0.05) {
+                fishBadge.className = "font-bold px-2.5 py-1 rounded text-[10px] bg-amber-100 text-amber-800 border border-amber-300";
+                fishBadge.textContent = "Hétérogène (Variances Différentes)";
+                fishDiagText = "Variances hétérogènes. Test de Welch recommandé.";
+            } else {
+                fishBadge.className = "font-bold px-2.5 py-1 rounded text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300";
+                fishBadge.textContent = "Homogène (Variances Égales)";
+                fishDiagText = "Variances homogènes. Test t classique valide.";
+            }
+
+            // Cache metrics for the Gemini Advisor Prompt
+            lastAnalysisOutputs = {
+                testType,
+                nx: statsX.n,
+                ny: statsY.n,
+                nz: testType === 'anova' ? groupZ.length : 0,
+                meanX: statsX.mean.toFixed(4),
+                meanY: statsY.mean.toFixed(4),
+                meanZ: testType === 'anova' ? calcStats(groupZ).mean.toFixed(4) : 0,
+                stdX: statsX.std.toFixed(4),
+                stdY: statsY.std.toFixed(4),
+                stdZ: testType === 'anova' ? calcStats(groupZ).std.toFixed(4) : 0,
+                fVal: fValue.toFixed(4),
+                fPVal: fishP.toFixed(5),
+                testValue: value.toFixed(5),
+                df: df,
+                pVal: pVal === 0 ? "< 0.00001" : pVal.toFixed(5),
+                alpha,
+                h1,
+                verdict: verdict,
+                fishVerdict: fishDiagText
+            };
+
+            renderBoxplot(statsX, statsY, testType);
+            renderDistributionCurve(value, df, alpha, h1, testType);
+            updateScriptsTab();
+        }
+
+        function clearResults() {
+            document.getElementById('stat-t').textContent = '--';
+            document.getElementById('stat-df').textContent = '--';
+            document.getElementById('stat-p').textContent = '--';
+            const badge = document.getElementById('stat-verdict-badge');
+            badge.className = "text-xs font-bold px-2 py-0.5 mt-1 rounded text-center w-full text-slate-400 bg-slate-100";
+            badge.textContent = '--';
+        }
+
+        // Custom canvas drawing for Boxplots (adapts dynamically to 2 or 3 groups)
+        function renderBoxplot(statsX, statsY, testType) {
+            const canvas = document.getElementById('canvas-boxplot');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const isAnova = (testType === 'anova');
+
+            const allPoints = isAnova ? [...groupX, ...groupY, ...groupZ] : [...groupX, ...groupY];
+            const maxVal = Math.max(...allPoints);
+            const minVal = Math.min(...allPoints);
+            const range = maxVal - minVal || 1;
+
+            const paddingLeft = 40;
+            const paddingRight = 40;
+            const paddingTop = 20;
+            const paddingBottom = 20;
+
+            function getXCoord(val) {
+                return paddingLeft + ((val - minVal) / range) * (width - paddingLeft - paddingRight);
+            }
+
+            // Draw background grid lines
+            ctx.strokeStyle = "#e2e8f0";
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const val = minVal + (range * i) / 5;
+                const xc = getXCoord(val);
+                ctx.beginPath();
+                ctx.moveTo(xc, paddingTop);
+                ctx.lineTo(xc, height - paddingBottom);
+                ctx.stroke();
+
+                ctx.fillStyle = "#64748b";
+                ctx.font = "8px Inter, sans-serif";
+                ctx.fillText(val.toFixed(1), xc - 8, height - 8);
+            }
+
+            if (isAnova) {
+                // 3 Groups layout
+                drawSingleBox(ctx, groupX, statsX, height * 0.25, "#3b82f6", "X");
+                drawSingleBox(ctx, groupY, statsY, height * 0.50, "#10b981", "Y");
+                const statsZ = calcStats(groupZ);
+                drawSingleBox(ctx, groupZ, statsZ, height * 0.75, "#a855f7", "Z");
+            } else {
+                // 2 Groups layout
+                drawSingleBox(ctx, groupX, statsX, height * 0.35, "#3b82f6", "X");
+                drawSingleBox(ctx, groupY, statsY, height * 0.65, "#10b981", "Y");
+            }
+
+            function drawSingleBox(c, data, stats, y, color, label) {
+                const sorted = [...data].sort((a,b) => a-b);
+                const q1 = sorted[Math.floor(sorted.length * 0.25)];
+                const q3 = sorted[Math.floor(sorted.length * 0.75)];
+                const median = sorted[Math.floor(sorted.length * 0.5)];
+
+                const q1_x = getXCoord(q1);
+                const q3_x = getXCoord(q3);
+                const med_x = getXCoord(median);
+                const min_x = getXCoord(sorted[0]);
+                const max_x = getXCoord(sorted[sorted.length - 1]);
+                const mean_x = getXCoord(stats.mean);
+
+                const boxHeight = 16;
+
+                c.strokeStyle = color;
+                c.lineWidth = 1.5;
+                c.beginPath();
+                c.moveTo(min_x, y);
+                c.lineTo(q1_x, y);
+                c.moveTo(q3_x, y);
+                c.lineTo(max_x, y);
+                c.stroke();
+
+                c.beginPath();
+                c.moveTo(min_x, y - 4); c.lineTo(min_x, y + 4);
+                c.moveTo(max_x, y - 4); c.lineTo(max_x, y + 4);
+                c.stroke();
+
+                c.fillStyle = color + "22";
+                c.fillRect(q1_x, y - boxHeight/2, q3_x - q1_x, boxHeight);
+                c.strokeRect(q1_x, y - boxHeight/2, q3_x - q1_x, boxHeight);
+
+                c.strokeStyle = color;
+                c.lineWidth = 3;
+                c.beginPath();
+                c.moveTo(med_x, y - boxHeight/2);
+                c.lineTo(med_x, y + boxHeight/2);
+                c.stroke();
+
+                c.strokeStyle = "#ef4444";
+                c.lineWidth = 1.5;
+                c.beginPath();
+                c.moveTo(mean_x - 3, y - 3); c.lineTo(mean_x + 3, y + 3);
+                c.moveTo(mean_x - 3, y + 3); c.lineTo(mean_x + 3, y - 3);
+                c.stroke();
+
+                data.forEach(pt => {
+                    const px = getXCoord(pt);
+                    c.fillStyle = color + "66";
+                    c.beginPath();
+                    c.arc(px, y - 10, 2.5, 0, 2*Math.PI);
+                    c.fill();
+                });
+
+                c.fillStyle = "#1e293b";
+                c.font = "bold 9px Inter, sans-serif";
+                c.fillText(label, 15, y + 3);
+            }
+        }
+
+        // Custom canvas drawing for Distribution curves (adapts to Student T, Fisher F, or Normal Z)
+        function renderDistributionCurve(calcVal, dfString, alpha, h1, testType) {
+            const canvas = document.getElementById('canvas-density');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const width = canvas.width;
+            const height = canvas.height;
+
+            const paddingLeft = 30;
+            const paddingRight = 30;
+            const paddingTop = 15;
+            const paddingBottom = 15;
+
+            let curveType = "T"; // T, F, or Z
+            if (testType === 'anova') curveType = "F";
+            else if (testType === 'mann-whitney' || testType === 'wilcoxon') curveType = "Z";
+
+            let minX = -4.5;
+            let maxX = 4.5;
+            if (curveType === "F") {
+                minX = 0;
+                maxX = 8;
+            }
+            const rangeX = maxX - minX;
+
+            function getCanvasX(val) {
+                return paddingLeft + ((val - minX) / rangeX) * (width - paddingLeft - paddingRight);
+            }
+
+            // Get pdf for specific distribution curves
+            function getPDF(x) {
+                if (curveType === "T") {
+                    let d = parseInt(dfString) || 10;
+                    return t_pdf(x, d);
+                } else if (curveType === "F") {
+                    let parts = dfString.split(',').map(Number);
+                    let df1 = parts[0] || 2;
+                    let df2 = parts[1] || 15;
+                    return f_pdf(x, df1, df2);
+                } else {
+                    // Standard Normal Z
+                    return t_pdf(x, 99999);
+                }
+            }
+
+            let maxDensity = 0.4;
+            // Calibrate max height dynamically
+            for (let x = minX; x <= maxX; x += 0.1) {
+                maxDensity = Math.max(maxDensity, getPDF(x));
+            }
+
+            function getCanvasY(density) {
+                return height - paddingBottom - (density / maxDensity) * (height - paddingTop - paddingBottom);
+            }
+
+            // Determine rejection regions
+            let t_crit_low = null;
+            let t_crit_high = null;
+
+            function findQuantile(q) {
+                let low = -15;
+                let high = 15;
+                if (curveType === "F") { low = 0; high = 30; }
+                
+                for (let i = 0; i < 50; i++) {
+                    const mid = (low + high) / 2;
+                    let p = 0;
+                    if (curveType === "T") {
+                        let d = parseInt(dfString) || 10;
+                        p = t_cdf(mid, d);
+                    } else if (curveType === "F") {
+                        let parts = dfString.split(',').map(Number);
+                        p = f_cdf(mid, parts[0] || 2, parts[1] || 15);
+                    } else {
+                        p = normal_cdf(mid);
+                    }
+
+                    if (p < q) low = mid;
+                    else high = mid;
+                }
+                return low;
+            }
+
+            if (curveType === "F") {
+                // ANOVA is always upper/right tailed
+                t_crit_high = findQuantile(1 - alpha);
+            } else {
+                if (h1 === 'two-tailed') {
+                    t_crit_high = findQuantile(1 - alpha / 2);
+                    t_crit_low = -t_crit_high;
+                } else if (h1 === 'greater') {
+                    t_crit_high = findQuantile(1 - alpha);
+                } else if (h1 === 'less') {
+                    t_crit_low = findQuantile(alpha);
+                }
+            }
+
+            // Draw rejection area
+            ctx.fillStyle = "#fee2e2";
+            ctx.beginPath();
+            if (t_crit_low !== null && t_crit_low >= minX) {
+                ctx.moveTo(getCanvasX(minX), getCanvasY(0));
+                for (let x = minX; x <= t_crit_low; x += 0.05) {
+                    ctx.lineTo(getCanvasX(x), getCanvasY(getPDF(x)));
+                }
+                ctx.lineTo(getCanvasX(t_crit_low), getCanvasY(0));
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            ctx.beginPath();
+            if (t_crit_high !== null && t_crit_high <= maxX) {
+                ctx.moveTo(getCanvasX(t_crit_high), getCanvasY(0));
+                for (let x = t_crit_high; x <= maxX; x += 0.05) {
+                    ctx.lineTo(getCanvasX(x), getCanvasY(getPDF(x)));
+                }
+                ctx.lineTo(getCanvasX(maxX), getCanvasY(0));
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Draw probability curve
+            ctx.strokeStyle = "#475569";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let x = minX; x <= maxX; x += 0.05) {
+                const cx = getCanvasX(x);
+                const cy = getCanvasY(getPDF(x));
+                if (x === minX) ctx.moveTo(cx, cy);
+                else ctx.lineTo(cx, cy);
+            }
+            ctx.stroke();
+
+            // Draw axis
+            ctx.strokeStyle = "#cbd5e1";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(getCanvasX(minX), getCanvasY(0));
+            ctx.lineTo(getCanvasX(maxX), getCanvasY(0));
+            ctx.stroke();
+
+            // Draw computed statistic marker
+            if (calcVal >= minX && calcVal <= maxX) {
+                const cx_t = getCanvasX(calcVal);
+                ctx.strokeStyle = "#dc2626";
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 3]);
+                ctx.beginPath();
+                ctx.moveTo(cx_t, paddingTop);
+                ctx.lineTo(cx_t, height - paddingBottom);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = "#991b1b";
+                ctx.font = "bold 9px Inter, sans-serif";
+                ctx.fillText(`Calc = ${calcVal.toFixed(2)}`, cx_t + 5, paddingTop + 10);
+            }
+
+            // Draw critical markers
+            ctx.fillStyle = "#ef4444";
+            ctx.font = "8px Inter, sans-serif";
+            if (t_crit_low !== null && t_crit_low >= minX) {
+                const cx_cl = getCanvasX(t_crit_low);
+                ctx.fillRect(cx_cl - 1, paddingTop, 2, height - paddingTop - paddingBottom);
+                ctx.fillText(`Crit = ${t_crit_low.toFixed(2)}`, cx_cl - 15, height - 2);
+            }
+            if (t_crit_high !== null && t_crit_high <= maxX) {
+                const cx_ch = getCanvasX(t_crit_high);
+                ctx.fillRect(cx_ch - 1, paddingTop, 2, height - paddingTop - paddingBottom);
+                ctx.fillText(`Crit = ${t_crit_high.toFixed(2)}`, cx_ch - 15, height - 2);
+            }
+        }
+
+        // Live filtration logic inside glossary translation table
+        function filterGlossary() {
+            const query = document.getElementById('glossary-search').value.toLowerCase();
+            const rows = document.querySelectorAll('#glossary-table tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        // Custom notification system (Toasts) instead of unsafe native alerts
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            toast.className = "p-4 rounded-xl shadow-lg border text-xs font-semibold flex items-center gap-2 transition duration-300 transform translate-y-2 opacity-0 pointer-events-auto bg-white";
+            
+            if (type === "success") {
+                toast.classList.add("text-emerald-800", "border-emerald-200", "bg-emerald-50");
+                toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i> <span>${message}</span>`;
+            } else if (type === "error") {
+                toast.classList.add("text-rose-800", "border-rose-200", "bg-rose-50");
+                toast.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-500 text-sm"></i> <span>${message}</span>`;
+            } else {
+                toast.classList.add("text-indigo-800", "border-indigo-200", "bg-indigo-50");
+                toast.innerHTML = `<i class="fa-solid fa-circle-info text-indigo-500 text-sm"></i> <span>${message}</span>`;
+            }
+
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add("translate-y-2", "opacity-0");
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        function copyMarkdownReport() {
+            const statsX = calcStats(groupX);
+            const statsY = calcStats(groupY);
+            const t = document.getElementById('stat-t').textContent;
+            const df = document.getElementById('stat-df').textContent;
+            const p = document.getElementById('stat-p').textContent;
+            const verdict = document.getElementById('stat-verdict-badge').textContent;
+            const fishP = document.getElementById('fish-p').textContent;
+
+            const report = `## Rapport d'Analyse Statistique Académique
+---
+**Généré le :** ${new Date().toLocaleDateString()}
+
+### 1. Statistique Descriptive
+* **Échantillon X (Série A) :**
+    * Taille (N_x) = ${statsX.n}
+    * Moyenne (X̄) = ${statsX.mean.toFixed(4)}
+    * Variance (S²) = ${statsX.variance.toFixed(4)}
+    * Écart-type (S) = ${statsX.std.toFixed(4)}
+* **Échantillon Y (Série B) :**
+    * Taille (N_y) = ${statsY.n}
+    * Moyenne (Ȳ) = ${statsY.mean.toFixed(4)}
+    * Variance (S²) = ${statsY.variance.toFixed(4)}
+    * Écart-type (S) = ${statsY.std.toFixed(4)}
+
+### 2. Diagnostics de Validité
+* **Homoscédasticité (Test F de Fisher) :**
+    * p-value de Fisher = ${fishP}
+    * Verdict Variances : ${parseFloat(fishP) < 0.05 ? "Hétérogènes" : "Homogènes"}
+
+### 3. Résultats de l'Inférence Statistique
+* **Statistique finale calculée :** ${t}
+* **Degrés de liberté ou paramètre (df) :** ${df}
+* **p-value observée :** ${p}
+* **Verdict d'inférence (alpha = 0.05) :** ${verdict}
+
+---
+*Généré par la Plateforme d'Analyse Quantitative.*`;
+
+            // Utilisation d'un élément masqué temporaire pour copier de façon robuste dans les iFrames
+            const textarea = document.createElement('textarea');
+            textarea.value = report;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Rapport universitaire Markdown copié avec succès !", "success");
+            } catch (err) {
+                showToast("Une erreur est survenue lors de la copie.", "error");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // ==========================================
+        // DINAMIC PYTHON & R SCRIPTS GENERATOR
+        // ==========================================
+        function syncScriptSelection() {
+            const activeType = document.getElementById('script-test-sync').value;
+            // Synchroniser avec l'onglet calculateur
+            document.getElementById('calc-test-type').value = activeType;
+            adjustUIForTestType();
+            runAnalysis();
+        }
+
+        function updateScriptsTab() {
+            const testType = document.getElementById('calc-test-type').value;
+            const h1 = document.getElementById('calc-h1').value;
+            
+            // Format des listes de données pour l'injection directe dans les scripts
+            const listX = `[${groupX.join(', ')}]`;
+            const listY = `[${groupY.join(', ')}]`;
+            const listZ = `[${groupZ.join(', ')}]`;
+
+            const rListX = `c(${groupX.join(', ')})`;
+            const rListY = `c(${groupY.join(', ')})`;
+            const rListZ = `c(${groupZ.join(', ')})`;
+
+            let pyCode = "";
+            let rCode = "";
+
+            // Mapping des alternatives H1 vers syntaxe Python / R
+            let pyAlt = h1 === 'two-tailed' ? "'two-sided'" : h1 === 'greater' ? "'greater'" : "'less'";
+            let rAlt = h1 === 'two-tailed' ? '"two.sided"' : h1 === 'greater' ? '"greater"' : '"less"';
+
+            switch (testType) {
+                case 'ind-equal':
+                    pyCode = `# Script Python : Test t de Student (Échantillons indépendants, variances égales)
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+
+# 1. Chargement des données expérimentales
+groupe_x = np.array(${listX})
+groupe_y = np.array(${listY})
+
+# 2. Exécution du test t (homoscédasticité forcée)
+t_stat, p_val = stats.ttest_ind(groupe_x, groupe_y, equal_var=True, alternative=${pyAlt})
+
+print(f"Statistique t de Student : {t_stat:.5f}")
+print(f"p-value associée : {p_val:.5f}")
+
+# 3. Représentation graphique (Boxplot)
+plt.figure(figsize=(6, 4))
+plt.boxplot([groupe_x, groupe_y], labels=['Groupe X', 'Groupe Y'])
+plt.title('Distribution des groupes')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()`;
+                    rCode = `# Script R : Test t de Student (Échantillons indépendants, variances égales)
+
+# 1. Chargement des données expérimentales
+groupe_x <- ${rListX}
+groupe_y <- ${rListY}
+
+# 2. Exécution du test t
+resultat <- t.test(groupe_x, groupe_y, var.equal = TRUE, alternative = ${rAlt})
+
+# 3. Affichage des résultats détaillés
+print(resultat)
+
+# 4. Boxplot
+boxplot(groupe_x, groupe_y, names = c("Groupe X", "Groupe Y"),
+        col = c("#3b82f644", "#10b98144"), main = "Comparaison des Groupes")`;
+                    break;
+
+                case 'ind-unequal':
+                    pyCode = `# Script Python : Test t de Welch (Variances inégales / Hétéroscédasticité)
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+
+# 1. Chargement des données expérimentales
+groupe_x = np.array(${listX})
+groupe_y = np.array(${listY})
+
+# 2. Exécution du test t de Welch (equal_var=False)
+t_stat, p_val = stats.ttest_ind(groupe_x, groupe_y, equal_var=False, alternative=${pyAlt})
+
+print(f"Statistique t de Welch : {t_stat:.5f}")
+print(f"p-value (Welch) : {p_val:.5f}")
+
+# 3. Boxplot & Diagnostic
+plt.boxplot([groupe_x, groupe_y], labels=['Groupe X', 'Groupe Y'])
+plt.title('Test de Welch (Variances Inégales)')
+plt.show()`;
+                    rCode = `# Script R : Test t de Welch (Variances inégales / Hétéroscédasticité)
+
+# 1. Chargement des données
+groupe_x <- ${rListX}
+groupe_y <- ${rListY}
+
+# 2. Exécution du test (par défaut var.equal=FALSE dans R)
+resultat <- t.test(groupe_x, groupe_y, var.equal = FALSE, alternative = ${rAlt})
+
+print(resultat)
+
+# 3. Visualisation graphique
+boxplot(groupe_x, groupe_y, names = c("Groupe X", "Groupe Y"), 
+        main = "Test de Welch (Variances Inégales)", col = "lightblue")`;
+                    break;
+
+                case 'paired':
+                    pyCode = `# Script Python : Test t de Student apparié (Mesures répétées, paires associées)
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+
+# Les séries doivent posséder strictement le même effectif
+groupe_x = np.array(${listX})
+groupe_y = np.array(${listY})
+
+# Calcul des différences individuelles
+differences = groupe_x - groupe_y
+
+# Test t apparié
+t_stat, p_val = stats.ttest_rel(groupe_x, groupe_y, alternative=${pyAlt})
+
+print(f"Statistique t appariée : {t_stat:.5f}")
+print(f"p-value (Apparié) : {p_val:.5f}")
+
+# Graphe des différences de paires
+plt.figure(figsize=(6, 4))
+plt.plot([np.zeros_like(groupe_x), np.ones_like(groupe_y)], [groupe_x, groupe_y], marker='o', color='black', alpha=0.4)
+plt.xticks([0, 1], ['Pré / Groupe X', 'Post / Groupe Y'])
+plt.title("Évolution individuelle des paires")
+plt.show()`;
+                    rCode = `# Script R : Test t de Student apparié
+
+groupe_x <- ${rListX}
+groupe_y <- ${rListY}
+
+# Test t apparié
+resultat <- t.test(groupe_x, groupe_y, paired = TRUE, alternative = ${rAlt})
+
+print(resultat)
+
+# Tracé des profils individuels (évolution)
+plot(1, type="n", xlim=c(0.8, 2.2), ylim=range(c(groupe_x, groupe_y)), 
+     xaxt="n", xlab="Temps/Groupes", ylab="Valeur", main="Profils Appariés")
+axis(1, at=c(1, 2), labels=c("Groupe X", "Groupe Y"))
+for(i in 1:length(groupe_x)) {
+  lines(c(1, 2), c(groupe_x[i], groupe_y[i]), col="gray", lwd=1.5, type="b", pch=19)
+}`;
+                    break;
+
+                case 'mann-whitney':
+                    pyCode = `# Script Python : Test U de Mann-Whitney (Non paramétrique pour groupes indépendants)
+import numpy as np
+from scipy import stats
+
+groupe_x = np.array(${listX})
+groupe_y = np.array(${listY})
+
+# Exécution du test non paramétrique
+u_stat, p_val = stats.mannwhitneyu(groupe_x, groupe_y, alternative=${pyAlt})
+
+print(f"Statistique U de Mann-Whitney : {u_stat}")
+print(f"p-value (Approximation) : {p_val:.5f}")`;
+                    rCode = `# Script R : Test de Wilcoxon-Mann-Whitney (Indépendant)
+
+groupe_x <- ${rListX}
+groupe_y <- ${rListY}
+
+# Test de somme des rangs de Wilcoxon (équivalent Mann-Whitney)
+resultat <- wilcox.test(groupe_x, groupe_y, paired = FALSE, alternative = ${rAlt})
+
+print(resultat)`;
+                    break;
+
+                case 'wilcoxon':
+                    pyCode = `# Script Python : Test des rangs signés de Wilcoxon (Non paramétrique apparié)
+import numpy as np
+from scipy import stats
+
+groupe_x = np.array(${listX})
+groupe_y = np.array(${listY})
+
+# Test de Wilcoxon sur paires dépendantes
+w_stat, p_val = stats.wilcoxon(groupe_x, groupe_y, alternative=${pyAlt})
+
+print(f"Statistique W de Wilcoxon : {w_stat}")
+print(f"p-value : {p_val:.5f}")`;
+                    rCode = `# Script R : Test de Wilcoxon Apparié
+
+groupe_x <- ${rListX}
+groupe_y <- ${rListY}
+
+# Test des rangs signés (paired = TRUE)
+resultat <- wilcox.test(groupe_x, groupe_y, paired = TRUE, alternative = ${rAlt})
+
+print(resultat)`;
+                    break;
+
+                case 'anova':
+                    pyCode = `# Script Python : ANOVA à un facteur (Analyse de variance, k >= 3 groupes)
+import numpy as np
+import pandas as pd
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+
+# Saisie des 3 séries
+x = np.array(${listX})
+y = np.array(${listY})
+z = np.array(${listZ})
+
+# 1. Test F classique avec SciPy
+f_stat, p_val = stats.f_oneway(x, y, z)
+print(f"F de Fisher : {f_stat:.5f}")
+print(f"p-value globale : {p_val:.5f}")
+
+# 2. Modèle linéaire complet (ANOVA) avec Statsmodels
+df = pd.DataFrame({
+    'valeur': np.concatenate([x, y, z]),
+    'groupe': ['X']*len(x) + ['Y']*len(y) + ['Z']*len(z)
+})
+model = ols('valeur ~ C(groupe)', data=df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+print("\\nTableau ANOVA complet :")
+print(anova_table)`;
+                    rCode = `# Script R : ANOVA à un facteur (Analyse de Variance)
+
+# 1. Préparation du Dataframe pour l'analyse linéaire
+valeurs <- c(${rListX}, ${rListY}, ${rListZ})
+groupes <- factor(c(rep("X", ${groupX.length}), rep("Y", ${groupY.length}), rep("Z", ${groupZ.length})))
+
+mon_dataset <- data.frame(valeurs, groupes)
+
+# 2. Exécution de l'ANOVA linéaire
+mon_anova <- aov(valeurs ~ groupes, data = mon_dataset)
+
+# 3. Tableau de synthèse (F de Fisher, p-value, ddl)
+summary(mon_anova)
+
+# 4. Tracé Boxplot multi-groupes
+boxplot(valeurs ~ groupes, data = mon_dataset, 
+        main = "Analyse de Variance (ANOVA)", 
+        col = c("blue", "green", "purple"))`;
+                    break;
+
+                case 'correlation-pearson':
+                    pyCode = `# Script Python : Coefficient de corrélation linéaire de Pearson
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+
+x = np.array(${listX})
+y = np.array(${listY})
+
+# Calcul de r et de la p-value d'indépendance
+r_coeff, p_val = stats.pearsonr(x, y)
+
+print(f"r de Pearson (Corrélation) : {r_coeff:.5f}")
+print(f"p-value de significativité : {p_val:.5f}")
+
+# Graphique de dispersion (Scatter Plot) avec droite de régression
+plt.figure(figsize=(6, 4))
+plt.scatter(x, y, color='blue', alpha=0.7)
+# Droite linéaire
+m, b = np.polyfit(x, y, 1)
+plt.plot(x, m*x + b, color='red', linestyle='--')
+plt.title(f"Dispersion & Régression (r = {r_coeff:.3f})")
+plt.xlabel("Variable X")
+plt.ylabel("Variable Y")
+plt.show()`;
+                    rCode = `# Script R : Corrélation de Pearson & Droite de Régression
+
+x <- ${rListX}
+y <- ${rListY}
+
+# Test de corrélation linéaire
+resultat <- cor.test(x, y, method = "pearson")
+
+print(resultat)
+
+# Nuage de points et droite de régression linéaire
+plot(x, y, main = paste("Pearson r =", round(resultat$estimate, 3)),
+     xlab = "Axe X", ylab = "Axe Y", pch = 19, col = "darkblue")
+abline(lm(y ~ x), col = "red", lwd = 2, lty = 2)`;
+                    break;
+
+                case 'correlation-spearman':
+                    pyCode = `# Script Python : Corrélation de Spearman (Non linéaire, sur rangs)
+import numpy as np
+from scipy import stats
+
+x = np.array(${listX})
+y = np.array(${listY})
+
+# Calcul du coefficient rho de Spearman
+rho, p_val = stats.spearmanr(x, y)
+
+print(f"ρ (Rho) de Spearman : {rho:.5f}")
+print(f"p-value associée : {p_val:.5f}")`;
+                    rCode = `# Script R : Corrélation non paramétrique de Spearman
+
+x <- ${rListX}
+y <- ${rListY}
+
+# Calcul de Spearman
+resultat <- cor.test(x, y, method = "spearman")
+
+print(resultat)`;
+                    break;
+            }
+
+            document.getElementById('python-code').textContent = pyCode;
+            document.getElementById('r-code').textContent = rCode;
+        }
+
+        function copyCodeBlock(elementId) {
+            const codeText = document.getElementById(elementId).textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Code source copié dans votre presse-papiers !", "success");
+            } catch (err) {
+                showToast("Erreur lors de la copie du code.", "error");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // ==========================================
+        // GEMINI LLM INTEGRATION CODE
+        // ==========================================
+        async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (response.status === 429 && retries > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithBackoff(url, options, retries - 1, delay * 2);
+                }
+                return response;
+            } catch (error) {
+                if (retries > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithBackoff(url, options, retries - 1, delay * 2);
+                }
+                throw error;
+            }
+        }
+
+        function parseSimpleMarkdown(text) {
+            let html = text;
+            html = html.replace(/^### (.*$)/gim, '<h5 class="font-bold text-slate-900 text-sm mt-3 mb-1">$1</h5>');
+            html = html.replace(/^## (.*$)/gim, '<h4 class="font-bold text-slate-900 text-base mt-4 mb-2 border-b border-slate-100 pb-1">$1</h4>');
+            html = html.replace(/^# (.*$)/gim, '<h3 class="font-bold text-slate-900 text-lg mt-5 mb-3">$1</h3>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            html = html.replace(/^\s*\-\s+(.*$)/gim, '<li class="ml-4 list-disc">$1</li>');
+            html = html.replace(/^\s*>\s+(.*$)/gim, '<blockquote class="border-l-4 border-indigo-500 pl-3 italic text-slate-500 my-2 bg-indigo-50/50 p-2 rounded-r">$1</blockquote>');
+            html = html.replace(/\n/g, '<br/>');
+            return html;
+        }
+
+        // Feature 1: Prompt-to-Dataset Generator (Gemini Flash)
+        async function triggerAiDatasetGeneration() {
+            const promptInput = document.getElementById('ai-prompt-input').value.trim();
+            if (promptInput === "") {
+                showToast("Veuillez décrire le scénario de données souhaité.", "error");
+                return;
+            }
+
+            const loader = document.getElementById('ai-dataset-loader');
+            const btn = document.getElementById('btn-ai-dataset');
+            loader.classList.remove('hidden');
+            btn.disabled = true;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const systemPrompt = "Tu es un enseignant-chercheur en statistiques appliqué aux sciences de données. Génère un échantillon réaliste de données numériques pour deux ou trois groupes (X, Y et optionnellement Z) correspondant exactement à la situation décrite par l'utilisateur. Tu dois renvoyer STRICTEMENT un objet JSON respectant le schéma imposé, sans aucun markdown ou texte additionnel.";
+            
+            const payload = {
+                contents: [{ parts: [{ text: `Génère des données réalistes pour le cas suivant : "${promptInput}"` }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            descriptionFr: { type: "STRING" },
+                            groupX: {
+                                type: "ARRAY",
+                                items: { type: "NUMBER" }
+                            },
+                            groupY: {
+                                type: "ARRAY",
+                                items: { type: "NUMBER" }
+                            },
+                            groupZ: {
+                                type: "ARRAY",
+                                items: { type: "NUMBER" }
+                            },
+                            suggestedAlternative: { type: "STRING", enum: ["two-tailed", "greater", "less"] },
+                            suggestedMethod: { type: "STRING", enum: ["ind-equal", "ind-unequal", "paired", "mann-whitney", "wilcoxon", "anova", "correlation-pearson", "correlation-spearman"] }
+                        },
+                        required: ["descriptionFr", "groupX", "groupY", "suggestedAlternative", "suggestedMethod"]
+                    }
+                }
+            };
+
+            try {
+                const response = await fetchWithBackoff(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                const parsedJson = JSON.parse(text);
+
+                // Inject generated data to inputs
+                document.getElementById('input-x').value = parsedJson.groupX.join(", ");
+                document.getElementById('input-y').value = parsedJson.groupY.join(", ");
+                if (parsedJson.groupZ && parsedJson.groupZ.length > 0) {
+                    document.getElementById('input-z').value = parsedJson.groupZ.join(", ");
+                } else {
+                    document.getElementById('input-z').value = "";
+                }
+                
+                document.getElementById('calc-test-type').value = parsedJson.suggestedMethod;
+                document.getElementById('calc-h1').value = parsedJson.suggestedAlternative;
+
+                parseInputs();
+                adjustUIForTestType();
+                showToast(`Données d'IA générées : ${parsedJson.descriptionFr}`, "success");
+            } catch (error) {
+                console.error(error);
+                showToast("Échec de la génération d'échantillons par l'IA.", "error");
+            } finally {
+                loader.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        // Feature 2: Gemini Academic Interpretation & Grounding
+        async function generateAcademicDiscussion() {
+            if (!lastAnalysisOutputs.testValue) {
+                showToast("Veuillez d'abord exécuter un calcul statistique.", "error");
+                return;
+            }
+
+            const reportPanel = document.getElementById('ai-report-panel');
+            const loader = document.getElementById('ai-discuss-loader');
+            const btn = document.getElementById('btn-ai-discuss');
+            const useSearch = document.getElementById('ai-grounding-check').checked;
+
+            reportPanel.classList.add('hidden');
+            loader.classList.remove('hidden');
+            btn.disabled = true;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const systemPrompt = "Tu es un rapporteur de thèse et professeur agrégé en statistiques quantitatives. Rédige une discussion critique universitaire rigoureuse (300 à 450 mots) en français sur les résultats de test statistique de l'étudiant. Emploie un style académique soutenu. Utilise du LaTeX ($...$ pour l'inline et $$...$$ pour les blocs) pour toutes les expressions mathématiques. Propose des explications théoriques de la différence (ou absence de différence) et des recommandations de recherche. Si l'outil de recherche Google est activé, cite de véritables références universitaires pour étayer tes explications.";
+
+            const userPrompt = `Rédige une discussion sur les résultats d'inférence suivants :
+- Type de test : ${lastAnalysisOutputs.testType}
+- Groupe X : N = ${lastAnalysisOutputs.nx}, Moyenne = ${lastAnalysisOutputs.meanX}, Écart-type = ${lastAnalysisOutputs.stdX}
+- Groupe Y : N = ${lastAnalysisOutputs.ny}, Moyenne = ${lastAnalysisOutputs.meanY}, Écart-type = ${lastAnalysisOutputs.stdY}
+- Groupe Z (si ANOVA) : N = ${lastAnalysisOutputs.nz}, Moyenne = ${lastAnalysisOutputs.meanZ}, Écart-type = ${lastAnalysisOutputs.stdZ}
+- Statistique de test finale calculée : ${lastAnalysisOutputs.testValue}
+- Paramètre / Degrés de liberté (df) : ${lastAnalysisOutputs.df}
+- p-value observée : ${lastAnalysisOutputs.pVal}
+- Alternative H1 : ${lastAnalysisOutputs.h1}
+- Verdict d'inférence : ${lastAnalysisOutputs.verdict}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            if (useSearch) {
+                payload.tools = [{ "google_search": {} }];
+            }
+
+            try {
+                const response = await fetchWithBackoff(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                const text = candidate?.content?.parts?.[0]?.text;
+
+                if (!text) {
+                    throw new Error("Réponse vide de l'API.");
+                }
+
+                // Render report
+                const parsedHtml = parseSimpleMarkdown(text);
+                document.getElementById('ai-report-content').innerHTML = parsedHtml;
+
+                // Handle grounding sources if any
+                const citationList = document.getElementById('ai-citations-list');
+                const citationContainer = document.getElementById('ai-citations-container');
+                citationList.innerHTML = '';
+                
+                const groundingMetadata = candidate?.groundingMetadata;
+                if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                    const sources = groundingMetadata.groundingAttributions
+                        .map(attr => ({ uri: attr.web?.uri, title: attr.web?.title }))
+                        .filter(s => s.uri && s.title);
+
+                    if (sources.length > 0) {
+                        citationContainer.classList.remove('hidden');
+                        sources.forEach(source => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<a href="${source.uri}" target="_blank" class="text-indigo-600 font-semibold hover:underline">${source.title}</a> <span class="text-[10px] text-slate-400">(${source.uri})</span>`;
+                            citationList.appendChild(li);
+                        });
+                    } else {
+                        citationContainer.classList.add('hidden');
+                    }
+                } else {
+                    citationContainer.classList.add('hidden');
+                }
+
+                reportPanel.classList.remove('hidden');
+                showToast("Discussion scientifique rédigée !", "success");
+
+                setTimeout(() => {
+                    renderMathOnLoad();
+                }, 100);
+
+            } catch (error) {
+                console.error(error);
+                showToast("Échec de l'analyse académique IA. Vérifiez votre connexion.", "error");
+            } finally {
+                loader.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        function copyAiReportToClipboard() {
+            const textContent = document.getElementById('ai-report-content').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = textContent;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Rapport IA copié dans le presse-papiers !", "success");
+            } catch (err) {
+                showToast("Erreur lors de la copie.", "error");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Feature 3: Interactive Statistics AI Tutor Chatbot (Gemini Flash)
+        async function triggerTutorQuery() {
+            const inputEl = document.getElementById('tutor-input');
+            const query = inputEl.value.trim();
+            if (query === "") return;
+
+            appendTutorMessage(query, "user");
+            inputEl.value = "";
+
+            const loader = document.getElementById('tutor-loader');
+            const btn = document.getElementById('btn-tutor');
+            loader.classList.remove('hidden');
+            btn.disabled = true;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            const systemPrompt = "Tu es l'assistant IA tuteur en biostatistiques et analyse quantitative. Ton rôle est d'expliquer les concepts mathématiques, probabilistes et statistiques de manière pédagogue et limpide. Tu as l'autorisation de générer des blocs et expressions LaTeX complexes (encadrés de $ pour l'inline et $$ pour les blocs). Reste très courtois, structuré et professionnel.";
+
+            const payload = {
+                contents: [{ parts: [{ text: query }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            try {
+                const response = await fetchWithBackoff(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!text) throw new Error("Réponse vide.");
+
+                appendTutorMessage(text, "ai");
+                
+                setTimeout(() => {
+                    renderMathOnLoad();
+                }, 100);
+
+            } catch (error) {
+                console.error(error);
+                appendTutorMessage("Désolé, une erreur technique est survenue lors de ma réponse. Veuillez vérifier votre connexion.", "ai");
+            } finally {
+                loader.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        function appendTutorMessage(text, sender) {
+            const chatBox = document.getElementById('tutor-chat-box');
+            const msg = document.createElement('div');
+            
+            if (sender === "user") {
+                msg.className = "bg-indigo-600 text-white p-3 rounded-lg self-end ml-auto text-right max-w-[85%] leading-relaxed shadow-sm";
+                msg.textContent = text;
+            } else {
+                msg.className = "bg-slate-50 text-slate-800 p-3 rounded-lg border border-slate-150 leading-relaxed max-w-[95%] space-y-2";
+                msg.innerHTML = parseSimpleMarkdown(text);
+            }
+            
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function clearTutorChat() {
+            const chatBox = document.getElementById('tutor-chat-box');
+            chatBox.innerHTML = `
+                <div class="bg-slate-50 text-slate-700 p-3 rounded-lg border border-slate-100 leading-relaxed">
+                    Bonjour ! Je suis votre tuteur en inférence statistique et modélisation quantitative. Je peux vous expliquer les formules LaTeX, vous aider à choisir entre l'ANOVA et un test de Kruskal-Wallis, ou éclaircir les conditions de validité d'un test paramétrique. Posez-moi votre question !
+                </div>
+            `;
+            showToast("Historique du chat effacé !", "info");
+        }
+
+        function renderMathOnLoad() {
+            try {
+                if (window.renderMathInElement) {
+                    renderMathInElement(document.body, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ],
+                        throwOnError: false
+                    });
+                }
+            } catch(e) {
+                console.warn("KaTeX rendering deferred: script elements loading.", e);
+            }
+        }
+    </script>
+</body>
+</html>

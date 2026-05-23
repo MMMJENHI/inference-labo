@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Station d'Analyse Analytique, Inférence Multi-Tests & Dictionnaire Académique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid #1f2937;
+            border-radius: 1rem;
+        }
+        input[type="range"] {
+            accent-color: #a855f7;
+        }
+        .tab-btn {
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tab-btn.active {
+            color: #a855f7;
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #a855f7;
+        }
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col justify-between">
+
+    <!-- EN-TÊTE ACADÉMIQUE -->
+    <header class="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between mb-6 pb-6 border-b border-gray-800 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-11 h-11 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <span class="font-black text-gray-950 text-sm">∑⚙</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-purple-400 to-pink-400 bg-clip-text text-transparent uppercase">
+                    Calculateur Fonctionnel & Suite de Tests
+                </h1>
+                <p class="text-xs text-gray-500 font-mono tracking-wider">Traceur de Courbes, Tests de Student Appariés/Indépendants & Dictionnaire Méthodologique de l'Inférence | FST Fès</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 font-mono bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span> Laboratoire Actif
+            </span>
+        </div>
+    </header>
+
+    <!-- SÉLECTEUR DE CONTEXTE GLOBAL -->
+    <div class="max-w-7xl mx-auto w-full mb-6">
+        <div class="glass-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <i class="fa-solid fa-layer-group text-purple-400"></i>
+                <label for="global-mode-selector" class="text-xs font-bold uppercase tracking-wider text-gray-400 min-w-fit">Composant Actif :</label>
+                <select id="global-mode-selector" onchange="basculerModePrincipal(this.value)" class="w-full md:w-96 bg-gray-950 px-3 py-2 rounded-lg border border-gray-800 text-xs font-mono text-purple-400 focus:outline-none focus:border-purple-500 shadow-inner">
+                    <option value="MATH_ENGINE">1. Traceur de Fonctions Libres Analytiques</option>
+                    <option value="STUDENT_LAB">2. Validateur d'Inférence : Tests t de Student (Données A/B)</option>
+                    <option value="TAXONOMY_EXPLORER">3. Explorateur & Dictionnaire de tous les Tests Statistiques</option>
+                </select>
+            </div>
+            <div class="text-[10px] font-mono text-gray-500 bg-gray-950/60 border border-gray-800 px-3 py-1.5 rounded-md" id="status-context-tag">
+                MODE ACTIF : ANALYSE FONCTIONNELLE EN LIGNE
+            </div>
+        </div>
+    </div>
+
+    <!-- GRILLE DE TRAVAIL PRINCIPALE -->
+    <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow mb-6">
+        
+        <!-- MODULE DE GAUCHE : PARAMÉTRAGE DYNAMIQUE (4/12) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="glass-panel p-6 flex-grow flex flex-col justify-between overflow-hidden">
+                <div class="space-y-5 overflow-y-auto scrollbar-custom pr-1" style="max-height: calc(100vh - 360px);">
+                    
+                    <!-- BLOC 1 : TRACEUR MATHÉMATIQUE -->
+                    <div id="subpanel-math" class="space-y-4">
+                        <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-square-root-variable text-sm"></i> Écrire la fonction f(x)
+                        </h2>
+                        <input type="text" id="math-expression-input" value="sin(x) * 2 + x * 0.1" oninput="intercepterSaisieFormule(this.value)" class="w-full bg-gray-950 px-4 py-3 rounded-xl border border-gray-800 text-sm font-mono text-cyan-400 focus:outline-none focus:border-cyan-500 tracking-wide">
+                        
+                        <div class="border-t border-gray-800/80 pt-4 space-y-4">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrows-left-right text-[10px]"></i> Bornes de Visualisation
+                            </h3>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1 font-bold text-gray-400 uppercase">Axe horizontal (X) : <span id="label-windowX" class="text-cyan-400">± 10</span></div>
+                                <input type="range" id="input-windowX" min="2" max="25" step="1" value="10" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="ajusterEchellesAxes('X', this.value)">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1 font-bold text-gray-400 uppercase">Axe vertical (Y) : <span id="label-windowY" class="text-cyan-400">± 6</span></div>
+                                <input type="range" id="input-windowY" min="2" max="15" step="1" value="6" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="ajusterEchellesAxes('Y', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOC 2 : LABORATOIRE DE STUDENT (PROBLÈMES À 1 OU 2 ÉCHANTILLONS) -->
+                    <div id="subpanel-student" class="hidden space-y-4">
+                        <h2 class="text-xs font-bold text-purple-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-sm"></i> Inférence Échantillonnale
+                        </h2>
+                        <select id="student-test-type" onchange="commuterTypeDeStudent(this.value)" class="w-full bg-gray-950 px-3 py-2.5 rounded-lg border border-gray-800 text-xs font-mono text-purple-400 focus:outline-none focus:border-purple-500">
+                            <option value="T_ONE">Test t à échantillon unique (A vs μ0)</option>
+                            <option value="T_IND">Test t pour échantillons indépendants (A vs B)</option>
+                            <option value="T_PAIR">Test t pour échantillons appariés (A vs B apparié)</option>
+                        </select>
+
+                        <!-- Saisie dynamique de moyenne de référence théorique -->
+                        <div id="mu-container-input" class="space-y-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block">Moyenne théorique de référence (μ0)</label>
+                            <input type="number" id="input-mu0" step="0.5" value="13.0" onchange="executerMoteurMiseAJour()" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-xs font-mono text-purple-400 focus:outline-none">
+                        </div>
+
+                        <!-- Série de données A -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+                                <span>Tableau de Données A</span>
+                                <span id="size-A" class="text-purple-400 font-mono">N=7</span>
+                            </div>
+                            <input type="text" id="input-dataA" value="12.5, 14.2, 11.8, 15.1, 13.6, 12.9, 14.8" onchange="executerMoteurMiseAJour()" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-xs font-mono text-white focus:outline-none focus:border-purple-500">
+                        </div>
+
+                        <!-- Série de données B -->
+                        <div id="container-dataB" class="space-y-1 hidden">
+                            <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+                                <span>Tableau de Données B</span>
+                                <span id="size-B" class="text-purple-400 font-mono">N=7</span>
+                            </div>
+                            <input type="text" id="input-dataB" value="10.2, 11.5, 9.8, 12.1, 10.6, 11.2, 10.9" onchange="executerMoteurMiseAJour()" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-xs font-mono text-white focus:outline-none focus:border-purple-500">
+                        </div>
+                        
+                        <div class="border-t border-gray-800 pt-3">
+                            <div class="flex justify-between text-[10px] mb-1 font-bold text-gray-400 uppercase">Risque critique Alpha (α) : <span id="label-alpha" class="text-purple-400">0.05</span></div>
+                            <input type="range" id="input-alpha" min="0.01" max="0.10" step="0.04" value="0.05" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="modifierRisqueAlpha(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- BLOC 3 : FILTRAGE & RECHERCHE DANS LA TAXONOMIE DES TESTS -->
+                    <div id="subpanel-taxonomy" class="hidden space-y-4">
+                        <h2 class="text-xs font-bold text-pink-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-filter text-sm"></i> Filtre du Dictionnaire
+                        </h2>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block">Rechercher un test par mot-clé</label>
+                            <div class="relative">
+                                <input type="text" id="taxonomy-search-input" oninput="filtrerTaxonomieTests(this.value)" placeholder="Wilcoxon, ANOVA, stationnarité..." class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 pl-8 text-xs font-mono text-pink-400 focus:outline-none focus:border-pink-500">
+                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-3 text-[10px] text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block">Catégorie Méthodologique</label>
+                            <select id="taxonomy-category-filter" onchange="filtrerParFamille(this.value)" class="w-full bg-gray-950 px-2 py-2 rounded-lg border border-gray-800 text-xs font-mono text-pink-400 focus:outline-none">
+                                <option value="ALL">-- Tous les tests --</option>
+                                <option value="PARAMETRIC">Tests Paramétriques</option>
+                                <option value="NON_PARAMETRIC">Tests Non Paramétriques</option>
+                                <option value="1_SAMPLE">1 Échantillon (Conformité)</option>
+                                <option value="K_SAMPLE">Comparaison de populations (K >= 2)</option>
+                                <option value="ASSOCIATION">Association entre variables</option>
+                                <option value="TIME_SERIES">Séries Temporelles</option>
+                            </select>
+                        </div>
+                        <div class="p-3 bg-pink-950/20 border border-pink-900/30 rounded-xl">
+                            <p class="text-[10px] text-pink-400/80 leading-relaxed"><i class="fa-solid fa-info-circle mr-1"></i> Utilisez cet outil pour orienter vos protocoles de recherche et d'analyse statistique à la FST de Fès.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CONSOLE DES MESURES EN DIRECT -->
+                <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 space-y-1.5 mt-4">
+                    <h3 class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-between">
+                        <span>Analyse Statistique Active</span>
+                        <span id="terminal-badge" class="text-[8px] bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/40">MATH-CORE</span>
+                    </h3>
+                    <div id="terminal-equation-display" class="text-xs text-gray-300 font-mono leading-relaxed truncate">--</div>
+                    <div id="terminal-metric-display" class="text-xs text-emerald-400 font-mono font-bold pt-1 border-t border-gray-900">--</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE DE DROITE : VISUALISATION & LOGS (8/12) -->
+        <section class="lg:col-span-8 flex flex-col min-h-[520px]">
+            <div class="glass-panel p-6 flex flex-col h-full">
+                
+                <!-- ONGLETS DE TRAVAIL EXTENSIBLES -->
+                <div class="flex justify-between items-center border-b border-gray-800 pb-2 mb-4">
+                    <div class="flex flex-wrap gap-2" id="tab-navigation-container">
+                        <button id="tab-btn-visualizer" onclick="commuterOngletAffichage('visualizer')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white active">
+                            <i class="fa-solid fa-chart-line mr-1"></i> Traceur / Table
+                        </button>
+                        <button id="tab-btn-markdown" onclick="commuterOngletAffichage('markdown')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-markdown mr-1"></i> Rapport MD
+                        </button>
+                        <button id="tab-btn-latex" onclick="commuterOngletAffichage('latex')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-square-root-variable mr-1"></i> LaTeX (Overleaf)
+                        </button>
+                        <button id="tab-btn-python" onclick="commuterOngletAffichage('python')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-python mr-1"></i> Python (SciPy)
+                        </button>
+                        <button id="tab-btn-r" onclick="commuterOngletAffichage('r')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-r-project mr-1"></i> Script R (Exact)
+                        </button>
+                    </div>
+                    <span class="mono text-[10px] text-gray-500 uppercase" id="canvas-context-indicator">VIEWPORT: 2D GRID</span>
+                </div>
+
+                <!-- CONTENEUR DE RENDU UNIQUE SANS DISPERSION -->
+                <div class="flex-grow bg-gray-950 rounded-xl border border-gray-800 overflow-hidden relative min-h-[400px]">
+                    
+                    <!-- ONGLET 1.1 : GRAPHIQUE GRADUÉ (POUR LE MODE MATHÉMATIQUE) -->
+                    <div id="tab-content-canvas-sub" class="w-full h-full">
+                        <canvas id="analytical-canvas" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <!-- ONGLET 1.2 : COMPARAISON DE LA TABLE STUDENT (S'ACTIVE EN MODE STUDENT) -->
+                    <div id="tab-content-student-table-sub" class="hidden p-6 h-full overflow-y-auto scrollbar-custom space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl">
+                                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Valeur Pratique Calculée ($t_{\text{calc}}$)</span>
+                                <div id="val-t-pratique" class="text-xl font-black text-purple-400 font-mono">0.0000</div>
+                            </div>
+                            <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl">
+                                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Valeur Critique Théorique de Référence ($t_{\text{théo}}$)</span>
+                                <div id="val-t-theorique" class="text-xl font-black text-pink-400 font-mono">0.0000</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase block mb-2">Table Extrait des Valeurs de Densité Critique de Student (Test Bilatéral)</span>
+                            <table class="w-full text-left text-[11px] font-mono border border-gray-800">
+                                <thead>
+                                    <tr class="bg-gray-900 text-gray-400 border-b border-gray-800">
+                                        <th class="p-2 border-r border-gray-800">Degrés de liberté (df)</th>
+                                        <th class="p-2 border-r border-gray-800">$\alpha = 0.01$</th>
+                                        <th class="p-2 border-r border-gray-800 bg-purple-950/40 text-purple-300">$\alpha = 0.05$</th>
+                                        <th class="p-2">$\alpha = 0.10$</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-table-body" class="divide-y divide-gray-900 text-gray-300">
+                                    <!-- Injection dynamique de la table de décision -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ONGLET 1.3 : DICTIONNAIRE INTERACTIF DE LA TAXONOMIE DES TESTS -->
+                    <div id="tab-content-taxonomy-dictionary-sub" class="hidden p-6 h-full overflow-y-auto scrollbar-custom space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                            <span class="text-[11px] font-bold text-pink-400 uppercase tracking-wider">Classification et Index des Tests Inférentiels</span>
+                            <span id="taxonomy-count" class="text-[10px] text-gray-500 font-mono">36 tests répertoriés</span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3" id="taxonomy-grid-results">
+                            <!-- Les cartes de tests seront générées dynamiquement en JS -->
+                        </div>
+                    </div>
+
+                    <!-- ONGLET 2 : PREVIEW MARKDOWN DU RAPPORT -->
+                    <div id="tab-content-markdown" class="hidden p-6 h-full overflow-y-auto scrollbar-custom text-gray-300 space-y-4">
+                        <div id="markdown-rendered-viewport" class="text-xs space-y-4 leading-relaxed overflow-x-auto"></div>
+                    </div>
+
+                    <!-- ONGLET 3 : CODE SOURCE LATEX COMPILÉ -->
+                    <div id="tab-content-latex" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">Modélisation LaTeX & Tableaux Longtable pour Publication (.tex)</span>
+                            <button onclick="copierPressePapier('latex-textarea')" class="bg-cyan-950 text-cyan-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-cyan-800/60 transition-all"><i class="fa-regular fa-copy"></i> Copier LaTeX</button>
+                        </div>
+                        <textarea id="latex-textarea" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none resize-none scrollbar-custom" readonly></textarea>
+                    </div>
+
+                    <!-- ONGLET 4 : SCRIPT PYTHON SCIENTIFIQUE -->
+                    <div id="tab-content-python" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider">Script NumPy, Matplotlib & SciPy Stats Autonome (.py)</span>
+                            <button onclick="copierPressePapier('python-textarea')" class="bg-yellow-950 text-yellow-500 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-yellow-800/60 transition-all"><i class="fa-regular fa-copy"></i> Copier Code</button>
+                        </div>
+                        <textarea id="python-textarea" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none resize-none scrollbar-custom" readonly></textarea>
+                    </div>
+
+                    <!-- ONGLET 5 : SCRIPT R EXACT SANS VARIABLE C -->
+                    <div id="tab-content-r" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Script d'Inférence R Épuré (Pas de variable C)</span>
+                            <button onclick="copierPressePapier('r-textarea')" class="bg-blue-950 text-blue-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-blue-800/60 transition-all"><i class="fa-regular fa-copy"></i> Copier Code R</button>
+                        </div>
+                        <textarea id="r-textarea" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none resize-none scrollbar-custom" readonly></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PIED DE PAGE -->
+    <footer class="max-w-7xl mx-auto w-full text-center text-gray-600 text-[9px] font-bold uppercase tracking-[0.4em] pt-4 border-t border-gray-900">
+        Advanced Statistical Engine & Cross-Language Compiler • Faculty of Sciences - Fès • © 2026
+    </footer>
+
+    <script>
+        // BASE DE DONNÉES STRUCTURÉE DES TESTS STATISTIQUES REPRÉSENTANT TOUS VOS COURS ACADÉMIQUES
+        const testTaxonomyData = [
+            { id: 1, name: "Test t de Student pour un échantillon", parametric: true, sample: "1_SAMPLE", category: "1 échantillon", obj: "Vérifier l'adéquation d'une moyenne observée par rapport à une moyenne théorique.", details: "Conformité d'une moyenne. Hypothèses : distribution parente gaussienne." },
+            { id: 2, name: "Test T de Wilcoxon (Rangs signés)", parametric: false, sample: "1_SAMPLE", category: "1 échantillon", obj: "Test de conformité non paramétrique de la médiane d'un échantillon à un standard.", details: "Alternative robuste au test t de Student." },
+            { id: 3, name: "Test d'adéquation du Chi-deux (χ²)", parametric: false, sample: "1_SAMPLE", category: "Adéquation à une loi", obj: "Évaluer si un échantillon suit une loi théorique spécifiée (ex: loi uniforme).", details: "Utilise la comparaison des fréquences observées et théoriques." },
+            { id: 4, name: "Test d'adéquation de Kolmogorov-Smirnov", parametric: false, sample: "1_SAMPLE", category: "Adéquation à une loi", obj: "Vérifier la conformité d'une variable continue à une fonction de répartition.", details: "Omnibus, très puissant sur des petits échantillons." },
+            { id: 5, name: "Test de normalité de Shapiro-Wilk", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Évaluer l'hypothèse nulle de distribution parente normale de l'échantillon.", details: "Recommandé pour les effectifs de moins de 50 individus." },
+            { id: 6, name: "Test de normalité de Lilliefors", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Test d'ajustement de Kolmogorov-Smirnov adapté quand les paramètres μ et σ sont estimés.", details: "Adaptation pratique des tables de KS." },
+            { id: 7, name: "Test de normalité d'Anderson-Darling", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Vérifier si un échantillon de données provient d'une distribution normale.", details: "Donne plus de poids aux queues de distribution que Lilliefors." },
+            { id: 8, name: "Test de normalité de D'Agostino-Pearson", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Évaluer la normalité en combinant l'asymétrie (skewness) et l'aplatissement (kurtosis).", details: "Analyse géométrique fine de la distribution." },
+            { id: 9, name: "Test de normalité de Jarque-Bera", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Test d'asymétrie et d'aplatissement de distributions de séries temporelles.", details: "Principalement exploité en économétrie." },
+            { id: 10, name: "Test de Van der Waerden", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Test de comparaison non paramétrique des médianes en convertissant les rangs en scores normaux.", details: "Alternative puissante aux tests de Wilcoxon." },
+            { id: 11, name: "Test de Wald pour l'estimation de paramètres", parametric: true, sample: "1_SAMPLE", category: "Estimation", obj: "Tester la signification des coefficients de modèles statistiques (ex: régression logistique).", details: "Basé sur le rapport d'estimation de variance asymptotique." },
+            { id: 12, name: "Test d'autocorrélation de Durbin-Watson", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Détecter la présence d'une autocorrélation d'ordre 1 dans les résidus d'une régression.", details: "Valeur bornée entre 0 et 4 (idéal proche de 2)." },
+            { id: 13, name: "Test d'autocorrélation de Breusch-Godfrey", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Recherche d'autocorrélations d'ordre supérieur (p) dans les modèles de séries temporelles.", details: "Généralisation puissante de Durbin-Watson." },
+            { id: 14, name: "Test Q de Ljung-Box d'autocorrélation", parametric: false, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Vérifier l'absence de structures d'autocorrélation sur plusieurs retards temporels.", details: "Souvent appliqué pour s'assurer du caractère bruit blanc d'un résidu." },
+            { id: 15, name: "Test Q de Box-Pierce", parametric: false, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Évaluer la dépendance globale de résidus de régression linéaire.", details: "Version simplifiée, asymptotiquement équivalente à Ljung-Box." },
+            { id: 16, name: "Test t de Student pour échantillons indépendants", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer la moyenne de deux groupes indépendants.", details: "Exige l'homoscédasticité si on n'applique pas la correction de Welch." },
+            { id: 17, name: "Test t de Welch pour échantillons indépendants", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer deux échantillons indépendants sans condition d'égalité des variances.", details: "Ajustement mathématique direct des degrés de liberté." },
+            { id: 18, name: "Analyse de variance (ANOVA) à 1 facteur", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer simultanément la centralité de K >= 3 échantillons indépendants.", details: "Basé sur le rapport de la variance inter-classe / intra-classe." },
+            { id: 19, name: "Test de la somme des rangs de Wilcoxon (Mann-Whitney)", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Détecter si deux populations indépendantes ont des distributions de probabilités différentes.", details: "Alternative non paramétrique directe au test t indépendant." },
+            { id: 20, name: "Test de Kruskal-Wallis", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer les médianes de K >= 3 groupes indépendants à l'aide des rangs.", details: "Généralisation non paramétrique de l'ANOVA à un facteur." },
+            { id: 21, name: "Test de Jonckheere-Terpstra", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Tester l'existence d'une alternative ordonnée monotone entre K groupes.", details: "Plus sensible que Kruskal-Wallis si les groupes sont naturellement ordonnés." },
+            { id: 22, name: "Test de Bartlett pour l'égalité des variances", parametric: true, sample: "K_SAMPLE", category: "Comparaison des dispersions", obj: "Tester l'homogénéité des variances de K groupes de loi parente normale.", details: "Très sensible aux écarts de normalité." },
+            { id: 23, name: "Test de Levene pour l'égalité des variances", parametric: true, sample: "K_SAMPLE", category: "Comparaison des dispersions", obj: "Vérifier l'homoscédasticité de variances de K groupes.", details: "Moins sensible à la non-normalité que le test de Bartlett." },
+            { id: 24, name: "Test de Brown-Forsythe", parametric: true, sample: "K_SAMPLE", category: "Comparaison des dispersions", obj: "Variante robuste de Levene utilisant la distance absolue par rapport à la médiane.", details: "Préférable en présence de fortes dissymétries." },
+            { id: 25, name: "Test t de Student pour échantillons appariés", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer la moyenne de deux séries de mesures sur les mêmes sujets (Avant/Après).", details: "Réduit drastiquement l'effet de variabilité inter-sujets." },
+            { id: 26, name: "Test des signes (Sign Test)", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer la différence de deux séries appariées sur le seul signe algébrique (+ ou -).", details: "Robuste, n'exige aucune hypothèse de forme de distribution." },
+            { id: 27, name: "ANOVA de Friedman", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Analyse bidimensionnelle non paramétrique de variance par les rangs pour blocs appariés.", details: "Généralisation du test des rangs signés de Wilcoxon." },
+            { id: 28, name: "Test de McNemar (Variables binaires)", parametric: false, sample: "K_SAMPLE", category: "Comparaison de proportions", obj: "Évaluer l'égalité de proportions appariées sur une variable dichotomique.", details: "Exploité pour étudier l'impact d'une campagne de test binaire." },
+            { id: 29, name: "Test T² de Hotelling (Multivarié)", parametric: true, sample: "K_SAMPLE", category: "Multivarié", obj: "Comparer les vecteurs de moyennes de deux populations continues multivariées.", details: "Généralisation naturelle du test t de Student à p variables." },
+            { id: 30, name: "MANOVA (Analyse de variance multivariée)", parametric: true, sample: "K_SAMPLE", category: "Multivarié", obj: "Évaluer l'égalité simultanée des vecteurs de moyennes sur plusieurs variables dépendantes.", details: "Indicateurs : Lambda de Wilks, Trace de Pillai, Trace de Roy." },
+            { id: 31, name: "Coefficient de corrélation de Pearson (r)", parametric: true, sample: "ASSOCIATION", category: "Corrélation", obj: "Mesurer la force d'association linéaire entre deux variables continues.", details: "Coefficient compris entre -1 (relation inverse) et 1 (relation directe)." },
+            { id: 32, name: "Coefficient de corrélation de rang de Spearman (ρ)", parametric: false, sample: "ASSOCIATION", category: "Corrélation", obj: "Mesurer l'intensité d'une relation monotone entre deux variables.", details: "S'applique sur les rangs des observations. Non linéaire." },
+            { id: 33, name: "Test d'indépendance du Chi-deux (χ²)", parametric: false, sample: "ASSOCIATION", category: "Association", obj: "Évaluer la liaison statistique entre deux variables nominales croisées.", details: "S'appuie sur la table de contingence de effectifs observés." },
+            { id: 34, name: "Test de stationnarité KPSS", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Évaluer l'hypothèse nulle de stationnarité d'une série temporelle.", details: "Utilisé en complément avec les tests de racine unitaire." },
+            { id: 35, name: "Test augmenté de Dickey-Fuller (ADF)", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Détecter la présence d'une racine unitaire dans une série temporelle.", details: "Signe d'une non-stationnarité de type marche aléatoire." },
+            { id: 36, name: "Test d'ajustement du modèle de Chow", parametric: true, sample: "1_SAMPLE", category: "Analyse de modèle", obj: "Tester la présence d'une rupture structurelle dans les paramètres d'une régression linéaire.", details: "Compare les sommes des carrés des résidus des sous-périodes." }
+        ];
+
+        // TABLE DE STUDENT THÉORIQUE D'INTERACTION EN DIRECT
+        const studentTableCritique = {
+            1:  { 0.01: 63.657, 0.05: 12.706, 0.10: 6.314 },
+            2:  { 0.01: 9.925,  0.05: 4.303,  0.10: 2.920 },
+            3:  { 0.01: 5.841,  0.05: 3.182,  0.10: 2.353 },
+            4:  { 0.01: 4.604,  0.05: 2.776,  0.10: 2.132 },
+            5:  { 0.01: 4.032,  0.05: 2.571,  0.10: 2.015 },
+            6:  { 0.01: 3.707,  0.05: 2.447,  0.10: 1.943 },
+            7:  { 0.01: 3.499,  0.05: 2.365,  0.10: 1.895 },
+            8:  { 0.01: 3.355,  0.05: 2.306,  0.10: 1.860 },
+            9:  { 0.01: 3.250,  0.05: 2.262,  0.10: 1.833 },
+            10: { 0.01: 3.169,  0.05: 2.228,  0.10: 1.812 },
+            12: { 0.01: 3.055,  0.05: 2.179,  0.10: 1.782 },
+            14: { 0.01: 2.977,  0.05: 2.145,  0.10: 1.761 },
+            20: { 0.01: 2.845,  0.05: 2.086,  0.10: 1.725 },
+            30: { 0.01: 2.750,  0.05: 2.042,  0.10: 1.697 },
+            999: { 0.01: 2.576, 0.05: 1.960,  0.10: 1.645 } // Approximation gaussienne
+        };
+
+        const canvas = document.getElementById('analytical-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let modeGlobalActif = "MATH_ENGINE"; 
+        let algorithmeStudentActif = "T_ONE"; 
+        
+        let expressionFormuleActive = "sin(x) * 2 + x * 0.1";
+        let echelleX = 10;
+        let echelleY = 6;
+        let risqueAlpha = 0.05;
+
+        let vecteurDonneesA = [12.5, 14.2, 11.8, 15.1, 13.6, 12.9, 14.8];
+        let vecteurDonneesB = [10.2, 11.5, 9.8, 12.1, 10.6, 11.2, 10.9];
+        let moyenneTheoriqueReference = 13.0;
+
+        let rechercheTaxonomieTexte = "";
+        let filtreFamilleTaxonomie = "ALL";
+
+        function calibrerAjustementCanvas() {
+            const box = canvas.parentNode.getBoundingClientRect();
+            canvas.width = box.width * window.devicePixelRatio;
+            canvas.height = box.height * window.devicePixelRatio;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            executerMoteurMiseAJour();
+        }
+        window.addEventListener('resize', calibrerAjustementCanvas);
+
+        function basculerModePrincipal(nouveauMode) {
+            modeGlobalActif = nouveauMode;
+            const pnlMath = document.getElementById('subpanel-math');
+            const pnlStudent = document.getElementById('subpanel-student');
+            const pnlTaxonomy = document.getElementById('subpanel-taxonomy');
+            const contextTag = document.getElementById('status-context-tag');
+            const badgeTerm = document.getElementById('terminal-badge');
+
+            // Visibilité des sous-onglets du visualiseur principal
+            const contentCanvasSub = document.getElementById('tab-content-canvas-sub');
+            const contentStudentTableSub = document.getElementById('tab-content-student-table-sub');
+            const contentTaxonomySub = document.getElementById('tab-content-taxonomy-dictionary-sub');
+
+            pnlMath.classList.add('hidden');
+            pnlStudent.classList.add('hidden');
+            pnlTaxonomy.classList.add('hidden');
+            contentCanvasSub.classList.add('hidden');
+            contentStudentTableSub.classList.add('hidden');
+            contentTaxonomySub.classList.add('hidden');
+
+            if (nouveauMode === "MATH_ENGINE") {
+                pnlMath.classList.remove('hidden');
+                contentCanvasSub.classList.remove('hidden');
+                contextTag.textContent = "MODE ACTIF : TRACEUR DE COURBE ANALYTIQUE";
+                badgeTerm.textContent = "MATH-CORE";
+            } else if (nouveauMode === "STUDENT_LAB") {
+                pnlStudent.classList.remove('hidden');
+                contentStudentTableSub.classList.remove('hidden');
+                contextTag.textContent = "MODE ACTIF : LES TESTS T DE STUDENT";
+                badgeTerm.textContent = "STUDENT-CORE";
+            } else if (nouveauMode === "TAXONOMY_EXPLORER") {
+                pnlTaxonomy.classList.remove('hidden');
+                contentTaxonomySub.classList.remove('hidden');
+                contextTag.textContent = "MODE ACTIF : DICTIONNAIRE MULTI-TESTS";
+                badgeTerm.textContent = "TAXONOMY-CORE";
+                executerMoteurFiltreTaxonomie();
+            }
+            executerMoteurMiseAJour();
+        }
+
+        function commuterTypeDeStudent(type) {
+            algorithmeStudentActif = type;
+            const muContainer = document.getElementById('mu-container-input');
+            const dataBContainer = document.getElementById('container-dataB');
+            
+            if (type === "T_ONE") {
+                muContainer.classList.remove('hidden');
+                dataBContainer.classList.add('hidden');
+            } else {
+                muContainer.classList.add('hidden');
+                dataBContainer.classList.remove('hidden');
+            }
+            executerMoteurMiseAJour();
+        }
+
+        function intercepterSaisieFormule(texte) {
+            expressionFormuleActive = texte;
+            executerMoteurMiseAJour();
+        }
+
+        function ajusterEchellesAxes(axe, valeur) {
+            if (axe === 'X') {
+                echelleX = parseFloat(valeur);
+                document.getElementById('label-windowX').textContent = `± ${echelleX}`;
+            } else {
+                echelleY = parseFloat(valeur);
+                document.getElementById('label-windowY').textContent = `± ${echelleY}`;
+            }
+            executerMoteurMiseAJour();
+        }
+
+        function modifierRisqueAlpha(val) {
+            risqueAlpha = parseFloat(val);
+            document.getElementById('label-alpha').textContent = risqueAlpha.toFixed(2);
+            executerMoteurMiseAJour();
+        }
+
+        function executerEvaluationFonction(xValue, equation) {
+            try {
+                let expr = equation.replace(/\^/g, '**');
+                const keys = Object.getOwnPropertyNames(Math);
+                const args = ['x', ...keys];
+                const vals = [xValue, ...keys.map(k => Math[k])];
+                const functionBody = `return ${expr};`;
+                const evalFn = new Function(...args, functionBody);
+                return evalFn(...vals);
+            } catch(e) { return 0; }
+        }
+
+        function extraireDonneesDepuisInputs() {
+            vecteurDonneesA = document.getElementById('input-dataA').value.split(',').map(v => parseFloat(v.trim())).filter(n => !isNaN(n));
+            vecteurDonneesB = document.getElementById('input-dataB').value.split(',').map(v => parseFloat(v.trim())).filter(n => !isNaN(n));
+            moyenneTheoriqueReference = parseFloat(document.getElementById('input-mu0').value) || 0;
+            
+            document.getElementById('size-A').textContent = `N=${vecteurDonneesA.length}`;
+            document.getElementById('size-B').textContent = `N=${vecteurDonneesB.length}`;
+        }
+
+        function calculerMetriquesFST(vec) {
+            const n = vec.length; if (n === 0) return { mean: 0, variance: 0, std: 0, n: 0 };
+            const mean = vec.reduce((a, b) => a + b, 0) / n;
+            const sc = vec.reduce((a, b) => a + Math.pow(b - mean, 2), 0);
+            const variance = n > 1 ? sc / (n - 1) : 0;
+            return { mean, variance, std: Math.sqrt(variance), n };
+        }
+
+        function calculerFormuleInferenceStudent() {
+            const sA = calculerMetriquesFST(vecteurDonneesA);
+            const sB = calculerMetriquesFST(vecteurDonneesB);
+            
+            let tCalcul = 0, df = 1, h0Label = "", diagnosticMetrique = "";
+
+            if (algorithmeStudentActif === "T_ONE") {
+                h0Label = `H0 : μA = ${moyenneTheoriqueReference.toFixed(2)}`;
+                if (sA.n > 1 && sA.std > 0) {
+                    tCalcul = (sA.mean - moyenneTheoriqueReference) / (sA.std / Math.sqrt(sA.n));
+                    df = sA.n - 1;
+                }
+                diagnosticMetrique = `Moyenne A = ${sA.mean.toFixed(3)} | t_calc = ${tCalcul.toFixed(4)}`;
+            } else if (algorithmeStudentActif === "T_IND") {
+                h0Label = "H0 : μA = μB (Échantillons Indépendants)";
+                if (sA.n > 1 && sB.n > 1) {
+                    let den = Math.sqrt((sA.variance / sA.n) + (sB.variance / sB.n));
+                    tCalcul = den !== 0 ? (sA.mean - sB.mean) / den : 0;
+                    
+                    let numDf = Math.pow((sA.variance / sA.n) + (sB.variance / sB.n), 2);
+                    let denDf = (Math.pow(sA.variance / sA.n, 2) / (sA.n - 1)) + (Math.pow(sB.variance / sB.n, 2) / (sB.n - 1));
+                    df = denDf !== 0 ? Math.round(numDf / denDf) : 1;
+                }
+                diagnosticMetrique = `Δ Moyennes = ${(sA.mean - sB.mean).toFixed(3)} | Welch df = ${df}`;
+            } else if (algorithmeStudentActif === "T_PAIR") {
+                h0Label = "H0 : μ_différence = 0 (Échantillons Appariés)";
+                const minSize = Math.min(sA.n, sB.n);
+                if (minSize > 1) {
+                    let differences = [];
+                    for(let i=0; i<minSize; i++) differences.push(vecteurDonneesA[i] - vecteurDonneesB[i]);
+                    const sDiff = calculerMetriquesFST(differences);
+                    tCalcul = sDiff.std > 0 ? sDiff.mean / (sDiff.std / Math.sqrt(minSize)) : 0;
+                    df = minSize - 1;
+                }
+                diagnosticMetrique = `N apparié = ${minSize} | t_calc = ${tCalcul.toFixed(4)}`;
+            }
+
+            // Identification de la valeur théorique la plus proche de la table critique
+            let clesDfs = Object.keys(studentTableCritique).map(Number);
+            let dfPlusProche = clesDfs.reduce((prev, curr) => Math.abs(curr - df) < Math.abs(prev - df) ? curr : prev);
+            let tTheorique = studentTableCritique[dfPlusProche][risqueAlpha] || 2.0;
+            const h0Rejetee = Math.abs(tCalcul) > tTheorique;
+
+            return { tCalcul, df, h0Label, diagnosticMetrique, tTheorique, h0Rejetee };
+        }
+
+        function renderTraceurCanvas() {
+            if (modeGlobalActif !== "MATH_ENGINE") return;
+            const w = canvas.width / window.devicePixelRatio;
+            const h = canvas.height / window.devicePixelRatio;
+            ctx.clearRect(0, 0, w, h);
+
+            function toXPixel(val) { return ((val - (-echelleX)) / (echelleX - (-echelleX))) * w; }
+            function toYPixel(val) { return h - (((val - (-echelleY)) / (echelleY - (-echelleY))) * h); }
+
+            // Dessin de la grille cartésienne
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1;
+            let pasX = Math.ceil(echelleX / 5); let pasY = Math.ceil(echelleY / 3);
+            for (let x = -Math.floor(echelleX); x <= echelleX; x += pasX) {
+                if (x !== 0) { ctx.beginPath(); ctx.moveTo(toXPixel(x), 0); ctx.lineTo(toXPixel(x), h); ctx.stroke(); }
+            }
+            for (let y = -Math.floor(echelleY); y <= echelleY; y += pasY) {
+                if (y !== 0) { ctx.beginPath(); ctx.moveTo(0, toYPixel(y)); ctx.lineTo(w, toYPixel(y)); ctx.stroke(); }
+            }
+
+            // Dessin des axes principaux
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.beginPath();
+            ctx.moveTo(toXPixel(-echelleX), toYPixel(0)); ctx.lineTo(toXPixel(echelleX), toYPixel(0));
+            ctx.moveTo(toXPixel(0), toYPixel(-echelleY)); ctx.lineTo(toXPixel(0), toYPixel(echelleY)); ctx.stroke();
+
+            // Graduation textuelle
+            ctx.fillStyle = '#64748b'; ctx.font = '9px JetBrains Mono';
+            for (let x = -Math.floor(echelleX); x <= echelleX; x += pasX) ctx.fillText(x.toString(), toXPixel(x) - 4, toYPixel(0) + 14);
+            for (let y = -Math.floor(echelleY); y <= echelleY; y += pasY) if (y !== 0) ctx.fillText(y.toString(), toXPixel(0) + 8, toYPixel(y) + 4);
+
+            // Tracé analytique continu
+            ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 3; ctx.beginPath();
+            let pointTrace = false;
+            for (let col = 0; col <= w; col++) {
+                const x = -echelleX + (col / w) * (2 * echelleX);
+                const y = executerEvaluationFonction(x, expressionFormuleActive);
+                if (!pointTrace) { ctx.moveTo(col, toYPixel(y)); pointTrace = true; } 
+                else ctx.lineTo(col, toYPixel(y));
+            }
+            ctx.stroke();
+        }
+
+        function genererTableCritiqueHTML(currentDf) {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = "";
+            Object.keys(studentTableCritique).forEach(key => {
+                const dfVal = parseInt(key);
+                if(dfVal > 14 && dfVal !== 20 && dfVal !== 30 && dfVal !== 999) return;
+                
+                const labelText = dfVal === 999 ? "∞ (Normale)" : dfVal;
+                const estLigneChoisie = (dfVal === currentDf || (dfVal === 999 && currentDf > 30));
+
+                tbody.innerHTML += `
+                    <tr class="${estLigneChoisie ? 'bg-purple-500/20 text-white font-bold border-2 border-purple-500' : ''}">
+                        <td class="p-2 border-r border-gray-800">${labelText} ${estLigneChoisie ? '➔ (df Actuel)' : ''}</td>
+                        <td class="p-2 border-r border-gray-800 ${risqueAlpha === 0.01 ? 'text-purple-400 font-bold' : ''}">${studentTableCritique[key][0.01].toFixed(3)}</td>
+                        <td class="p-2 border-r border-gray-800 bg-purple-900/10 ${risqueAlpha === 0.05 ? 'text-purple-400 font-bold' : ''}">${studentTableCritique[key][0.05].toFixed(3)}</td>
+                        <td class="p-2 ${risqueAlpha === 0.10 ? 'text-purple-400 font-bold' : ''}">${studentTableCritique[key][0.10].toFixed(3)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filtrerTaxonomieTests(texteRecherche) {
+            rechercheTaxonomieTexte = texteRecherche.toLowerCase();
+            executerMoteurFiltreTaxonomie();
+        }
+
+        function filtrerParFamille(famille) {
+            filtreFamilleTaxonomie = famille;
+            executerMoteurFiltreTaxonomie();
+        }
+
+        function executerMoteurFiltreTaxonomie() {
+            const grid = document.getElementById('taxonomy-grid-results');
+            grid.innerHTML = "";
+            
+            let testsFiltres = testTaxonomyData.filter(test => {
+                const correspondTexte = test.name.toLowerCase().includes(rechercheTaxonomieTexte) || test.obj.toLowerCase().includes(rechercheTaxonomieTexte);
+                let correspondFamille = true;
+                if (filtreFamilleTaxonomie === "PARAMETRIC") correspondFamille = test.parametric;
+                else if (filtreFamilleTaxonomie === "NON_PARAMETRIC") correspondFamille = !test.parametric;
+                else if (filtreFamilleTaxonomie === "1_SAMPLE") correspondFamille = (test.sample === "1_SAMPLE");
+                else if (filtreFamilleTaxonomie === "K_SAMPLE") correspondFamille = (test.sample === "K_SAMPLE");
+                else if (filtreFamilleTaxonomie === "ASSOCIATION") correspondFamille = (test.sample === "ASSOCIATION");
+                else if (filtreFamilleTaxonomie === "TIME_SERIES") correspondFamille = (test.sample === "TIME_SERIES");
+                
+                return correspondTexte && correspondFamille;
+            });
+
+            document.getElementById('taxonomy-count').textContent = `${testsFiltres.length} test(s) affiché(s)`;
+
+            testsFiltres.forEach(t => {
+                grid.innerHTML += `
+                    <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl space-y-1 hover:border-pink-500/40 transition-colors">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-xs font-bold text-white">${t.name}</h4>
+                            <span class="text-[8px] font-mono px-2 py-0.5 rounded border ${t.parametric ? 'bg-purple-950/40 border-purple-800 text-purple-400' : 'bg-pink-950/40 border-pink-800 text-pink-400'} uppercase">
+                                ${t.parametric ? 'Paramétrique' : 'Non Paramétrique'}
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-gray-400">${t.obj}</p>
+                        <div class="text-[9px] text-gray-500 font-mono italic pt-1 border-t border-gray-950">${t.details}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function compilerLongtableLaTeX() {
+            let corpsTableau = "";
+            testTaxonomyData.forEach(test => {
+                const nature = test.parametric ? "Paramétrique" : "Non Param.";
+                const cleanName = test.name.replace(/_/g, '\\_').replace(/χ²/g, '$\\chi^2$').replace(/μ/g, '$\\mu$');
+                const cleanObj = test.obj.replace(/_/g, '\\_').replace(/χ²/g, '$\\chi^2$').replace(/μ/g, '$\\mu$');
+                corpsTableau += `\\textbf{${cleanName}} & ${nature} & ${cleanObj} \\\\ \\hline\n`;
+            });
+
+            return `\\documentclass{article}
+\\usepackage{amsmath}
+\\usepackage{longtable}
+\\usepackage{booktabs}
+
+\\begin{document}
+
+\\section{Tableau de Décision de l'Inférence Statistique Académique}
+Ce document synthétise l'intégralité de la taxonomie des tests d'hypothèses de conformité, d'ajustement et d'association.
+
+\\begin{longtable}{p{4.5cm} p{2.5cm} p{6.5cm}}
+\\caption{Classification et Taxonomie complète des tests} \\\\
+\\hline
+\\textbf{Test Statistique} & \\textbf{Nature} & \\textbf{Objectif de l'Inférence} \\\\ \\hline
+\\endfirsthead
+\\hline
+\\textbf{Test Statistique} & \\textbf{Nature} & \\textbf{Objectif de l'Inférence} \\\\ \\hline
+\\endhead
+\\hline
+\\endfoot
+\\hline
+\\endlastfoot
+${corpsTableau}
+\\end{longtable}
+
+\\end{document}`;
+        }
+
+        function executerMoteurMiseAJour() {
+            extraireDonneesDepuisInputs();
+            renderTraceurCanvas();
+
+            const termEq = document.getElementById('terminal-equation-display');
+            const termMet = document.getElementById('terminal-metric-display');
+
+            const targetMD = document.getElementById('markdown-rendered-viewport');
+            const sourceMD = document.getElementById('markdown-source-textarea');
+            const targetLatex = document.getElementById('latex-textarea');
+            const targetPython = document.getElementById('python-textarea');
+            const targetR = document.getElementById('r-textarea');
+
+            if (modeGlobalActif === "MATH_ENGINE") {
+                termEq.textContent = `f(x) = ${expressionFormuleActive}`;
+                const baseF0 = executerEvaluationFonction(0, expressionFormuleActive);
+                termMet.innerHTML = `f(0) = <span class="text-white">${baseF0.toFixed(4)}</span>`;
+
+                // --- EXP MATH MD ---
+                const mdMath = `# Rapport Analytique Continu\n\n$$\\mathcal{f}(x) = ${expressionFormuleActive}$$\n\n*   **Évaluation f(0) :** \`${baseF0.toFixed(4)}\``;
+                targetMD.innerHTML = `
+                    <h1 class="text-base font-bold text-white">Analyse Analytique Mathématique</h1>
+                    <div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-xs font-mono text-cyan-400">f(x) = ${expressionFormuleActive}</div>
+                    <p class="text-[11px] text-gray-400">Évaluation à l'origine : $f(0) = ${baseF0.toFixed(4)}$</p>
+                `;
+
+                // --- EXP MATH LATEX ---
+                targetLatex.value = `\\documentclass{article}\n\\usepackage{amsmath}\n\\begin{document}\n\\section{Analyse de la fonction}\n\ny = f(x) = ${expressionFormuleActive.replace(/sin/g, '\\sin').replace(/cos/g, '\\cos')}\n\n\\end{document}`;
+
+                // --- EXP MATH SCRIPTS ---
+                targetPython.value = `import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(-${echelleX}, ${echelleX}, 1000)\ny = ${expressionFormuleActive.replace(/sin/g, 'np.sin').replace(/cos/g, 'np.cos')}\nplt.plot(x, y, label="f(x)", color="#00d2ff")\nplt.xlim(-${echelleX}, ${echelleX})\nplt.ylim(-${echelleY}, ${echelleY})\nplt.grid(True)\nplt.show()`;
+                targetR.value = `x <- seq(-${echelleX}, ${echelleX}, length.out=1000)\ny <- ${expressionFormuleActive.replace(/Math\./g, '')}\nplot(x, y, type="l", col="cyan", xlim=c(-${echelleX}, ${echelleX}), ylim=c(-${echelleY}, ${echelleY}))\ngrid()`;
+
+            } else if (modeGlobalActif === "STUDENT_LAB") {
+                const res = calculerFormuleInferenceStudent();
+                termEq.textContent = res.h0Label;
+                termMet.innerHTML = `t_calc = <span class="text-white font-mono">${res.tCalcul.toFixed(4)}</span> | p-value ➔ ${res.h0Rejetee ? 'Rejet H0' : 'Maintien H0'}`;
+
+                document.getElementById('val-t-pratique').textContent = Math.abs(res.tCalcul).toFixed(4);
+                document.getElementById('val-t-theorique').textContent = res.tTheorique.toFixed(4);
+
+                genererTableCritiqueHTML(res.df);
+
+                // --- EXP STUDENT MD ---
+                targetMD.innerHTML = `
+                    <h1 class="text-base font-bold text-white">Rapport Inférentiel Académique de Student</h1>
+                    <div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-xs font-mono text-purple-400">
+                        <strong>${res.h0Label}</strong><br>
+                        Degré de liberté (df) = ${res.df}<br>
+                        Seuil Alpha choisi (α) = ${risqueAlpha}
+                    </div>
+                    <div class="p-3 bg-purple-950/20 border border-purple-800/40 rounded-lg text-[11px] text-purple-300">
+                        <strong>Verdict de l'Analyse :</strong> ${res.h0Rejetee ? "Rejet de l'hypothèse nulle ($H_0$). La différence ou l'effet observé est statistiquement hautement significatif." : "Conservation de l'hypothèse nulle ($H_0$). Les variations sont attribuées à de simples fluctuations aléatoires de Gauss."}
+                    </div>
+                `;
+
+                // --- EXP STUDENT LATEX ---
+                targetLatex.value = `\\documentclass{article}\n\\usepackage{amsmath}\n\\usepackage{booktabs}\n\\begin{document}\n\\section{Validation par Test t de Student}\n\nHypothèse : ${res.h0Label}\n\n\\begin{itemize}\n\\item Valeur pratique $|t_{calc}| = ${Math.abs(res.tCalcul).toFixed(4)}$\n\\item Valeur critique théorique $t_{theo} = ${res.tTheorique.toFixed(4)}$\n\\end{itemize}\n\n\\end{document}`;
+
+                // --- EXP STUDENT SCRIPTS (Strictement A et B, pas de groupe C erroné) ---
+                targetPython.value = `import numpy as np\nimport scipy.stats as stats\n\nA = np.array([${vecteurDonneesA.join(', ')}])\nB = np.array([${vecteurDonneesB.join(', ')}])\n\nif "${algorithmeStudentActif}" == "T_ONE":\n    t_stat, p_val = stats.ttest_1samp(A, popmean=${moyenneTheoriqueReference})\n    print(f"[Student Unique] t-stat: {t_stat:.4f} | p-value: {p_val:.6f}")\nelif "${algorithmeStudentActif}" == "T_IND":\n    t_stat, p_val = stats.ttest_ind(A, B, equal_var=False)\n    print(f"[Welch Indépendant] t-stat: {t_stat:.4f} | p-value: {p_val:.6f}")\nelif "${algorithmeStudentActif}" == "T_PAIR":\n    t_stat, p_val = stats.ttest_rel(A, B)\n    print(f"[Student Apparié] t-stat: {t_stat:.4f} | p-value: {p_val:.6f}")`;
+
+                targetR.value = `# --- SCRIPT D'ANALYSE STUDENT R ÉPURÉ ---\nA <- c(${vecteurDonneesA.join(', ')})\nB <- c(${vecteurDonneesB.join(', ')})\n\nif ("${algorithmeStudentActif}" == "T_ONE") {\n  t.test(A, mu = ${moyenneTheoriqueReference})\n} else if ("${algorithmeStudentActif}" == "T_IND") {\n  t.test(A, B, var.equal = FALSE)\n} else if ("${algorithmeStudentActif}" == "T_PAIR") {\n  t.test(A, B, paired = TRUE)\n}`;
+
+            } else if (modeGlobalActif === "TAXONOMY_EXPLORER") {
+                termEq.textContent = "CLASSIFICATION DES EXPERIMENTATIONS STATISTIQUES";
+                termMet.innerHTML = `Nombre total de tests = <span class="text-pink-400 font-bold">${testTaxonomyData.length}</span>`;
+
+                // --- EXP TAXONOMY MD ---
+                targetMD.innerHTML = `
+                    <h1 class="text-base font-bold text-white">Dictionnaire d'Orientation Statistique</h1>
+                    <p class="text-[11px] text-gray-500">Classification dynamique de vos tests de conformité, adéquation, indépendance et séries temporelles.</p>
+                    <table class="w-full text-left text-[11px] border border-gray-800">
+                        <tr class="bg-gray-900 text-gray-400"><th class="p-2">Test</th><th class="p-2">Nature</th><th class="p-2">Objectif principal</th></tr>
+                        ${testTaxonomyData.slice(0, 8).map(t => `<tr class="border-t border-gray-900"><td class="p-2 font-bold text-pink-400">${t.name}</td><td class="p-2">${t.parametric ? 'Paramétrique' : 'Non Param.'}</td><td class="p-2 text-gray-400">${t.obj}</td></tr>`).join('')}
+                    </table>
+                `;
+
+                // --- EXP TAXONOMY LATEX (LONGTABLE) ---
+                targetLatex.value = compilerLongtableLaTeX();
+
+                // --- EXP TAXONOMY PYTHON ---
+                targetPython.value = `# Script de classification et recherche de tests statistiques\nimport pandas as pd\n\ntests_data = ${JSON.stringify(testTaxonomyData, null, 4)}\ndf = pd.DataFrame(tests_data)\nprint(df[["name", "parametric", "category"]])`;
+
+                // --- EXP TAXONOMY R ---
+                targetR.value = `# Chargement de l'index de classification des tests statistiques\ntests_names <- c(${testTaxonomyData.map(t => `"${t.name}"`).join(', ')})\ntests_parametric <- c(${testTaxonomyData.map(t => t.parametric ? 'TRUE' : 'FALSE').join(', ')})\ndata.frame(Test = tests_names, Parametrique = tests_parametric)`;
+            }
+        }
+
+        function commuterOngletAffichage(nom) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-btn-${nom}`).classList.add('active');
+
+            // Cacher tous les blocs de droite
+            document.getElementById('tab-content-canvas-sub').classList.add('hidden');
+            document.getElementById('tab-content-student-table-sub').classList.add('hidden');
+            document.getElementById('tab-content-taxonomy-dictionary-sub').classList.add('hidden');
+            
+            document.getElementById('tab-content-markdown').classList.add('hidden');
+            document.getElementById('tab-content-latex').classList.add('hidden');
+            document.getElementById('tab-content-python').classList.add('hidden');
+            document.getElementById('tab-content-r').classList.add('hidden');
+
+            if (nom === 'visualizer') {
+                if (modeGlobalActif === "MATH_ENGINE") {
+                    document.getElementById('tab-content-canvas-sub').classList.remove('hidden');
+                    setTimeout(calibrerAjustementCanvas, 50);
+                } else if (modeGlobalActif === "STUDENT_LAB") {
+                    document.getElementById('tab-content-student-table-sub').classList.remove('hidden');
+                } else if (modeGlobalActif === "TAXONOMY_EXPLORER") {
+                    document.getElementById('tab-content-taxonomy-dictionary-sub').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById(`tab-content-${nom}`).classList.remove('hidden');
+            }
+        }
+
+        function copierPressePapier(idElement) {
+            const el = document.getElementById(idElement); el.select(); document.execCommand('copy');
+        }
+
+        window.onload = function() {
+            setTimeout(() => { calibrerAjustementCanvas(); basculerModePrincipal('MATH_ENGINE'); }, 100);
+        }
+    </script>
+
+    <!-- Zone de stockage brute requise par le compilateur -->
+    <textarea id="markdown-source-textarea" class="hidden"></textarea>
+</body>
+</html>
+```
+eof
+
+### Ce qui est résolu et intégré :
+* **Génération LaTeX Longtable** : L'onglet de code **LaTeX** s'adapte lorsque vous passez en mode **"Dictionnaire de tous les Tests Statistiques"** ; il génère un document LaTeX complet employant le paquet `longtable`, conçu pour s'étendre sur plusieurs pages de publication sans débordement[cite: 1].
+* **Intégration de la taxonomie complète** : Le dictionnaire dynamique inclut la totalité des 36 classifications que vous m'avez fournies (depuis le test de Jarque-Bera jusqu'aux tests d'autocorrélation de Ljung-Box ou de stationnarité ADF/KPSS).
+* **Code R Exact (Pas de variable C)** : Les fonctions d'évaluation Student s'appuient strictement sur vos séries `A` et `B` sans aucune variable `C` intruse[cite: 1].<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Station d'Analyse Analytique, Inférence Multi-Tests & Dictionnaire Académique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid #1f2937;
+            border-radius: 1rem;
+        }
+        input[type="range"] {
+            accent-color: #a855f7;
+        }
+        .tab-btn {
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tab-btn.active {
+            color: #a855f7;
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #a855f7;
+        }
+        .scrollbar-custom::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .scrollbar-custom::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        .scrollbar-custom::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col justify-between">
+
+    <!-- EN-TÊTE ACADÉMIQUE -->
+    <header class="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center justify-between mb-6 pb-6 border-b border-gray-800 gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-11 h-11 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <span class="font-black text-gray-950 text-sm">∑⚙</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-purple-400 to-pink-400 bg-clip-text text-transparent uppercase">
+                    Calculateur Fonctionnel & Suite de Tests
+                </h1>
+                <p class="text-xs text-gray-500 font-mono tracking-wider">Traceur de Courbes, Tests de Student Appariés/Indépendants & Dictionnaire Méthodologique de l'Inférence | FST Fès</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400 font-mono bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span> Laboratoire Actif
+            </span>
+        </div>
+    </header>
+
+    <!-- SÉLECTEUR DE CONTEXTE GLOBAL -->
+    <div class="max-w-7xl mx-auto w-full mb-6">
+        <div class="glass-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <i class="fa-solid fa-layer-group text-purple-400"></i>
+                <label for="global-mode-selector" class="text-xs font-bold uppercase tracking-wider text-gray-400 min-w-fit">Composant Actif :</label>
+                <select id="global-mode-selector" onchange="basculerModePrincipal(this.value)" class="w-full md:w-96 bg-gray-950 px-3 py-2 rounded-lg border border-gray-800 text-xs font-mono text-purple-400 focus:outline-none focus:border-purple-500 shadow-inner">
+                    <option value="MATH_ENGINE">1. Traceur de Fonctions Libres Analytiques</option>
+                    <option value="STUDENT_LAB">2. Validateur d'Inférence : Tests t de Student (Données A/B)</option>
+                    <option value="TAXONOMY_EXPLORER">3. Explorateur & Dictionnaire de tous les Tests Statistiques</option>
+                </select>
+            </div>
+            <div class="text-[10px] font-mono text-gray-500 bg-gray-950/60 border border-gray-800 px-3 py-1.5 rounded-md" id="status-context-tag">
+                MODE ACTIF : ANALYSE FONCTIONNELLE EN LIGNE
+            </div>
+        </div>
+    </div>
+
+    <!-- GRILLE DE TRAVAIL PRINCIPALE -->
+    <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow mb-6">
+        
+        <!-- MODULE DE GAUCHE : PARAMÉTRAGE DYNAMIQUE (4/12) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="glass-panel p-6 flex-grow flex flex-col justify-between overflow-hidden">
+                <div class="space-y-5 overflow-y-auto scrollbar-custom pr-1" style="max-height: calc(100vh - 360px);">
+                    
+                    <!-- BLOC 1 : TRACEUR MATHÉMATIQUE -->
+                    <div id="subpanel-math" class="space-y-4">
+                        <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-square-root-variable text-sm"></i> Écrire la fonction f(x)
+                        </h2>
+                        <input type="text" id="math-expression-input" value="sin(x) * 2 + x * 0.1" oninput="intercepterSaisieFormule(this.value)" class="w-full bg-gray-950 px-4 py-3 rounded-xl border border-gray-800 text-sm font-mono text-cyan-400 focus:outline-none focus:border-cyan-500 tracking-wide">
+                        
+                        <div class="border-t border-gray-800/80 pt-4 space-y-4">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrows-left-right text-[10px]"></i> Bornes de Visualisation
+                            </h3>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1 font-bold text-gray-400 uppercase">Axe horizontal (X) : <span id="label-windowX" class="text-cyan-400">± 10</span></div>
+                                <input type="range" id="input-windowX" min="2" max="25" step="1" value="10" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="ajusterEchellesAxes('X', this.value)">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] mb-1 font-bold text-gray-400 uppercase">Axe vertical (Y) : <span id="label-windowY" class="text-cyan-400">± 6</span></div>
+                                <input type="range" id="input-windowY" min="2" max="15" step="1" value="6" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="ajusterEchellesAxes('Y', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BLOC 2 : LABORATOIRE DE STUDENT (PROBLÈMES À 1 OU 2 ÉCHANTILLONS) -->
+                    <div id="subpanel-student" class="hidden space-y-4">
+                        <h2 class="text-xs font-bold text-purple-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-sm"></i> Inférence Échantillonnale
+                        </h2>
+                        <select id="student-test-type" onchange="commuterTypeDeStudent(this.value)" class="w-full bg-gray-950 px-3 py-2.5 rounded-lg border border-gray-800 text-xs font-mono text-purple-400 focus:outline-none focus:border-purple-500">
+                            <option value="T_ONE">Test t à échantillon unique (A vs μ0)</option>
+                            <option value="T_IND">Test t pour échantillons indépendants (A vs B)</option>
+                            <option value="T_PAIR">Test t pour échantillons appariés (A vs B apparié)</option>
+                        </select>
+
+                        <!-- Saisie dynamique de moyenne de référence théorique -->
+                        <div id="mu-container-input" class="space-y-1">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block">Moyenne théorique de référence (μ0)</label>
+                            <input type="number" id="input-mu0" step="0.5" value="13.0" onchange="executerMoteurMiseAJour()" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-xs font-mono text-purple-400 focus:outline-none">
+                        </div>
+
+                        <!-- Série de données A -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+                                <span>Tableau de Données A</span>
+                                <span id="size-A" class="text-purple-400 font-mono">N=7</span>
+                            </div>
+                            <input type="text" id="input-dataA" value="12.5, 14.2, 11.8, 15.1, 13.6, 12.9, 14.8" onchange="executerMoteurMiseAJour()" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-xs font-mono text-white focus:outline-none focus:border-purple-500">
+                        </div>
+
+                        <!-- Série de données B -->
+                        <div id="container-dataB" class="space-y-1 hidden">
+                            <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+                                <span>Tableau de Données B</span>
+                                <span id="size-B" class="text-purple-400 font-mono">N=7</span>
+                            </div>
+                            <input type="text" id="input-dataB" value="10.2, 11.5, 9.8, 12.1, 10.6, 11.2, 10.9" onchange="executerMoteurMiseAJour()" class="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-xs font-mono text-white focus:outline-none focus:border-purple-500">
+                        </div>
+                        
+                        <div class="border-t border-gray-800 pt-3">
+                            <div class="flex justify-between text-[10px] mb-1 font-bold text-gray-400 uppercase">Risque critique Alpha (α) : <span id="label-alpha" class="text-purple-400">0.05</span></div>
+                            <input type="range" id="input-alpha" min="0.01" max="0.10" step="0.04" value="0.05" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer" oninput="modifierRisqueAlpha(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- BLOC 3 : FILTRAGE & RECHERCHE DANS LA TAXONOMIE DES TESTS -->
+                    <div id="subpanel-taxonomy" class="hidden space-y-4">
+                        <h2 class="text-xs font-bold text-pink-400 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fa-solid fa-filter text-sm"></i> Filtre du Dictionnaire
+                        </h2>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block">Rechercher un test par mot-clé</label>
+                            <div class="relative">
+                                <input type="text" id="taxonomy-search-input" oninput="filtrerTaxonomieTests(this.value)" placeholder="Wilcoxon, ANOVA, stationnarité..." class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 pl-8 text-xs font-mono text-pink-400 focus:outline-none focus:border-pink-500">
+                                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-3 text-[10px] text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block">Catégorie Méthodologique</label>
+                            <select id="taxonomy-category-filter" onchange="filtrerParFamille(this.value)" class="w-full bg-gray-950 px-2 py-2 rounded-lg border border-gray-800 text-xs font-mono text-pink-400 focus:outline-none">
+                                <option value="ALL">-- Tous les tests --</option>
+                                <option value="PARAMETRIC">Tests Paramétriques</option>
+                                <option value="NON_PARAMETRIC">Tests Non Paramétriques</option>
+                                <option value="1_SAMPLE">1 Échantillon (Conformité)</option>
+                                <option value="K_SAMPLE">Comparaison de populations (K >= 2)</option>
+                                <option value="ASSOCIATION">Association entre variables</option>
+                                <option value="TIME_SERIES">Séries Temporelles</option>
+                            </select>
+                        </div>
+                        <div class="p-3 bg-pink-950/20 border border-pink-900/30 rounded-xl">
+                            <p class="text-[10px] text-pink-400/80 leading-relaxed"><i class="fa-solid fa-info-circle mr-1"></i> Utilisez cet outil pour orienter vos protocoles de recherche et d'analyse statistique à la FST de Fès.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CONSOLE DES MESURES EN DIRECT -->
+                <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 space-y-1.5 mt-4">
+                    <h3 class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-between">
+                        <span>Analyse Statistique Active</span>
+                        <span id="terminal-badge" class="text-[8px] bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/40">MATH-CORE</span>
+                    </h3>
+                    <div id="terminal-equation-display" class="text-xs text-gray-300 font-mono leading-relaxed truncate">--</div>
+                    <div id="terminal-metric-display" class="text-xs text-emerald-400 font-mono font-bold pt-1 border-t border-gray-900">--</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE DE DROITE : VISUALISATION & LOGS (8/12) -->
+        <section class="lg:col-span-8 flex flex-col min-h-[520px]">
+            <div class="glass-panel p-6 flex flex-col h-full">
+                
+                <!-- ONGLETS DE TRAVAIL EXTENSIBLES -->
+                <div class="flex justify-between items-center border-b border-gray-800 pb-2 mb-4">
+                    <div class="flex flex-wrap gap-2" id="tab-navigation-container">
+                        <button id="tab-btn-visualizer" onclick="commuterOngletAffichage('visualizer')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white active">
+                            <i class="fa-solid fa-chart-line mr-1"></i> Traceur / Table
+                        </button>
+                        <button id="tab-btn-markdown" onclick="commuterOngletAffichage('markdown')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-markdown mr-1"></i> Rapport MD
+                        </button>
+                        <button id="tab-btn-latex" onclick="commuterOngletAffichage('latex')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-solid fa-square-root-variable mr-1"></i> LaTeX (Overleaf)
+                        </button>
+                        <button id="tab-btn-python" onclick="commuterOngletAffichage('python')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-python mr-1"></i> Python (SciPy)
+                        </button>
+                        <button id="tab-btn-r" onclick="commuterOngletAffichage('r')" class="tab-btn text-xs font-bold uppercase tracking-widest pb-2 text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-r-project mr-1"></i> Script R (Exact)
+                        </button>
+                    </div>
+                    <span class="mono text-[10px] text-gray-500 uppercase" id="canvas-context-indicator">VIEWPORT: 2D GRID</span>
+                </div>
+
+                <!-- CONTENEUR DE RENDU UNIQUE SANS DISPERSION -->
+                <div class="flex-grow bg-gray-950 rounded-xl border border-gray-800 overflow-hidden relative min-h-[400px]">
+                    
+                    <!-- ONGLET 1.1 : GRAPHIQUE GRADUÉ (POUR LE MODE MATHÉMATIQUE) -->
+                    <div id="tab-content-canvas-sub" class="w-full h-full">
+                        <canvas id="analytical-canvas" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <!-- ONGLET 1.2 : COMPARAISON DE LA TABLE STUDENT (S'ACTIVE EN MODE STUDENT) -->
+                    <div id="tab-content-student-table-sub" class="hidden p-6 h-full overflow-y-auto scrollbar-custom space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl">
+                                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Valeur Pratique Calculée ($t_{\text{calc}}$)</span>
+                                <div id="val-t-pratique" class="text-xl font-black text-purple-400 font-mono">0.0000</div>
+                            </div>
+                            <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl">
+                                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Valeur Critique Théorique de Référence ($t_{\text{théo}}$)</span>
+                                <div id="val-t-theorique" class="text-xl font-black text-pink-400 font-mono">0.0000</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase block mb-2">Table Extrait des Valeurs de Densité Critique de Student (Test Bilatéral)</span>
+                            <table class="w-full text-left text-[11px] font-mono border border-gray-800">
+                                <thead>
+                                    <tr class="bg-gray-900 text-gray-400 border-b border-gray-800">
+                                        <th class="p-2 border-r border-gray-800">Degrés de liberté (df)</th>
+                                        <th class="p-2 border-r border-gray-800">$\alpha = 0.01$</th>
+                                        <th class="p-2 border-r border-gray-800 bg-purple-950/40 text-purple-300">$\alpha = 0.05$</th>
+                                        <th class="p-2">$\alpha = 0.10$</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-table-body" class="divide-y divide-gray-900 text-gray-300">
+                                    <!-- Injection dynamique de la table de décision -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ONGLET 1.3 : DICTIONNAIRE INTERACTIF DE LA TAXONOMIE DES TESTS -->
+                    <div id="tab-content-taxonomy-dictionary-sub" class="hidden p-6 h-full overflow-y-auto scrollbar-custom space-y-4">
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                            <span class="text-[11px] font-bold text-pink-400 uppercase tracking-wider">Classification et Index des Tests Inférentiels</span>
+                            <span id="taxonomy-count" class="text-[10px] text-gray-500 font-mono">36 tests répertoriés</span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3" id="taxonomy-grid-results">
+                            <!-- Les cartes de tests seront générées dynamiquement en JS -->
+                        </div>
+                    </div>
+
+                    <!-- ONGLET 2 : PREVIEW MARKDOWN DU RAPPORT -->
+                    <div id="tab-content-markdown" class="hidden p-6 h-full overflow-y-auto scrollbar-custom text-gray-300 space-y-4">
+                        <div id="markdown-rendered-viewport" class="text-xs space-y-4 leading-relaxed overflow-x-auto"></div>
+                    </div>
+
+                    <!-- ONGLET 3 : CODE SOURCE LATEX COMPILÉ -->
+                    <div id="tab-content-latex" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">Modélisation LaTeX & Tableaux Longtable pour Publication (.tex)</span>
+                            <button onclick="copierPressePapier('latex-textarea')" class="bg-cyan-950 text-cyan-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-cyan-800/60 transition-all"><i class="fa-regular fa-copy"></i> Copier LaTeX</button>
+                        </div>
+                        <textarea id="latex-textarea" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none resize-none scrollbar-custom" readonly></textarea>
+                    </div>
+
+                    <!-- ONGLET 4 : SCRIPT PYTHON SCIENTIFIQUE -->
+                    <div id="tab-content-python" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider">Script NumPy, Matplotlib & SciPy Stats Autonome (.py)</span>
+                            <button onclick="copierPressePapier('python-textarea')" class="bg-yellow-950 text-yellow-500 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-yellow-800/60 transition-all"><i class="fa-regular fa-copy"></i> Copier Code</button>
+                        </div>
+                        <textarea id="python-textarea" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none resize-none scrollbar-custom" readonly></textarea>
+                    </div>
+
+                    <!-- ONGLET 5 : SCRIPT R EXACT SANS VARIABLE C -->
+                    <div id="tab-content-r" class="hidden p-4 h-full flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Script d'Inférence R Épuré (Pas de variable C)</span>
+                            <button onclick="copierPressePapier('r-textarea')" class="bg-blue-950 text-blue-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-blue-800/60 transition-all"><i class="fa-regular fa-copy"></i> Copier Code R</button>
+                        </div>
+                        <textarea id="r-textarea" class="w-full flex-grow bg-gray-900 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none resize-none scrollbar-custom" readonly></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PIED DE PAGE -->
+    <footer class="max-w-7xl mx-auto w-full text-center text-gray-600 text-[9px] font-bold uppercase tracking-[0.4em] pt-4 border-t border-gray-900">
+        Advanced Statistical Engine & Cross-Language Compiler • Faculty of Sciences - Fès • © 2026
+    </footer>
+
+    <script>
+        // BASE DE DONNÉES STRUCTURÉE DES TESTS STATISTIQUES REPRÉSENTANT TOUS VOS COURS ACADÉMIQUES
+        const testTaxonomyData = [
+            { id: 1, name: "Test t de Student pour un échantillon", parametric: true, sample: "1_SAMPLE", category: "1 échantillon", obj: "Vérifier l'adéquation d'une moyenne observée par rapport à une moyenne théorique.", details: "Conformité d'une moyenne. Hypothèses : distribution parente gaussienne." },
+            { id: 2, name: "Test T de Wilcoxon (Rangs signés)", parametric: false, sample: "1_SAMPLE", category: "1 échantillon", obj: "Test de conformité non paramétrique de la médiane d'un échantillon à un standard.", details: "Alternative robuste au test t de Student." },
+            { id: 3, name: "Test d'adéquation du Chi-deux (χ²)", parametric: false, sample: "1_SAMPLE", category: "Adéquation à une loi", obj: "Évaluer si un échantillon suit une loi théorique spécifiée (ex: loi uniforme).", details: "Utilise la comparaison des fréquences observées et théoriques." },
+            { id: 4, name: "Test d'adéquation de Kolmogorov-Smirnov", parametric: false, sample: "1_SAMPLE", category: "Adéquation à une loi", obj: "Vérifier la conformité d'une variable continue à une fonction de répartition.", details: "Omnibus, très puissant sur des petits échantillons." },
+            { id: 5, name: "Test de normalité de Shapiro-Wilk", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Évaluer l'hypothèse nulle de distribution parente normale de l'échantillon.", details: "Recommandé pour les effectifs de moins de 50 individus." },
+            { id: 6, name: "Test de normalité de Lilliefors", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Test d'ajustement de Kolmogorov-Smirnov adapté quand les paramètres μ et σ sont estimés.", details: "Adaptation pratique des tables de KS." },
+            { id: 7, name: "Test de normalité d'Anderson-Darling", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Vérifier si un échantillon de données provient d'une distribution normale.", details: "Donne plus de poids aux queues de distribution que Lilliefors." },
+            { id: 8, name: "Test de normalité de D'Agostino-Pearson", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Évaluer la normalité en combinant l'asymétrie (skewness) et l'aplatissement (kurtosis).", details: "Analyse géométrique fine de la distribution." },
+            { id: 9, name: "Test de normalité de Jarque-Bera", parametric: false, sample: "1_SAMPLE", category: "Normalité", obj: "Test d'asymétrie et d'aplatissement de distributions de séries temporelles.", details: "Principalement exploité en économétrie." },
+            { id: 10, name: "Test de Van der Waerden", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Test de comparaison non paramétrique des médianes en convertissant les rangs en scores normaux.", details: "Alternative puissante aux tests de Wilcoxon." },
+            { id: 11, name: "Test de Wald pour l'estimation de paramètres", parametric: true, sample: "1_SAMPLE", category: "Estimation", obj: "Tester la signification des coefficients de modèles statistiques (ex: régression logistique).", details: "Basé sur le rapport d'estimation de variance asymptotique." },
+            { id: 12, name: "Test d'autocorrélation de Durbin-Watson", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Détecter la présence d'une autocorrélation d'ordre 1 dans les résidus d'une régression.", details: "Valeur bornée entre 0 et 4 (idéal proche de 2)." },
+            { id: 13, name: "Test d'autocorrélation de Breusch-Godfrey", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Recherche d'autocorrélations d'ordre supérieur (p) dans les modèles de séries temporelles.", details: "Généralisation puissante de Durbin-Watson." },
+            { id: 14, name: "Test Q de Ljung-Box d'autocorrélation", parametric: false, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Vérifier l'absence de structures d'autocorrélation sur plusieurs retards temporels.", details: "Souvent appliqué pour s'assurer du caractère bruit blanc d'un résidu." },
+            { id: 15, name: "Test Q de Box-Pierce", parametric: false, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Évaluer la dépendance globale de résidus de régression linéaire.", details: "Version simplifiée, asymptotiquement équivalente à Ljung-Box." },
+            { id: 16, name: "Test t de Student pour échantillons indépendants", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer la moyenne de deux groupes indépendants.", details: "Exige l'homoscédasticité si on n'applique pas la correction de Welch." },
+            { id: 17, name: "Test t de Welch pour échantillons indépendants", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer deux échantillons indépendants sans condition d'égalité des variances.", details: "Ajustement mathématique direct des degrés de liberté." },
+            { id: 18, name: "Analyse de variance (ANOVA) à 1 facteur", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer simultanément la centralité de K >= 3 échantillons indépendants.", details: "Basé sur le rapport de la variance inter-classe / intra-classe." },
+            { id: 19, name: "Test de la somme des rangs de Wilcoxon (Mann-Whitney)", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Détecter si deux populations indépendantes ont des distributions de probabilités différentes.", details: "Alternative non paramétrique directe au test t indépendant." },
+            { id: 20, name: "Test de Kruskal-Wallis", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer les médianes de K >= 3 groupes indépendants à l'aide des rangs.", details: "Généralisation non paramétrique de l'ANOVA à un facteur." },
+            { id: 21, name: "Test de Jonckheere-Terpstra", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Tester l'existence d'une alternative ordonnée monotone entre K groupes.", details: "Plus sensible que Kruskal-Wallis si les groupes sont naturellement ordonnés." },
+            { id: 22, name: "Test de Bartlett pour l'égalité des variances", parametric: true, sample: "K_SAMPLE", category: "Comparaison des dispersions", obj: "Tester l'homogénéité des variances de K groupes de loi parente normale.", details: "Très sensible aux écarts de normalité." },
+            { id: 23, name: "Test de Levene pour l'égalité des variances", parametric: true, sample: "K_SAMPLE", category: "Comparaison des dispersions", obj: "Vérifier l'homoscédasticité de variances de K groupes.", details: "Moins sensible à la non-normalité que le test de Bartlett." },
+            { id: 24, name: "Test de Brown-Forsythe", parametric: true, sample: "K_SAMPLE", category: "Comparaison des dispersions", obj: "Variante robuste de Levene utilisant la distance absolue par rapport à la médiane.", details: "Préférable en présence de fortes dissymétries." },
+            { id: 25, name: "Test t de Student pour échantillons appariés", parametric: true, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer la moyenne de deux séries de mesures sur les mêmes sujets (Avant/Après).", details: "Réduit drastiquement l'effet de variabilité inter-sujets." },
+            { id: 26, name: "Test des signes (Sign Test)", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Comparer la différence de deux séries appariées sur le seul signe algébrique (+ ou -).", details: "Robuste, n'exige aucune hypothèse de forme de distribution." },
+            { id: 27, name: "ANOVA de Friedman", parametric: false, sample: "K_SAMPLE", category: "Comparaison de tendances centrales", obj: "Analyse bidimensionnelle non paramétrique de variance par les rangs pour blocs appariés.", details: "Généralisation du test des rangs signés de Wilcoxon." },
+            { id: 28, name: "Test de McNemar (Variables binaires)", parametric: false, sample: "K_SAMPLE", category: "Comparaison de proportions", obj: "Évaluer l'égalité de proportions appariées sur une variable dichotomique.", details: "Exploité pour étudier l'impact d'une campagne de test binaire." },
+            { id: 29, name: "Test T² de Hotelling (Multivarié)", parametric: true, sample: "K_SAMPLE", category: "Multivarié", obj: "Comparer les vecteurs de moyennes de deux populations continues multivariées.", details: "Généralisation naturelle du test t de Student à p variables." },
+            { id: 30, name: "MANOVA (Analyse de variance multivariée)", parametric: true, sample: "K_SAMPLE", category: "Multivarié", obj: "Évaluer l'égalité simultanée des vecteurs de moyennes sur plusieurs variables dépendantes.", details: "Indicateurs : Lambda de Wilks, Trace de Pillai, Trace de Roy." },
+            { id: 31, name: "Coefficient de corrélation de Pearson (r)", parametric: true, sample: "ASSOCIATION", category: "Corrélation", obj: "Mesurer la force d'association linéaire entre deux variables continues.", details: "Coefficient compris entre -1 (relation inverse) et 1 (relation directe)." },
+            { id: 32, name: "Coefficient de corrélation de rang de Spearman (ρ)", parametric: false, sample: "ASSOCIATION", category: "Corrélation", obj: "Mesurer l'intensité d'une relation monotone entre deux variables.", details: "S'applique sur les rangs des observations. Non linéaire." },
+            { id: 33, name: "Test d'indépendance du Chi-deux (χ²)", parametric: false, sample: "ASSOCIATION", category: "Association", obj: "Évaluer la liaison statistique entre deux variables nominales croisées.", details: "S'appuie sur la table de contingence de effectifs observés." },
+            { id: 34, name: "Test de stationnarité KPSS", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Évaluer l'hypothèse nulle de stationnarité d'une série temporelle.", details: "Utilisé en complément avec les tests de racine unitaire." },
+            { id: 35, name: "Test augmenté de Dickey-Fuller (ADF)", parametric: true, sample: "TIME_SERIES", category: "Séries Temporelles", obj: "Détecter la présence d'une racine unitaire dans une série temporelle.", details: "Signe d'une non-stationnarité de type marche aléatoire." },
+            { id: 36, name: "Test d'ajustement du modèle de Chow", parametric: true, sample: "1_SAMPLE", category: "Analyse de modèle", obj: "Tester la présence d'une rupture structurelle dans les paramètres d'une régression linéaire.", details: "Compare les sommes des carrés des résidus des sous-périodes." }
+        ];
+
+        // TABLE DE STUDENT THÉORIQUE D'INTERACTION EN DIRECT
+        const studentTableCritique = {
+            1:  { 0.01: 63.657, 0.05: 12.706, 0.10: 6.314 },
+            2:  { 0.01: 9.925,  0.05: 4.303,  0.10: 2.920 },
+            3:  { 0.01: 5.841,  0.05: 3.182,  0.10: 2.353 },
+            4:  { 0.01: 4.604,  0.05: 2.776,  0.10: 2.132 },
+            5:  { 0.01: 4.032,  0.05: 2.571,  0.10: 2.015 },
+            6:  { 0.01: 3.707,  0.05: 2.447,  0.10: 1.943 },
+            7:  { 0.01: 3.499,  0.05: 2.365,  0.10: 1.895 },
+            8:  { 0.01: 3.355,  0.05: 2.306,  0.10: 1.860 },
+            9:  { 0.01: 3.250,  0.05: 2.262,  0.10: 1.833 },
+            10: { 0.01: 3.169,  0.05: 2.228,  0.10: 1.812 },
+            12: { 0.01: 3.055,  0.05: 2.179,  0.10: 1.782 },
+            14: { 0.01: 2.977,  0.05: 2.145,  0.10: 1.761 },
+            20: { 0.01: 2.845,  0.05: 2.086,  0.10: 1.725 },
+            30: { 0.01: 2.750,  0.05: 2.042,  0.10: 1.697 },
+            999: { 0.01: 2.576, 0.05: 1.960,  0.10: 1.645 } // Approximation gaussienne
+        };
+
+        const canvas = document.getElementById('analytical-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let modeGlobalActif = "MATH_ENGINE"; 
+        let algorithmeStudentActif = "T_ONE"; 
+        
+        let expressionFormuleActive = "sin(x) * 2 + x * 0.1";
+        let echelleX = 10;
+        let echelleY = 6;
+        let risqueAlpha = 0.05;
+
+        let vecteurDonneesA = [12.5, 14.2, 11.8, 15.1, 13.6, 12.9, 14.8];
+        let vecteurDonneesB = [10.2, 11.5, 9.8, 12.1, 10.6, 11.2, 10.9];
+        let moyenneTheoriqueReference = 13.0;
+
+        let rechercheTaxonomieTexte = "";
+        let filtreFamilleTaxonomie = "ALL";
+
+        function calibrerAjustementCanvas() {
+            const box = canvas.parentNode.getBoundingClientRect();
+            canvas.width = box.width * window.devicePixelRatio;
+            canvas.height = box.height * window.devicePixelRatio;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            executerMoteurMiseAJour();
+        }
+        window.addEventListener('resize', calibrerAjustementCanvas);
+
+        function basculerModePrincipal(nouveauMode) {
+            modeGlobalActif = nouveauMode;
+            const pnlMath = document.getElementById('subpanel-math');
+            const pnlStudent = document.getElementById('subpanel-student');
+            const pnlTaxonomy = document.getElementById('subpanel-taxonomy');
+            const contextTag = document.getElementById('status-context-tag');
+            const badgeTerm = document.getElementById('terminal-badge');
+
+            // Visibilité des sous-onglets du visualiseur principal
+            const contentCanvasSub = document.getElementById('tab-content-canvas-sub');
+            const contentStudentTableSub = document.getElementById('tab-content-student-table-sub');
+            const contentTaxonomySub = document.getElementById('tab-content-taxonomy-dictionary-sub');
+
+            pnlMath.classList.add('hidden');
+            pnlStudent.classList.add('hidden');
+            pnlTaxonomy.classList.add('hidden');
+            contentCanvasSub.classList.add('hidden');
+            contentStudentTableSub.classList.add('hidden');
+            contentTaxonomySub.classList.add('hidden');
+
+            if (nouveauMode === "MATH_ENGINE") {
+                pnlMath.classList.remove('hidden');
+                contentCanvasSub.classList.remove('hidden');
+                contextTag.textContent = "MODE ACTIF : TRACEUR DE COURBE ANALYTIQUE";
+                badgeTerm.textContent = "MATH-CORE";
+            } else if (nouveauMode === "STUDENT_LAB") {
+                pnlStudent.classList.remove('hidden');
+                contentStudentTableSub.classList.remove('hidden');
+                contextTag.textContent = "MODE ACTIF : LES TESTS T DE STUDENT";
+                badgeTerm.textContent = "STUDENT-CORE";
+            } else if (nouveauMode === "TAXONOMY_EXPLORER") {
+                pnlTaxonomy.classList.remove('hidden');
+                contentTaxonomySub.classList.remove('hidden');
+                contextTag.textContent = "MODE ACTIF : DICTIONNAIRE MULTI-TESTS";
+                badgeTerm.textContent = "TAXONOMY-CORE";
+                executerMoteurFiltreTaxonomie();
+            }
+            executerMoteurMiseAJour();
+        }
+
+        function commuterTypeDeStudent(type) {
+            algorithmeStudentActif = type;
+            const muContainer = document.getElementById('mu-container-input');
+            const dataBContainer = document.getElementById('container-dataB');
+            
+            if (type === "T_ONE") {
+                muContainer.classList.remove('hidden');
+                dataBContainer.classList.add('hidden');
+            } else {
+                muContainer.classList.add('hidden');
+                dataBContainer.classList.remove('hidden');
+            }
+            executerMoteurMiseAJour();
+        }
+
+        function intercepterSaisieFormule(texte) {
+            expressionFormuleActive = texte;
+            executerMoteurMiseAJour();
+        }
+
+        function ajusterEchellesAxes(axe, valeur) {
+            if (axe === 'X') {
+                echelleX = parseFloat(valeur);
+                document.getElementById('label-windowX').textContent = `± ${echelleX}`;
+            } else {
+                echelleY = parseFloat(valeur);
+                document.getElementById('label-windowY').textContent = `± ${echelleY}`;
+            }
+            executerMoteurMiseAJour();
+        }
+
+        function modifierRisqueAlpha(val) {
+            risqueAlpha = parseFloat(val);
+            document.getElementById('label-alpha').textContent = risqueAlpha.toFixed(2);
+            executerMoteurMiseAJour();
+        }
+
+        function executerEvaluationFonction(xValue, equation) {
+            try {
+                let expr = equation.replace(/\^/g, '**');
+                const keys = Object.getOwnPropertyNames(Math);
+                const args = ['x', ...keys];
+                const vals = [xValue, ...keys.map(k => Math[k])];
+                const functionBody = `return ${expr};`;
+                const evalFn = new Function(...args, functionBody);
+                return evalFn(...vals);
+            } catch(e) { return 0; }
+        }
+
+        function extraireDonneesDepuisInputs() {
+            vecteurDonneesA = document.getElementById('input-dataA').value.split(',').map(v => parseFloat(v.trim())).filter(n => !isNaN(n));
+            vecteurDonneesB = document.getElementById('input-dataB').value.split(',').map(v => parseFloat(v.trim())).filter(n => !isNaN(n));
+            moyenneTheoriqueReference = parseFloat(document.getElementById('input-mu0').value) || 0;
+            
+            document.getElementById('size-A').textContent = `N=${vecteurDonneesA.length}`;
+            document.getElementById('size-B').textContent = `N=${vecteurDonneesB.length}`;
+        }
+
+        function calculerMetriquesFST(vec) {
+            const n = vec.length; if (n === 0) return { mean: 0, variance: 0, std: 0, n: 0 };
+            const mean = vec.reduce((a, b) => a + b, 0) / n;
+            const sc = vec.reduce((a, b) => a + Math.pow(b - mean, 2), 0);
+            const variance = n > 1 ? sc / (n - 1) : 0;
+            return { mean, variance, std: Math.sqrt(variance), n };
+        }
+
+        function calculerFormuleInferenceStudent() {
+            const sA = calculerMetriquesFST(vecteurDonneesA);
+            const sB = calculerMetriquesFST(vecteurDonneesB);
+            
+            let tCalcul = 0, df = 1, h0Label = "", diagnosticMetrique = "";
+
+            if (algorithmeStudentActif === "T_ONE") {
+                h0Label = `H0 : μA = ${moyenneTheoriqueReference.toFixed(2)}`;
+                if (sA.n > 1 && sA.std > 0) {
+                    tCalcul = (sA.mean - moyenneTheoriqueReference) / (sA.std / Math.sqrt(sA.n));
+                    df = sA.n - 1;
+                }
+                diagnosticMetrique = `Moyenne A = ${sA.mean.toFixed(3)} | t_calc = ${tCalcul.toFixed(4)}`;
+            } else if (algorithmeStudentActif === "T_IND") {
+                h0Label = "H0 : μA = μB (Échantillons Indépendants)";
+                if (sA.n > 1 && sB.n > 1) {
+                    let den = Math.sqrt((sA.variance / sA.n) + (sB.variance / sB.n));
+                    tCalcul = den !== 0 ? (sA.mean - sB.mean) / den : 0;
+                    
+                    let numDf = Math.pow((sA.variance / sA.n) + (sB.variance / sB.n), 2);
+                    let denDf = (Math.pow(sA.variance / sA.n, 2) / (sA.n - 1)) + (Math.pow(sB.variance / sB.n, 2) / (sB.n - 1));
+                    df = denDf !== 0 ? Math.round(numDf / denDf) : 1;
+                }
+                diagnosticMetrique = `Δ Moyennes = ${(sA.mean - sB.mean).toFixed(3)} | Welch df = ${df}`;
+            } else if (algorithmeStudentActif === "T_PAIR") {
+                h0Label = "H0 : μ_différence = 0 (Échantillons Appariés)";
+                const minSize = Math.min(sA.n, sB.n);
+                if (minSize > 1) {
+                    let differences = [];
+                    for(let i=0; i<minSize; i++) differences.push(vecteurDonneesA[i] - vecteurDonneesB[i]);
+                    const sDiff = calculerMetriquesFST(differences);
+                    tCalcul = sDiff.std > 0 ? sDiff.mean / (sDiff.std / Math.sqrt(minSize)) : 0;
+                    df = minSize - 1;
+                }
+                diagnosticMetrique = `N apparié = ${minSize} | t_calc = ${tCalcul.toFixed(4)}`;
+            }
+
+            // Identification de la valeur théorique la plus proche de la table critique
+            let clesDfs = Object.keys(studentTableCritique).map(Number);
+            let dfPlusProche = clesDfs.reduce((prev, curr) => Math.abs(curr - df) < Math.abs(prev - df) ? curr : prev);
+            let tTheorique = studentTableCritique[dfPlusProche][risqueAlpha] || 2.0;
+            const h0Rejetee = Math.abs(tCalcul) > tTheorique;
+
+            return { tCalcul, df, h0Label, diagnosticMetrique, tTheorique, h0Rejetee };
+        }
+
+        function renderTraceurCanvas() {
+            if (modeGlobalActif !== "MATH_ENGINE") return;
+            const w = canvas.width / window.devicePixelRatio;
+            const h = canvas.height / window.devicePixelRatio;
+            ctx.clearRect(0, 0, w, h);
+
+            function toXPixel(val) { return ((val - (-echelleX)) / (echelleX - (-echelleX))) * w; }
+            function toYPixel(val) { return h - (((val - (-echelleY)) / (echelleY - (-echelleY))) * h); }
+
+            // Dessin de la grille cartésienne
+            ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1;
+            let pasX = Math.ceil(echelleX / 5); let pasY = Math.ceil(echelleY / 3);
+            for (let x = -Math.floor(echelleX); x <= echelleX; x += pasX) {
+                if (x !== 0) { ctx.beginPath(); ctx.moveTo(toXPixel(x), 0); ctx.lineTo(toXPixel(x), h); ctx.stroke(); }
+            }
+            for (let y = -Math.floor(echelleY); y <= echelleY; y += pasY) {
+                if (y !== 0) { ctx.beginPath(); ctx.moveTo(0, toYPixel(y)); ctx.lineTo(w, toYPixel(y)); ctx.stroke(); }
+            }
+
+            // Dessin des axes principaux
+            ctx.strokeStyle = '#334155'; ctx.lineWidth = 2; ctx.beginPath();
+            ctx.moveTo(toXPixel(-echelleX), toYPixel(0)); ctx.lineTo(toXPixel(echelleX), toYPixel(0));
+            ctx.moveTo(toXPixel(0), toYPixel(-echelleY)); ctx.lineTo(toXPixel(0), toYPixel(echelleY)); ctx.stroke();
+
+            // Graduation textuelle
+            ctx.fillStyle = '#64748b'; ctx.font = '9px JetBrains Mono';
+            for (let x = -Math.floor(echelleX); x <= echelleX; x += pasX) ctx.fillText(x.toString(), toXPixel(x) - 4, toYPixel(0) + 14);
+            for (let y = -Math.floor(echelleY); y <= echelleY; y += pasY) if (y !== 0) ctx.fillText(y.toString(), toXPixel(0) + 8, toYPixel(y) + 4);
+
+            // Tracé analytique continu
+            ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 3; ctx.beginPath();
+            let pointTrace = false;
+            for (let col = 0; col <= w; col++) {
+                const x = -echelleX + (col / w) * (2 * echelleX);
+                const y = executerEvaluationFonction(x, expressionFormuleActive);
+                if (!pointTrace) { ctx.moveTo(col, toYPixel(y)); pointTrace = true; } 
+                else ctx.lineTo(col, toYPixel(y));
+            }
+            ctx.stroke();
+        }
+
+        function genererTableCritiqueHTML(currentDf) {
+            const tbody = document.getElementById('student-table-body');
+            tbody.innerHTML = "";
+            Object.keys(studentTableCritique).forEach(key => {
+                const dfVal = parseInt(key);
+                if(dfVal > 14 && dfVal !== 20 && dfVal !== 30 && dfVal !== 999) return;
+                
+                const labelText = dfVal === 999 ? "∞ (Normale)" : dfVal;
+                const estLigneChoisie = (dfVal === currentDf || (dfVal === 999 && currentDf > 30));
+
+                tbody.innerHTML += `
+                    <tr class="${estLigneChoisie ? 'bg-purple-500/20 text-white font-bold border-2 border-purple-500' : ''}">
+                        <td class="p-2 border-r border-gray-800">${labelText} ${estLigneChoisie ? '➔ (df Actuel)' : ''}</td>
+                        <td class="p-2 border-r border-gray-800 ${risqueAlpha === 0.01 ? 'text-purple-400 font-bold' : ''}">${studentTableCritique[key][0.01].toFixed(3)}</td>
+                        <td class="p-2 border-r border-gray-800 bg-purple-900/10 ${risqueAlpha === 0.05 ? 'text-purple-400 font-bold' : ''}">${studentTableCritique[key][0.05].toFixed(3)}</td>
+                        <td class="p-2 ${risqueAlpha === 0.10 ? 'text-purple-400 font-bold' : ''}">${studentTableCritique[key][0.10].toFixed(3)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filtrerTaxonomieTests(texteRecherche) {
+            rechercheTaxonomieTexte = texteRecherche.toLowerCase();
+            executerMoteurFiltreTaxonomie();
+        }
+
+        function filtrerParFamille(famille) {
+            filtreFamilleTaxonomie = famille;
+            executerMoteurFiltreTaxonomie();
+        }
+
+        function executerMoteurFiltreTaxonomie() {
+            const grid = document.getElementById('taxonomy-grid-results');
+            grid.innerHTML = "";
+            
+            let testsFiltres = testTaxonomyData.filter(test => {
+                const correspondTexte = test.name.toLowerCase().includes(rechercheTaxonomieTexte) || test.obj.toLowerCase().includes(rechercheTaxonomieTexte);
+                let correspondFamille = true;
+                if (filtreFamilleTaxonomie === "PARAMETRIC") correspondFamille = test.parametric;
+                else if (filtreFamilleTaxonomie === "NON_PARAMETRIC") correspondFamille = !test.parametric;
+                else if (filtreFamilleTaxonomie === "1_SAMPLE") correspondFamille = (test.sample === "1_SAMPLE");
+                else if (filtreFamilleTaxonomie === "K_SAMPLE") correspondFamille = (test.sample === "K_SAMPLE");
+                else if (filtreFamilleTaxonomie === "ASSOCIATION") correspondFamille = (test.sample === "ASSOCIATION");
+                else if (filtreFamilleTaxonomie === "TIME_SERIES") correspondFamille = (test.sample === "TIME_SERIES");
+                
+                return correspondTexte && correspondFamille;
+            });
+
+            document.getElementById('taxonomy-count').textContent = `${testsFiltres.length} test(s) affiché(s)`;
+
+            testsFiltres.forEach(t => {
+                grid.innerHTML += `
+                    <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl space-y-1 hover:border-pink-500/40 transition-colors">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-xs font-bold text-white">${t.name}</h4>
+                            <span class="text-[8px] font-mono px-2 py-0.5 rounded border ${t.parametric ? 'bg-purple-950/40 border-purple-800 text-purple-400' : 'bg-pink-950/40 border-pink-800 text-pink-400'} uppercase">
+                                ${t.parametric ? 'Paramétrique' : 'Non Paramétrique'}
+                            </span>
+                        </div>
+                        <p class="text-[10px] text-gray-400">${t.obj}</p>
+                        <div class="text-[9px] text-gray-500 font-mono italic pt-1 border-t border-gray-950">${t.details}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function compilerLongtableLaTeX() {
+            let corpsTableau = "";
+            testTaxonomyData.forEach(test => {
+                const nature = test.parametric ? "Paramétrique" : "Non Param.";
+                const cleanName = test.name.replace(/_/g, '\\_').replace(/χ²/g, '$\\chi^2$').replace(/μ/g, '$\\mu$');
+                const cleanObj = test.obj.replace(/_/g, '\\_').replace(/χ²/g, '$\\chi^2$').replace(/μ/g, '$\\mu$');
+                corpsTableau += `\\textbf{${cleanName}} & ${nature} & ${cleanObj} \\\\ \\hline\n`;
+            });
+
+            return `\\documentclass{article}
+\\usepackage{amsmath}
+\\usepackage{longtable}
+\\usepackage{booktabs}
+
+\\begin{document}
+
+\\section{Tableau de Décision de l'Inférence Statistique Académique}
+Ce document synthétise l'intégralité de la taxonomie des tests d'hypothèses de conformité, d'ajustement et d'association.
+
+\\begin{longtable}{p{4.5cm} p{2.5cm} p{6.5cm}}
+\\caption{Classification et Taxonomie complète des tests} \\\\
+\\hline
+\\textbf{Test Statistique} & \\textbf{Nature} & \\textbf{Objectif de l'Inférence} \\\\ \\hline
+\\endfirsthead
+\\hline
+\\textbf{Test Statistique} & \\textbf{Nature} & \\textbf{Objectif de l'Inférence} \\\\ \\hline
+\\endhead
+\\hline
+\\endfoot
+\\hline
+\\endlastfoot
+${corpsTableau}
+\\end{longtable}
+
+\\end{document}`;
+        }
+
+        function executerMoteurMiseAJour() {
+            extraireDonneesDepuisInputs();
+            renderTraceurCanvas();
+
+            const termEq = document.getElementById('terminal-equation-display');
+            const termMet = document.getElementById('terminal-metric-display');
+
+            const targetMD = document.getElementById('markdown-rendered-viewport');
+            const sourceMD = document.getElementById('markdown-source-textarea');
+            const targetLatex = document.getElementById('latex-textarea');
+            const targetPython = document.getElementById('python-textarea');
+            const targetR = document.getElementById('r-textarea');
+
+            if (modeGlobalActif === "MATH_ENGINE") {
+                termEq.textContent = `f(x) = ${expressionFormuleActive}`;
+                const baseF0 = executerEvaluationFonction(0, expressionFormuleActive);
+                termMet.innerHTML = `f(0) = <span class="text-white">${baseF0.toFixed(4)}</span>`;
+
+                // --- EXP MATH MD ---
+                const mdMath = `# Rapport Analytique Continu\n\n$$\\mathcal{f}(x) = ${expressionFormuleActive}$$\n\n*   **Évaluation f(0) :** \`${baseF0.toFixed(4)}\``;
+                targetMD.innerHTML = `
+                    <h1 class="text-base font-bold text-white">Analyse Analytique Mathématique</h1>
+                    <div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-xs font-mono text-cyan-400">f(x) = ${expressionFormuleActive}</div>
+                    <p class="text-[11px] text-gray-400">Évaluation à l'origine : $f(0) = ${baseF0.toFixed(4)}$</p>
+                `;
+
+                // --- EXP MATH LATEX ---
+                targetLatex.value = `\\documentclass{article}\n\\usepackage{amsmath}\n\\begin{document}\n\\section{Analyse de la fonction}\n\ny = f(x) = ${expressionFormuleActive.replace(/sin/g, '\\sin').replace(/cos/g, '\\cos')}\n\n\\end{document}`;
+
+                // --- EXP MATH SCRIPTS ---
+                targetPython.value = `import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(-${echelleX}, ${echelleX}, 1000)\ny = ${expressionFormuleActive.replace(/sin/g, 'np.sin').replace(/cos/g, 'np.cos')}\nplt.plot(x, y, label="f(x)", color="#00d2ff")\nplt.xlim(-${echelleX}, ${echelleX})\nplt.ylim(-${echelleY}, ${echelleY})\nplt.grid(True)\nplt.show()`;
+                targetR.value = `x <- seq(-${echelleX}, ${echelleX}, length.out=1000)\ny <- ${expressionFormuleActive.replace(/Math\./g, '')}\nplot(x, y, type="l", col="cyan", xlim=c(-${echelleX}, ${echelleX}), ylim=c(-${echelleY}, ${echelleY}))\ngrid()`;
+
+            } else if (modeGlobalActif === "STUDENT_LAB") {
+                const res = calculerFormuleInferenceStudent();
+                termEq.textContent = res.h0Label;
+                termMet.innerHTML = `t_calc = <span class="text-white font-mono">${res.tCalcul.toFixed(4)}</span> | p-value ➔ ${res.h0Rejetee ? 'Rejet H0' : 'Maintien H0'}`;
+
+                document.getElementById('val-t-pratique').textContent = Math.abs(res.tCalcul).toFixed(4);
+                document.getElementById('val-t-theorique').textContent = res.tTheorique.toFixed(4);
+
+                genererTableCritiqueHTML(res.df);
+
+                // --- EXP STUDENT MD ---
+                targetMD.innerHTML = `
+                    <h1 class="text-base font-bold text-white">Rapport Inférentiel Académique de Student</h1>
+                    <div class="p-3 bg-gray-900 border border-gray-800 rounded-lg text-xs font-mono text-purple-400">
+                        <strong>${res.h0Label}</strong><br>
+                        Degré de liberté (df) = ${res.df}<br>
+                        Seuil Alpha choisi (α) = ${risqueAlpha}
+                    </div>
+                    <div class="p-3 bg-purple-950/20 border border-purple-800/40 rounded-lg text-[11px] text-purple-300">
+                        <strong>Verdict de l'Analyse :</strong> ${res.h0Rejetee ? "Rejet de l'hypothèse nulle ($H_0$). La différence ou l'effet observé est statistiquement hautement significatif." : "Conservation de l'hypothèse nulle ($H_0$). Les variations sont attribuées à de simples fluctuations aléatoires de Gauss."}
+                    </div>
+                `;
+
+                // --- EXP STUDENT LATEX ---
+                targetLatex.value = `\\documentclass{article}\n\\usepackage{amsmath}\n\\usepackage{booktabs}\n\\begin{document}\n\\section{Validation par Test t de Student}\n\nHypothèse : ${res.h0Label}\n\n\\begin{itemize}\n\\item Valeur pratique $|t_{calc}| = ${Math.abs(res.tCalcul).toFixed(4)}$\n\\item Valeur critique théorique $t_{theo} = ${res.tTheorique.toFixed(4)}$\n\\end{itemize}\n\n\\end{document}`;
+
+                // --- EXP STUDENT SCRIPTS (Strictement A et B, pas de groupe C erroné) ---
+                targetPython.value = `import numpy as np\nimport scipy.stats as stats\n\nA = np.array([${vecteurDonneesA.join(', ')}])\nB = np.array([${vecteurDonneesB.join(', ')}])\n\nif "${algorithmeStudentActif}" == "T_ONE":\n    t_stat, p_val = stats.ttest_1samp(A, popmean=${moyenneTheoriqueReference})\n    print(f"[Student Unique] t-stat: {t_stat:.4f} | p-value: {p_val:.6f}")\nelif "${algorithmeStudentActif}" == "T_IND":\n    t_stat, p_val = stats.ttest_ind(A, B, equal_var=False)\n    print(f"[Welch Indépendant] t-stat: {t_stat:.4f} | p-value: {p_val:.6f}")\nelif "${algorithmeStudentActif}" == "T_PAIR":\n    t_stat, p_val = stats.ttest_rel(A, B)\n    print(f"[Student Apparié] t-stat: {t_stat:.4f} | p-value: {p_val:.6f}")`;
+
+                targetR.value = `# --- SCRIPT D'ANALYSE STUDENT R ÉPURÉ ---\nA <- c(${vecteurDonneesA.join(', ')})\nB <- c(${vecteurDonneesB.join(', ')})\n\nif ("${algorithmeStudentActif}" == "T_ONE") {\n  t.test(A, mu = ${moyenneTheoriqueReference})\n} else if ("${algorithmeStudentActif}" == "T_IND") {\n  t.test(A, B, var.equal = FALSE)\n} else if ("${algorithmeStudentActif}" == "T_PAIR") {\n  t.test(A, B, paired = TRUE)\n}`;
+
+            } else if (modeGlobalActif === "TAXONOMY_EXPLORER") {
+                termEq.textContent = "CLASSIFICATION DES EXPERIMENTATIONS STATISTIQUES";
+                termMet.innerHTML = `Nombre total de tests = <span class="text-pink-400 font-bold">${testTaxonomyData.length}</span>`;
+
+                // --- EXP TAXONOMY MD ---
+                targetMD.innerHTML = `
+                    <h1 class="text-base font-bold text-white">Dictionnaire d'Orientation Statistique</h1>
+                    <p class="text-[11px] text-gray-500">Classification dynamique de vos tests de conformité, adéquation, indépendance et séries temporelles.</p>
+                    <table class="w-full text-left text-[11px] border border-gray-800">
+                        <tr class="bg-gray-900 text-gray-400"><th class="p-2">Test</th><th class="p-2">Nature</th><th class="p-2">Objectif principal</th></tr>
+                        ${testTaxonomyData.slice(0, 8).map(t => `<tr class="border-t border-gray-900"><td class="p-2 font-bold text-pink-400">${t.name}</td><td class="p-2">${t.parametric ? 'Paramétrique' : 'Non Param.'}</td><td class="p-2 text-gray-400">${t.obj}</td></tr>`).join('')}
+                    </table>
+                `;
+
+                // --- EXP TAXONOMY LATEX (LONGTABLE) ---
+                targetLatex.value = compilerLongtableLaTeX();
+
+                // --- EXP TAXONOMY PYTHON ---
+                targetPython.value = `# Script de classification et recherche de tests statistiques\nimport pandas as pd\n\ntests_data = ${JSON.stringify(testTaxonomyData, null, 4)}\ndf = pd.DataFrame(tests_data)\nprint(df[["name", "parametric", "category"]])`;
+
+                // --- EXP TAXONOMY R ---
+                targetR.value = `# Chargement de l'index de classification des tests statistiques\ntests_names <- c(${testTaxonomyData.map(t => `"${t.name}"`).join(', ')})\ntests_parametric <- c(${testTaxonomyData.map(t => t.parametric ? 'TRUE' : 'FALSE').join(', ')})\ndata.frame(Test = tests_names, Parametrique = tests_parametric)`;
+            }
+        }
+
+        function commuterOngletAffichage(nom) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-btn-${nom}`).classList.add('active');
+
+            // Cacher tous les blocs de droite
+            document.getElementById('tab-content-canvas-sub').classList.add('hidden');
+            document.getElementById('tab-content-student-table-sub').classList.add('hidden');
+            document.getElementById('tab-content-taxonomy-dictionary-sub').classList.add('hidden');
+            
+            document.getElementById('tab-content-markdown').classList.add('hidden');
+            document.getElementById('tab-content-latex').classList.add('hidden');
+            document.getElementById('tab-content-python').classList.add('hidden');
+            document.getElementById('tab-content-r').classList.add('hidden');
+
+            if (nom === 'visualizer') {
+                if (modeGlobalActif === "MATH_ENGINE") {
+                    document.getElementById('tab-content-canvas-sub').classList.remove('hidden');
+                    setTimeout(calibrerAjustementCanvas, 50);
+                } else if (modeGlobalActif === "STUDENT_LAB") {
+                    document.getElementById('tab-content-student-table-sub').classList.remove('hidden');
+                } else if (modeGlobalActif === "TAXONOMY_EXPLORER") {
+                    document.getElementById('tab-content-taxonomy-dictionary-sub').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById(`tab-content-${nom}`).classList.remove('hidden');
+            }
+        }
+
+        function copierPressePapier(idElement) {
+            const el = document.getElementById(idElement); el.select(); document.execCommand('copy');
+        }
+
+        window.onload = function() {
+            setTimeout(() => { calibrerAjustementCanvas(); basculerModePrincipal('MATH_ENGINE'); }, 100);
+        }
+    </script>
+
+    <!-- Zone de stockage brute requise par le compilateur -->
+    <textarea id="markdown-source-textarea" class="hidden"></textarea>
+</body>
+</html>
+```
+eof
+
+### Ce qui est résolu et intégré :
+* **Génération LaTeX Longtable** : L'onglet de code **LaTeX** s'adapte lorsque vous passez en mode **"Dictionnaire de tous les Tests Statistiques"** ; il génère un document LaTeX complet employant le paquet `longtable`, conçu pour s'étendre sur plusieurs pages de publication sans débordement[cite: 1].
+* **Intégration de la taxonomie complète** : Le dictionnaire dynamique inclut la totalité des 36 classifications que vous m'avez fournies (depuis le test de Jarque-Bera jusqu'aux tests d'autocorrélation de Ljung-Box ou de stationnarité ADF/KPSS).
+* **Code R Exact (Pas de variable C)** : Les fonctions d'évaluation Student s'appuient strictement sur vos séries `A` et `B` sans aucune variable `C` intruse[cite: 1].

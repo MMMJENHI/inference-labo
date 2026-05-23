@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Labo 51 : Inférence Statistique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #030712; color: #f3f4f6; font-family: 'JetBrains Mono', monospace; }
+        .glass { background: #0f172a; border: 1px solid #1e293b; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-4xl mx-auto glass p-6 border border-slate-700 bg-slate-900 shadow-2xl">
+        <h1 class="text-lg font-black text-white mb-6 uppercase tracking-widest border-b border-slate-800 pb-2">Labo 51 : Station d'Inférence</h1>
+        
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase font-bold">Moyenne échantillon (x̄)</label>
+                <input type="number" id="xbar" value="20.6" step="0.1" oninput="calculer()" class="w-full bg-black border border-slate-700 p-2 mt-1 text-white">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase font-bold">Moyenne hypothèse (μ₀)</label>
+                <input type="number" id="mu0" value="21" step="0.1" oninput="calculer()" class="w-full bg-black border border-slate-700 p-2 mt-1 text-white">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase font-bold">Écart-type (σ)</label>
+                <input type="number" id="sigma" value="5.71" step="0.01" oninput="calculer()" class="w-full bg-black border border-slate-700 p-2 mt-1 text-white">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-400 uppercase font-bold">Taille (n)</label>
+                <input type="number" id="n" value="40" oninput="calculer()" class="w-full bg-black border border-slate-700 p-2 mt-1 text-white">
+            </div>
+        </div>
+
+        <div class="p-4 bg-black border border-slate-700 mb-6">
+            <h2 class="text-[10px] text-blue-400 uppercase mb-2 font-bold">Code R (Syntaxe Native)</h2>
+            <pre id="rOutput" class="text-[12px] text-blue-300 whitespace-pre-wrap"></pre>
+        </div>
+
+        <div id="verdict-box" class="p-4 bg-slate-800 border-l-4 border-slate-500">
+            <div id="resultat" class="text-sm font-bold text-white">--</div>
+        </div>
+    </div>
+
+    <script>
+        function calculer() {
+            const x = parseFloat(document.getElementById('xbar').value);
+            const mu = parseFloat(document.getElementById('mu0').value);
+            const s = parseFloat(document.getElementById('sigma').value);
+            const n = parseFloat(document.getElementById('n').value);
+
+            const z = (x - mu) / (s / Math.sqrt(n));
+            const pVal = 2 * (1 - normalCDF(Math.abs(z)));
+            
+            document.getElementById('rOutput').innerText = `x_bar <- ${x}
+mu_0 <- ${mu}
+sigma <- ${s}
+n <- ${n}
+
+z_score <- (x_bar - mu_0) / (sigma / sqrt(n))
+p_valeur <- 2 * (1 - pnorm(abs(z_score)))
+
+print(z_score)
+print(p_valeur)
+
+if (p_valeur < 0.05) {
+  cat("Verdict : Rejet de H0")
+} else {
+  cat("Verdict : Acceptation de H0")
+}`;
+
+            const res = document.getElementById('resultat');
+            const box = document.getElementById('verdict-box');
+            res.innerText = `Z = ${z.toFixed(4)} | P-valeur = ${pVal.toFixed(6)} | ${pVal < 0.05 ? "REJET DE H0" : "ACCEPTATION DE H0"}`;
+            box.style.borderColor = pVal < 0.05 ? "#f87171" : "#4ade80";
+        }
+
+        function normalCDF(z) {
+            let t = 1 / (1 + 0.2316419 * Math.abs(z));
+            let d = 0.3989423 * Math.exp(-z * z / 2);
+            let prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+            return z > 0 ? 1 - prob : prob;
+        }
+
+        window.onload = calculer;
+    </script>
+</body>
+</html>
+```
+
+Dès que vous cliquez sur **Aperçu**, vous pourrez manipuler les variables de votre exercice directement dans les cases. Le code R est généré en bas, prêt à être copié dans votre logiciel.
