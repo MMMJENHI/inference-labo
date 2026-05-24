@@ -5,8 +5,13 @@ Station centrale de recherche regroupant 15 laboratoires dédiés à l'inférenc
 ## Accès au Dashboard
 Vous pouvez consulter l'interface principale ici : 
 👉 [https://mmmjenhi.github.io/inference-labo/](https://mmmjenhi.github.io/inference-labo/)
-👉 [https://mmmjenhi.github.io/inference-labo/](http://sim.okawa-denshi.jp/en/detatukeisan.htm)
 
+ Ressources complémentaires de référence
+
+ 👉 [https://mmmjenhi.github.io/inference-labo/](https://mmmjenhi.github.io/inference-labo/)
+
+Calculateur d'Impédance en ligne : http://sim.okawa-denshi.jp/en/detatukeisan.htm
+👉 [https://mmmjenhi.github.io/inference-labo/](https://www.youtube.com/watch?v=LYARYxwUJgc)
 
 
 ## Résumé
