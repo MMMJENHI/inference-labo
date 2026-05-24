@@ -5,6 +5,7 @@ Station centrale de recherche regroupant 15 laboratoires dédiés à l'inférenc
 ## Accès au Dashboard
 Vous pouvez consulter l'interface principale ici : 
 👉 [https://mmmjenhi.github.io/inference-labo/](https://mmmjenhi.github.io/inference-labo/)
+👉 [https://mmmjenhi.github.io/inference-labo/](http://sim.okawa-denshi.jp/en/detatukeisan.htm)
 
 
 
