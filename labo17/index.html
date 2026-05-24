@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratoire IA - Conception Sallen-Key &amp; Numérisation</title>
+    <script src="Laboratoire%20IA%20-%20Conception%20Sallen-Key%20&amp;%20Num%C3%A9risation_files/3.4.17"></script>
+    <script src="Laboratoire%20IA%20-%20Conception%20Sallen-Key%20&amp;%20Num%C3%A9risation_files/chart.js"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            max-height: 250px;
+        }
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .math-font {
+            font-family: "Times New Roman", Times, serif;
+            font-style: italic;
+        }
+        .interactive-value {
+            color: #4f46e5;
+            font-weight: bold;
+            border-bottom: 1px dashed #4f46e5;
+        }
+        .formula-box {
+            background: #f8fafc;
+            border-left: 4px solid #6366f1;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11px;
+            overflow-x: auto;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            position: relative;
+        }
+    </style>
+<!-- Code injected by Five-server -->
+  <script async="" data-id="five-server" data-file="c:\Users\TOSHIBA\Desktop\studio_html\gg.html" type="application/javascript" src="Laboratoire%20IA%20-%20Conception%20Sallen-Key%20&amp;%20Num%C3%A9risation_files/fiveserver.js"></script>
+  <style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.relative{position:relative}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.ml-10{margin-left:2.5rem}.mr-2{margin-right:0.5rem}.mt-6{margin-top:1.5rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-3{height:0.75rem}.h-4{height:1rem}.h-7{height:1.75rem}.h-full{height:100%}.min-h-\[500px\]{min-height:500px}.min-h-screen{min-height:100vh}.w-4{width:1rem}.w-4\/5{width:80%}.w-7{width:1.75rem}.w-full{width:100%}.max-w-7xl{max-width:80rem}.flex-grow{flex-grow:1}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-l-4{border-left-width:4px}.border-t-4{border-top-width:4px}.border-amber-500{--tw-border-opacity:1;border-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.border-emerald-400{--tw-border-opacity:1;border-color:rgb(52 211 153 / var(--tw-border-opacity, 1))}.border-emerald-500{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.border-indigo-400{--tw-border-opacity:1;border-color:rgb(129 140 248 / var(--tw-border-opacity, 1))}.border-indigo-500{--tw-border-opacity:1;border-color:rgb(99 102 241 / var(--tw-border-opacity, 1))}.border-rose-100{--tw-border-opacity:1;border-color:rgb(255 228 230 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.bg-indigo-700{--tw-bg-opacity:1;background-color:rgb(67 56 202 / var(--tw-bg-opacity, 1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-4{padding-bottom:1rem}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.tracking-wider{letter-spacing:0.05em}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-indigo-100{--tw-text-opacity:1;color:rgb(224 231 255 / var(--tw-text-opacity, 1))}.text-indigo-300{--tw-text-opacity:1;color:rgb(165 180 252 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-700{--tw-text-opacity:1;color:rgb(67 56 202 / var(--tw-text-opacity, 1))}.text-rose-300{--tw-text-opacity:1;color:rgb(253 164 175 / var(--tw-text-opacity, 1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.text-rose-800{--tw-text-opacity:1;color:rgb(159 18 57 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-indigo-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(99 102 241 / var(--tw-ring-opacity, 1))}@media (min-width: 768px){.md\:flex-row{flex-direction:row}.md\:p-6{padding:1.5rem}}@media (min-width: 1024px){.lg\:col-span-3{grid-column:span 3 / span 3}.lg\:col-span-6{grid-column:span 6 / span 6}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}}</style><style>      
+      /* Injected by five-server */
+      /*[data-highlight="true"] {
+        border: 1px rgb(90,170,255) solid !important;
+        background-color: rgba(155,215,255,0.5);
+        animation: fadeOutHighlight 1s forwards 0.5s;
+      }
+      img[data-highlight="true"] {
+        filter: sepia(100%) hue-rotate(180deg) saturate(200%);
+        animation: fadeOutHighlightIMG 0.5s forwards 0.5s;
+      }*/
+      @keyframes fadeOutHighlight {
+        from {background-color: rgba(155,215,255,0.5);}
+        to {background-color: rgba(155,215,255,0);}
+      }      
+      @keyframes fadeOutHighlightIMG {
+        0% {filter: sepia(100%) hue-rotate(180deg) saturate(200%);}
+        33% {filter: sepia(66%) hue-rotate(180deg) saturate(100%);}
+        50% {filter: sepia(50%) hue-rotate(90deg) saturate(50%);}
+        66% {filter: sepia(33%) hue-rotate(0deg) saturate(100%);}
+        100% {filter: sepia(0%) hue-rotate(0deg) saturate(100%);}
+      }
+      @keyframes fiveserverInfoPopup {
+        0%   {top:-40px;}
+        15%  {top:4px;}
+        85%  {top:4px;}
+        100% {top:-40px;}
+      }
+      /*smaller*/
+      @media (max-width: 640px) {
+        #fiveserver-info-wrapper {
+          max-width: 98%;
+        }
+        #fiveserver-info {
+          border-radius: 0px;
+        }      
+      }
+
+      </style></head>
+<body class="bg-slate-50 min-h-screen text-slate-800 font-sans">
+
+    <!-- Header -->
+    <header class="bg-indigo-700 text-white p-6 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold">Laboratoire IA Interactif</h1>
+                <p class="text-indigo-100 italic">De l'Analogique au Numérique : Sallen-Key &amp; Biquad</p>
+            </div>
+            <div class="flex gap-2 text-xs">
+                <div class="bg-indigo-600 px-3 py-1.5 rounded-full font-mono border border-indigo-400">DSP Core V2.0</div>
+                <div class="bg-emerald-600 px-3 py-1.5 rounded-full font-mono border border-emerald-400">Gemini 2.5 Active</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Colonne Gauche: Contrôles -->
+        <div class="lg:col-span-3 space-y-4">
+            <div class="glass p-5 rounded-2xl shadow-sm border-l-4 border-indigo-500">
+                <h2 class="text-lg font-semibold mb-3 flex items-center">
+                    <span class="bg-indigo-100 text-indigo-700 w-7 h-7 rounded-full flex items-center justify-center mr-2 text-xs">1</span>
+                    Configuration
+                </h2>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Coupure (Fc Hz)</label>
+                        <input type="number" id="fcInput" value="999" oninput="calculateComponents()" class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Échantillonnage (Fs Hz)</label>
+                        <input type="number" id="fsInput" value="10000" oninput="calculateComponents()" class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Type de Filtre</label>
+                        <select id="typeSelect" onchange="calculateComponents()" class="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                            <option value="butterworth" selected="selected">Butterworth (Q=0.707)</option>
+                            <option value="chebyshev">Tchebychev (Q=1.0)</option>
+                            <option value="bessel">Bessel (Q=0.577)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coefficients Numériques -->
+            <div class="glass p-5 rounded-2xl shadow-sm bg-white border border-slate-200">
+                <h3 class="font-bold text-slate-800 mb-3 text-xs uppercase tracking-wider">Coefficients Biquad</h3>
+                <div class="space-y-1 text-[11px] font-mono">
+                    <div class="flex justify-between p-1.5 bg-slate-50 rounded"><span>b0</span><span id="coeffB0" class="font-bold text-indigo-600">0.067339</span></div>
+                    <div class="flex justify-between p-1.5 bg-slate-50 rounded"><span>b1</span><span id="coeffB1" class="font-bold text-indigo-600">0.134678</span></div>
+                    <div class="flex justify-between p-1.5 bg-slate-50 rounded"><span>b2</span><span id="coeffB2" class="font-bold text-indigo-600">0.067339</span></div>
+                    <div class="flex justify-between p-1.5 bg-rose-50 rounded"><span>a1</span><span id="coeffA1" class="font-bold text-rose-600">-1.143742</span></div>
+                    <div class="flex justify-between p-1.5 bg-rose-50 rounded"><span>a2</span><span id="coeffA2" class="font-bold text-rose-600">0.413098</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne Centrale -->
+        <div class="lg:col-span-6 space-y-6">
+            <div class="glass p-6 rounded-2xl shadow-sm">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="bg-indigo-100 text-indigo-700 w-7 h-7 rounded-full flex items-center justify-center mr-2 text-xs">2</span>
+                    Visualisation Dynamique
+                </h2>
+                <canvas id="signalChart" height="192" class="bg-slate-900 rounded-xl p-2 mb-4" style="display: block; box-sizing: border-box; height: 192.8px; width: 554px;" width="554"></canvas>
+                <canvas id="bodeChart" height="240" style="display: block; box-sizing: border-box; height: 240.1px; width: 554px;" width="554"></canvas>
+            </div>
+
+            <!-- COMMENTAIRE ÉTAPE 3 : L'ÉQUATION AUX DIFFÉRENCES -->
+            <div class="glass p-6 rounded-2xl shadow-sm border-l-4 border-amber-500">
+                <h2 class="text-lg font-semibold mb-4 text-amber-900 flex items-center">
+                    🎓 Étape 3 : L'Équation aux Différences
+                </h2>
+                <div class="space-y-4 text-sm text-slate-600">
+                    <p>C'est ici que l'on transforme les coefficients en
+ un signal filtré. Le filtre « Biquad » traite le signal échantillon par
+ échantillon ($n$).</p>
+                    
+                    <div class="bg-slate-800 text-white p-4 rounded-lg font-mono text-[11px] relative">
+                        <div class="text-amber-400 mb-2">// Algorithme Direct Form I</div>
+                        <div>y[n] = (<span class="text-indigo-300">b0</span> * x[n]) + (<span class="text-indigo-300">b1</span> * x[n-1]) + (<span class="text-indigo-300">b2</span> * x[n-2])</div>
+                        <div class="ml-10">- (<span class="text-rose-300">a1</span> * y[n-1]) - (<span class="text-rose-300">a2</span> * y[n-2])</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-3 bg-slate-50 rounded border border-slate-200">
+                            <h4 class="font-bold text-slate-800 text-xs mb-1">Partie Non-Recursive (Zéros)</h4>
+                            <p class="text-[10px]">Utilise les entrées actuelles et passées ($x$). C'est la moyenne glissante pondérée.</p>
+                        </div>
+                        <div class="p-3 bg-rose-50 rounded border border-rose-100">
+                            <h4 class="font-bold text-rose-800 text-xs mb-1">Partie Recursive (Pôles)</h4>
+                            <p class="text-[10px]">Réutilise les sorties passées ($y$). C'est ce qui crée la « mémoire » et la raideur du filtre.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-slate-800 mt-6 mb-2 flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        Implémentation C++ pour Microcontrôleur
+                    </h3>
+                    <div class="code-block" id="cppCode">
+<span class="text-amber-400">float</span> x1=0, x2=0, y1=0, y2=0; <span class="text-slate-400">// Mémoires</span>
+
+<span class="text-amber-400">float</span> applyFilter(<span class="text-amber-400">float</span> input) {
+  <span class="text-slate-400">// Coefficients calculés</span>
+  <span class="text-amber-400">float</span> b0 = 0.067339f;
+  <span class="text-amber-400">float</span> b1 = 0.134678f;
+  <span class="text-amber-400">float</span> b2 = 0.067339f;
+  <span class="text-amber-400">float</span> a1 = -1.143742f;
+  <span class="text-amber-400">float</span> a2 = 0.413098f;
+
+  <span class="text-slate-400">// Équation aux différences</span>
+  <span class="text-amber-400">float</span> output = b0*input + b1*x1 + b2*x2 - a1*y1 - a2*y2;
+
+  <span class="text-slate-400">// Mise à jour des états (delay line)</span>
+  x2 = x1; x1 = input;
+  y2 = y1; y1 = output;
+
+  <span class="text-amber-400">return</span> output;
+}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne Droite: Gemini AI -->
+        <div class="lg:col-span-3 space-y-4">
+            <div class="glass p-5 rounded-2xl shadow-lg border-t-4 border-emerald-500 h-full flex flex-col min-h-[500px]">
+                <h2 class="text-lg font-semibold mb-3 flex items-center text-emerald-800">✨ IA Expert DSP</h2>
+                <div id="aiAnalysisContainer" class="flex-grow overflow-y-auto mb-4 text-xs space-y-3 text-slate-700 leading-relaxed border-b pb-4 border-slate-100 italic text-center text-slate-400">
+                    <p>Posez une question sur le repliement de spectre ou l'implémentation en virgule fixe.</p>
+                </div>
+                <div id="aiLoading" class="hidden space-y-2 mb-4">
+                    <div class="h-3 w-full loading-shimmer rounded"></div>
+                    <div class="h-3 w-4/5 loading-shimmer rounded"></div>
+                </div>
+                <button id="aiBtn" onclick="generateAIDiagnosis()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition flex items-center justify-center gap-2 shadow-md">
+                    <span>✨ Expliquer le Code C++</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const apiKey = "";
+        let bodeChart, signalChart;
+        let currentAnomaly = 'normal';
+        
+        function initCharts() {
+            const ctxBode = document.getElementById('bodeChart').getContext('2d');
+            bodeChart = new Chart(ctxBode, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Réponse Numérique (dB)',
+                        data: [],
+                        borderColor: '#4f46e5',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { type: 'logarithmic', title: { display: true, text: 'Hz', font: { size: 10 } } },
+                        y: { min: -60, max: 10, ticks: { font: { size: 9 } } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const ctxSignal = document.getElementById('signalChart').getContext('2d');
+            signalChart = new Chart(ctxSignal, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 100}, (_, i) => i),
+                    datasets: [{
+                        data: [],
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: true,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        x: { display: false },
+                        y: { display: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 8 } } }
+                    }
+                }
+            });
+        }
+
+        function calculateComponents() {
+            const fc = parseFloat(document.getElementById('fcInput').value) || 1000;
+            const fs = parseFloat(document.getElementById('fsInput').value) || 10000;
+            const type = document.getElementById('typeSelect').value;
+
+            let q = 0.707;
+            if (type === 'chebyshev') q = 1.0;
+            if (type === 'bessel') q = 0.577;
+
+            // --- Bilinear Transform ---
+            const K = Math.tan(Math.PI * fc / fs);
+            const norm = 1 / (1 + K / q + K * K);
+            const b0 = K * K * norm;
+            const b1 = 2 * b0;
+            const b2 = b0;
+            const a1 = 2 * (K * K - 1) * norm;
+            const a2 = (1 - K / q + K * K) * norm;
+
+            // UI Coefficients
+            document.getElementById('coeffB0').innerText = b0.toFixed(6);
+            document.getElementById('coeffB1').innerText = b1.toFixed(6);
+            document.getElementById('coeffB2').innerText = b2.toFixed(6);
+            document.getElementById('coeffA1').innerText = a1.toFixed(6);
+            document.getElementById('coeffA2').innerText = a2.toFixed(6);
+
+            generateCppCode(b0, b1, b2, a1, a2);
+            updateBode(fc, q);
+            simulateSignal(fc);
+        }
+
+        function generateCppCode(b0, b1, b2, a1, a2) {
+            const code = `
+<span class="text-amber-400">float</span> x1=0, x2=0, y1=0, y2=0; <span class="text-slate-400">// Mémoires</span>
+
+<span class="text-amber-400">float</span> applyFilter(<span class="text-amber-400">float</span> input) {
+  <span class="text-slate-400">// Coefficients calculés</span>
+  <span class="text-amber-400">float</span> b0 = ${b0.toFixed(6)}f;
+  <span class="text-amber-400">float</span> b1 = ${b1.toFixed(6)}f;
+  <span class="text-amber-400">float</span> b2 = ${b2.toFixed(6)}f;
+  <span class="text-amber-400">float</span> a1 = ${a1.toFixed(6)}f;
+  <span class="text-amber-400">float</span> a2 = ${a2.toFixed(6)}f;
+
+  <span class="text-slate-400">// Équation aux différences</span>
+  <span class="text-amber-400">float</span> output = b0*input + b1*x1 + b2*x2 - a1*y1 - a2*y2;
+
+  <span class="text-slate-400">// Mise à jour des états (delay line)</span>
+  x2 = x1; x1 = input;
+  y2 = y1; y1 = output;
+
+  <span class="text-amber-400">return</span> output;
+}`;
+            document.getElementById('cppCode').innerHTML = code;
+        }
+
+        function updateBode(fc, q) {
+            const freqs = [];
+            const gains = [];
+            for (let f = 10; f <= 20000; f *= 1.2) {
+                const freq = Math.round(f);
+                freqs.push(freq);
+                const ratio = f / fc;
+                const magnitude = 1 / Math.sqrt(Math.pow(1 - Math.pow(ratio, 2), 2) + Math.pow(ratio/q, 2));
+                gains.push(20 * Math.log10(magnitude));
+            }
+            bodeChart.data.labels = freqs;
+            bodeChart.data.datasets[0].data = gains;
+            bodeChart.update();
+        }
+
+        function simulateSignal(fc) {
+            const data = [];
+            for (let i = 0; i < 100; i++) {
+                const t = i / 10000;
+                let val = Math.sin(2 * Math.PI * 50 * t);
+                const noiseFreq = 4000;
+                const ratio = noiseFreq / fc;
+                const attenuation = 1 / Math.sqrt(Math.pow(1 - Math.pow(ratio, 2), 2) + Math.pow(ratio/0.707, 2));
+                val += Math.sin(2 * Math.PI * noiseFreq * t) * 3 * attenuation;
+                data.push(val);
+            }
+            signalChart.data.datasets[0].data = data;
+            signalChart.update();
+        }
+
+        async function generateAIDiagnosis() {
+            const container = document.getElementById('aiAnalysisContainer');
+            const loading = document.getElementById('aiLoading');
+            container.innerHTML = "";
+            loading.classList.remove('hidden');
+
+            const state = {
+                fc: document.getElementById('fcInput').value,
+                fs: document.getElementById('fsInput').value,
+                b0: document.getElementById('coeffB0').innerText,
+                a1: document.getElementById('coeffA1').innerText
+            };
+
+            const prompt = `Explique brièvement pourquoi le code C++ généré utilise des variables x1, x2, y1, y2 pour un filtre Fc=${state.fc}Hz et Fs=${state.fs}Hz. Quel est le risque si j'utilise des entiers au lieu de float ?`;
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: "Tu es un ingénieur DSP. Réponds en français de façon concise et technique. Utilise des emojis." }] }
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                loading.classList.add('hidden');
+                container.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            } catch (e) {
+                loading.classList.add('hidden');
+                container.innerHTML = "Erreur de connexion avec l'IA.";
+            }
+        }
+
+        window.onload = () => { initCharts(); calculateComponents(); };
+    </script>
+
+</body></html>
