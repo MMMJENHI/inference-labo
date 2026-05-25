@@ -13,6 +13,10 @@ Calculateur d'Impédance en ligne :
 
 Vidéo associée :  
 👉 [https://www.youtube.com/watch?v=LYARYxwUJgc](https://www.youtube.com/watch?v=LYARYxwUJgc)
+
+👉 [https://www.youtube.com/watch?v=LYARYxwUJgc](https://www.onlinegdb.com/online_c++_compiler)
+
+
 ## Résumé
 Ce projet centralise vos protocoles de recherche et outils de calcul interactifs. Chaque dossier (de `labo1` à `labo15`) contient des outils spécifiques pour l'inférence statistique (Tests Z, Student, Mann-Whitney, etc.) et la simulation de signaux.
 
