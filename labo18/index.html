@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratoire IA - Skalle-2 Colab Integrated</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f1a;
+            color: #e2e8f0;
+        }
+
+        .glass-panel {
+            background: rgba(22, 30, 46, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .colab-cell {
+            border-left: 1px solid #3c4043;
+            background: #1e1e1e;
+            color: #e8eaed;
+            transition: all 0.2s ease;
+        }
+
+        .colab-cell:hover {
+            border-left: 1px solid #f9ab00;
+        }
+
+        .console-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .glow-blue {
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+        }
+
+        .glow-green {
+            filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6));
+        }
+
+        input[type="number"] {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spinning { animation: rotate 2s linear infinite; }
+
+        /* Style spécifique pour le bouton Open in Colab */
+        .colab-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #555;
+            border-radius: 4px;
+            padding: 2px 8px;
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid #666;
+            transition: background 0.2s;
+        }
+        .colab-badge:hover {
+            background-color: #666;
+        }
+        .colab-badge img {
+            height: 16px;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Navbar style Colab -->
+    <header class="sticky top-0 z-50 bg-[#202124] border-b border-[#3c4043] px-4 py-2 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <svg class="w-8 h-8 text-[#f9ab00]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L14.85 8.5H21.5L16.2 12.8L18.8 19.5L13.5 15.3L8.2 19.5L10.8 12.8L5.5 8.5H12.15L15 2H12Z"/>
+            </svg>
+            <div>
+                <h1 class="text-sm font-semibold text-white">Laboratoire_IA_Master_Statio_Skalle2.ipynb</h1>
+                <div class="flex items-center gap-3 text-[10px] text-gray-400">
+                    <span class="hover:text-white cursor-pointer">Fichier</span>
+                    <span class="hover:text-white cursor-pointer">Modifier</span>
+                    <span class="hover:text-white cursor-pointer">Affichage</span>
+                    <span class="hover:text-white cursor-pointer">Exécution</span>
+                    <span class="text-[#f9ab00] font-bold">Connecté</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Bouton Officiel Open in Colab -->
+            <a href="#" class="colab-badge" onclick="downloadData()">
+                <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab">
+            </a>
+            
+            <div class="hidden md:flex items-center gap-2 bg-[#3c4043] px-3 py-1 rounded text-[10px] text-gray-300">
+                <div class="flex flex-col items-center">
+                    <span>RAM</span>
+                    <div class="w-12 h-1 bg-gray-600 rounded overflow-hidden">
+                        <div class="w-1/3 h-full bg-green-500"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center ml-2 border-l border-gray-500 pl-2">
+                    <span>Disque</span>
+                    <div class="w-12 h-1 bg-gray-600 rounded overflow-hidden">
+                        <div class="w-1/4 h-full bg-blue-500"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="bg-[#f9ab00] hover:bg-[#d98a00] text-black px-4 py-1 rounded text-xs font-bold transition-all">PARTAGER</button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 space-y-6 mt-4">
+
+        <!-- CONFIGURATION HARDWARE -->
+        <section class="glass-panel rounded-xl p-6 shadow-2xl border border-blue-500/10">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+                    Matrice de Paramétrage Matériel
+                </h2>
+                <div class="flex gap-2">
+                    <button onclick="recalc()" class="text-[10px] bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-3 py-1 rounded border border-blue-500/30 flex items-center gap-2 transition-all">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        Rafraîchir
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                <div class="space-y-1">
+                    <label class="text-[9px] text-slate-500 font-bold uppercase">R1 (Ω)</label>
+                    <input type="number" id="val-r1" value="10000" class="w-full p-2 rounded text-sm outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] text-slate-500 font-bold uppercase">R2 (Ω)</label>
+                    <input type="number" id="val-r2" value="10000" class="w-full p-2 rounded text-sm outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] text-slate-500 font-bold uppercase">C1 (nF)</label>
+                    <input type="number" id="val-c1" value="100" class="w-full p-2 rounded text-sm outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] text-slate-500 font-bold uppercase">C2 (nF)</label>
+                    <input type="number" id="val-c2" value="100" class="w-full p-2 rounded text-sm outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] text-slate-500 font-bold uppercase">Ra (Ω)</label>
+                    <input type="number" id="val-ra" value="1000" class="w-full p-2 rounded text-sm outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] text-slate-500 font-bold uppercase">Rb (Ω)</label>
+                    <input type="number" id="val-rb" value="1000" class="w-full p-2 rounded text-sm outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[9px] text-slate-500 font-bold uppercase">Scale K</label>
+                    <input type="number" id="val-k" value="1.0" step="0.1" class="w-full p-2 rounded text-sm outline-none">
+                </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center border-t border-slate-800 pt-6">
+                <div class="md:col-span-2">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-[10px] text-slate-500 font-bold uppercase">Fréquence du Générateur (Log Scale)</label>
+                        <span id="display-freq" class="text-sm font-bold text-[#f9ab00]">50 Hz</span>
+                    </div>
+                    <input type="range" id="input-freq-log" min="0" max="5000" value="1698" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#f9ab00]">
+                    <div class="flex justify-between text-[8px] text-slate-600 mt-2 font-bold opacity-50">
+                        <span>1 Hz</span><span>10 Hz</span><span>100 Hz</span><span>1 kHz</span><span>10 kHz</span><span>100 kHz</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="p-3 bg-slate-900/50 rounded-lg border border-slate-800 text-center">
+                        <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Gain Statio</p>
+                        <p id="calc-db-val" class="text-lg font-bold text-blue-400">6.02 dB</p>
+                    </div>
+                    <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 text-center">
+                        <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Coupure fc</p>
+                        <p id="calc-fc" class="text-lg font-bold text-white">159 Hz</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISUALISATION & COLAB -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Diagrammes -->
+            <div class="space-y-6">
+                <!-- Oscilloscope -->
+                <div class="glass-panel rounded-xl p-5 h-[280px] flex flex-col relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Temps Réel : Signal Vout</span>
+                        <div class="flex gap-1">
+                            <button onclick="setWave('sin')" id="btn-sin" class="px-3 py-1 text-[9px] rounded bg-blue-600 text-white font-bold">SIN</button>
+                            <button onclick="setWave('sqr')" id="btn-sqr" class="px-3 py-1 text-[9px] rounded bg-slate-800 text-slate-400 border border-slate-700 font-bold">SQR</button>
+                        </div>
+                    </div>
+                    <div class="flex-grow bg-[#000000] rounded-lg border border-slate-800 relative shadow-inner overflow-hidden">
+                        <div class="absolute inset-0 opacity-10" style="background-size: 40px 40px; background-image: linear-gradient(to right, #475569 1px, transparent 1px), linear-gradient(to bottom, #475569 1px, transparent 1px);"></div>
+                        <svg id="scope" class="w-full h-full relative z-10" preserveAspectRatio="none">
+                            <path id="path-out" d="" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" class="glow-blue"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Diagramme de Bode -->
+                <div class="glass-panel rounded-xl p-5 h-[280px] flex flex-col relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Fréquence : Diagramme de Bode</span>
+                        <span class="text-[9px] text-green-500 font-mono">Roll-off: -40dB/dec</span>
+                    </div>
+                    <div class="flex-grow bg-[#000000] rounded-lg border border-slate-800 relative shadow-inner overflow-hidden">
+                        <div id="log-grid-x" class="absolute inset-0 pointer-events-none opacity-20"></div>
+                        <svg id="bode-svg" class="w-full h-full relative z-10" preserveAspectRatio="none">
+                            <path id="path-bode" d="" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" class="glow-green"></path>
+                            <line id="bode-cursor" x1="0" y1="0" x2="0" y2="100%" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"></line>
+                        </svg>
+                        <div class="absolute top-2 left-2 text-[8px] text-slate-600">Magnitude (dB)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERFACE COLAB -->
+            <div class="flex flex-col gap-4">
+                <div class="bg-[#1e1e1e] rounded-lg border border-[#3c4043] flex flex-col h-full shadow-2xl">
+                    <!-- Barre d'outils notebook -->
+                    <div class="flex items-center gap-2 p-2 border-b border-[#3c4043] bg-[#282828] rounded-t-lg">
+                        <button class="flex items-center gap-1 text-[11px] text-gray-300 hover:text-white px-2 py-1">
+                            <svg class="w-4 h-4 text-[#f9ab00]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                            Code
+                        </button>
+                        <button class="flex items-center gap-1 text-[11px] text-gray-300 hover:text-white px-2 py-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Texte
+                        </button>
+                    </div>
+
+                    <!-- Cellule de texte (Notebook style) -->
+                    <div class="p-4 border-b border-[#3c4043] group cursor-text hover:bg-[#282828] transition-colors">
+                        <h3 class="text-sm font-bold text-[#f9ab00] mb-2"># Analyse Statistique Skalle-2</h3>
+                        <p class="text-xs text-gray-400">Cette cellule calcule les métriques de stationnarité et de gain du circuit en temps réel.</p>
+                    </div>
+
+                    <!-- Cellule de code Colab -->
+                    <div class="p-4 space-y-4 overflow-y-auto custom-scrollbar flex-grow">
+                        <div class="flex gap-4">
+                            <!-- Bouton Play Colab -->
+                            <button id="run-btn" onclick="runPython()" class="group w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center hover:bg-[#3c4043] transition-all flex-shrink-0 mt-1">
+                                <svg id="run-icon" class="w-6 h-6 text-[#f9ab00] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                            
+                            <!-- Editeur de code -->
+                            <div class="flex-grow bg-[#111111] p-3 rounded-lg border border-[#3c4043] relative colab-cell">
+                                <div class="absolute top-2 right-2 flex gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-[#f9ab00] opacity-50"></div>
+                                    <div class="w-2 h-2 rounded-full bg-[#f9ab00] opacity-30"></div>
+                                </div>
+                                <pre class="console-font text-[12px] leading-relaxed">
+<span class="text-blue-400">import</span> numpy <span class="text-blue-400">as</span> np
+<span class="text-blue-400">import</span> statio_lib <span class="text-blue-400">as</span> sk
+
+<span class="text-gray-500"># Récupération état circuit Skalle-2</span>
+params = sk.get_hardware_config()
+signal = sk.get_buffer()
+
+<span class="text-gray-500"># Calcul Statistique Master Statio</span>
+rms = np.sqrt(np.mean(signal**2))
+gain_db = 20 * np.log10(params.total_gain)
+
+print(<span class="text-green-300">f"RMS: {rms:.4f}V | Gain: {gain_db:.2f}dB"</span>)
+                                </pre>
+                            </div>
+                        </div>
+
+                        <!-- Sortie Colab -->
+                        <div id="py-output" class="ml-14 mt-4 border-l-2 border-gray-700 pl-4 py-2 console-font text-[11px] text-gray-400 hidden animate-in fade-in slide-in-from-left-2">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[9px] font-bold text-green-500 bg-green-500/10 px-2 rounded">EXÉCUTÉ EN 0.4s</span>
+                                <span class="text-[9px] text-gray-500">RAM: 1.2GB</span>
+                            </div>
+                            <div id="output-content" class="text-gray-200"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assistant IA intégré -->
+                <div class="glass-panel rounded-xl p-4 flex flex-col gap-3 shadow-lg border border-blue-500/10">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-[#f9ab00] flex items-center justify-center shadow-inner">
+                            <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Assistant Gemini Statio</h3>
+                    </div>
+                    <div id="chat-box" class="h-24 overflow-y-auto custom-scrollbar text-[11px] text-slate-400 italic">
+                        En attente d'une commande d'analyse... Posez une question sur le diagramme de Bode ou le gain K.
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="ai-input" placeholder="Analyse le circuit actuel..." class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#f9ab00] transition-all">
+                        <button onclick="askAI()" class="bg-blue-600 hover:bg-blue-500 p-2 rounded-lg shadow-lg transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Config Gemini API
+        const apiKey = "";
+        
+        const F_MIN = 1;
+        const F_MAX = 100000;
+        let params = { r1: 10000, r2: 10000, c1: 100, c2: 100, ra: 1000, rb: 1000, k: 1, freq: 50 };
+        let currentWave = 'sin';
+        let time = 0;
+        let isRunning = false;
+
+        // Horloge
+        setInterval(() => {
+            const clock = document.getElementById('clock');
+            if(clock) clock.innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+        // Inputs
+        const componentIds = ['r1', 'r2', 'c1', 'c2', 'ra', 'rb', 'k'];
+        componentIds.forEach(id => {
+            document.getElementById('val-' + id).addEventListener('input', (e) => {
+                params[id] = parseFloat(e.target.value) || 0;
+                updateAll();
+            });
+        });
+
+        // Log Frequency Slider
+        function getFreqFromXRatio(ratio) {
+            const logF = Math.log10(F_MIN) + ratio * (Math.log10(F_MAX) - Math.log10(F_MIN));
+            return Math.pow(10, logF);
+        }
+
+        document.getElementById('input-freq-log').addEventListener('input', (e) => {
+            const ratio = e.target.value / 5000;
+            params.freq = getFreqFromXRatio(ratio);
+            document.getElementById('display-freq').innerText = (params.freq < 1000 ? Math.round(params.freq) + " Hz" : (params.freq/1000).toFixed(2) + " kHz");
+            updateBodeCursor();
+        });
+
+        function getTransferFunction(f) {
+            const w = 2 * Math.PI * f;
+            const gain_k = 1 + (params.rb / (params.ra || 1));
+            const c1 = params.c1 * 1e-9;
+            const c2 = params.c2 * 1e-9;
+            const r1 = params.r1;
+            const r2 = params.r2;
+
+            const real = 1 - (w * w * r1 * r2 * c1 * c2);
+            const imag = w * (c2 * (r1 + r2) + (1 - gain_k) * r1 * c1);
+            const magnitude = (gain_k * params.k) / Math.sqrt(real * real + imag * imag);
+            
+            return magnitude;
+        }
+
+        function recalc() {
+            const gain_k = 1 + (params.rb / (params.ra || 1));
+            const total_gain = gain_k * params.k;
+            const fc = 1 / (2 * Math.PI * Math.sqrt(params.r1 * params.r2 * (params.c1 * 1e-9) * (params.c2 * 1e-9)));
+            const magLinear = getTransferFunction(params.freq);
+            const db = 20 * Math.log10(total_gain > 0 ? total_gain : 1e-6);
+
+            document.getElementById('calc-db-val').innerText = db.toFixed(2) + ' dB';
+            document.getElementById('calc-fc').innerText = (fc < 1000 ? Math.round(fc) + ' Hz' : (fc/1000).toFixed(1) + ' kHz');
+            
+            return { total_gain, fc, magLinear, db };
+        }
+
+        function buildLogGrid() {
+            const container = document.getElementById('log-grid-x');
+            container.innerHTML = '';
+            for (let decade = 0; decade <= 5; decade++) {
+                const baseFreq = Math.pow(10, decade);
+                for (let i = 1; i <= 9; i++) {
+                    const f = baseFreq * i;
+                    if (f > F_MAX) break;
+                    const x = (Math.log10(f) - Math.log10(F_MIN)) / (Math.log10(F_MAX) - Math.log10(F_MIN)) * 100;
+                    const line = document.createElement('div');
+                    line.className = "absolute top-0 bottom-0 border-l border-slate-700 " + (i === 1 ? 'opacity-100' : 'opacity-20');
+                    line.style.left = x + "%";
+                    container.appendChild(line);
+                }
+            }
+        }
+
+        function updateBodeCursor() {
+            const cursor = document.getElementById('bode-cursor');
+            const x = (Math.log10(params.freq) - Math.log10(F_MIN)) / (Math.log10(F_MAX) - Math.log10(F_MIN)) * 100;
+            cursor.setAttribute('x1', x + "%");
+            cursor.setAttribute('x2', x + "%");
+        }
+
+        function drawBode() {
+            const path = document.getElementById('path-bode');
+            const width = 800;
+            const height = 300;
+            const centerY = height / 2;
+            
+            let d = "";
+            const points = 150;
+            for (let i = 0; i <= points; i++) {
+                const ratio = i / points;
+                const f = getFreqFromXRatio(ratio);
+                const mag = getTransferFunction(f);
+                const db = 20 * Math.log10(mag > 0 ? mag : 1e-6);
+                
+                const y = centerY - (db * 2.5); 
+                const x = ratio * width;
+                
+                if (i === 0) d += `M ${x} ${y}`;
+                else d += ` L ${x} ${y}`;
+            }
+            path.setAttribute('d', d);
+        }
+
+        function animate() {
+            const path = document.getElementById('path-out');
+            const width = 800;
+            const height = 280;
+            const centerY = height / 2;
+            const stats = recalc();
+            const amp = 40 * stats.magLinear;
+
+            let d = `M 0 ${centerY}`;
+            for (let x = 0; x <= width; x += 4) {
+                let phase = (x / width) * 15 * (params.freq / 100) + time;
+                let y = (currentWave === 'sin' ? Math.sin(phase) : (Math.sin(phase) > 0 ? 1 : -1)) * amp;
+                d += ` L ${x} ${centerY + y}`;
+            }
+            path.setAttribute('d', d);
+            time += 0.15;
+            requestAnimationFrame(animate);
+        }
+
+        function setWave(type) {
+            currentWave = type;
+            document.getElementById('btn-sin').className = type === 'sin' ? 'px-3 py-1 text-[9px] rounded bg-blue-600 text-white font-bold' : 'px-3 py-1 text-[9px] rounded bg-slate-800 text-slate-400 border border-slate-700 font-bold';
+            document.getElementById('btn-sqr').className = type === 'sqr' ? 'px-3 py-1 text-[9px] rounded bg-blue-600 text-white font-bold' : 'px-3 py-1 text-[9px] rounded bg-slate-800 text-slate-400 border border-slate-700 font-bold';
+        }
+
+        function updateAll() {
+            recalc();
+            drawBode();
+        }
+
+        async function runPython() {
+            if (isRunning) return;
+            const icon = document.getElementById('run-icon');
+            const output = document.getElementById('py-output');
+            const content = document.getElementById('output-content');
+            
+            isRunning = true;
+            icon.classList.add('spinning');
+            output.classList.add('hidden');
+            
+            await new Promise(r => setTimeout(r, 800));
+            
+            const stats = recalc();
+            const now = new Date().toLocaleTimeString();
+            
+            content.innerHTML = `
+                <div class="text-[#f9ab00] font-bold mt-1">>>> Starting Skalle-2 Analysis...</div>
+                <div class="mt-1 text-gray-400">Compiling hardware state... OK</div>
+                <div class="mt-1 text-gray-400">Calculating Transfer Function... Done</div>
+                <div class="text-white mt-2 border-l border-[#f9ab00] pl-3">
+                    RMS Amplitude: <span class="text-green-400">${(stats.magLinear * 0.707).toFixed(4)}V</span><br>
+                    Current Gain: <span class="text-green-400">${stats.db.toFixed(2)} dB</span><br>
+                    Cutoff Frequency: <span class="text-green-400">${Math.round(stats.fc)} Hz</span><br>
+                    Signal Stability: <span class="text-green-400">STATIONARY</span>
+                </div>
+                <div class="text-gray-500 mt-2 text-[9px]">Fin d'exécution à ${now}</div>
+            `;
+            
+            icon.classList.remove('spinning');
+            output.classList.remove('hidden');
+            isRunning = false;
+        }
+
+        function downloadData() {
+            const data = {
+                notebook_name: "Skalle2_Master_Statio",
+                timestamp: new Date().toISOString(),
+                circuit_params: params,
+                results: recalc()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `skalle2_notebook_${Date.now()}.json`;
+            a.click();
+        }
+
+        async function askAI() {
+            const input = document.getElementById('ai-input');
+            const chat = document.getElementById('chat-box');
+            const text = input.value.trim();
+            if (!text) return;
+
+            chat.innerText = "Gemini analyse vos courbes de Bode...";
+            input.value = "";
+
+            const stats = recalc();
+            const systemPrompt = `Tu es l'expert du Laboratoire IA (Master Statio). Circuit Skalle-2: R1=${params.r1}, R2=${params.r2}, C1=${params.c1}nF, C2=${params.c2}nF, Ra=${params.ra}, Rb=${params.rb}, K=${params.k}. Gain=${stats.db.toFixed(2)}dB, Fc=${Math.round(stats.fc)}Hz. Analyse le comportement fréquentiel et réponds de façon concise.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: text }] }], systemInstruction: { parts: [{ text: systemPrompt }] } })
+                });
+                const data = await response.json();
+                chat.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur d'analyse.";
+            } catch (e) { chat.innerText = "Assistant hors-ligne."; }
+        }
+
+        window.onload = () => {
+            buildLogGrid();
+            updateAll();
+            animate();
+            
+            document.getElementById('ai-input').addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') askAI();
+            });
+        };
+    </script>
+</body>
+</html>
